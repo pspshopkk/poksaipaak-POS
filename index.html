@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>POS - ปอกใส่ปาก</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
@@ -23,25 +23,24 @@
         .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; }
         @media (max-width: 768px) { .container { flex-direction: column; } }
 
-        /* การ์ดฝั่งเมนูและตะกร้า */
-        .menu-section, .cart-section { background: var(--white); padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .menu-section { flex: 1.8; text-align: left; }
-        .cart-section { flex: 1.2; display: flex; flex-direction: column; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; text-align: left; }
+        .menu-section { flex: 1.8; text-align: left; background: var(--white); padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .cart-section { flex: 1.2; display: flex; flex-direction: column; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; text-align: left; background: var(--white); padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         h2 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 8px; text-align: left; }
 
-        /* ช่องวางข้อความ Auto-Paste */
-        .auto-paste-box { background: #eef6ff; border: 1px solid #b3d7ff; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
-        .auto-paste-box textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; resize: vertical; }
-        .btn-auto-parse { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 6px; font-size: 14px; }
+        /* แถบแจ้งเตือนออเดอร์ใหม่จาก LINE */
+        .cloud-orders-box { background: #fff8f0; border: 1.5px solid #f39c12; border-radius: 8px; padding: 12px; margin-bottom: 15px; }
+        .cloud-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .cloud-title { font-weight: 700; color: #d35400; font-size: 14px; }
+        .cloud-refresh-btn { background: #fff; border: 1px solid #f39c12; color: #d35400; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+        .cloud-order-item { background: #fff; border: 1px solid #fbd8a4; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .cloud-btn-load { background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .cloud-btn-load:hover { background: #219a52; }
 
-        /* รายการพิเศษนอกเมนู */
         .custom-item-box { background: #fdf7f2; border: 1px dashed #f5cba7; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
         .custom-item-row { display: flex; gap: 6px; margin-bottom: 6px; }
         .custom-item-row input { padding: 6px 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; min-width: 0; }
         .btn-add-custom { background: var(--primary); color: white; border: none; padding: 7px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
-        .btn-add-custom:hover { background: var(--primary-hover); }
 
-        /* ข้อมูลลูกค้า & Dropdown */
         .customer-box { background: #fdfefe; border: 1px solid #d5dbdb; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
         .customer-box select { width: 100%; padding: 8px; border: 1px solid var(--blue); border-radius: 4px; font-size: 13px; font-weight: 500; background: #fff; margin-bottom: 10px; }
         .form-group { margin-bottom: 10px; }
@@ -49,11 +48,9 @@
         .form-group label span.req { color: var(--danger); }
         .form-group input, .form-group textarea { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; }
         .btn-save-cust { background: #2980b9; color: white; border: none; padding: 8px; border-radius: 4px; font-size: 13px; font-weight: bold; width: 100%; cursor: pointer; }
-        .btn-save-cust:hover { background: #1f618d; }
         .btn-clear-cust { background: #ecf0f1; color: #555; border: 1px solid #ccc; padding: 3px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; float: right; }
         .status-badge { font-size: 12px; margin-top: 4px; min-height: 16px; font-weight: 500; text-align: left; }
 
-        /* รายการสินค้าในเมนู */
         .category-title { padding: 8px 10px; border-radius: 5px; margin: 15px 0 10px; font-weight: 600; color: var(--primary); font-size: 17px; background: #fdf2e9; text-align: left; }
         .cat-dip { background: #fff0d4; }
         .cat-service { background: #f4ecf7; color: var(--purple); }
@@ -64,7 +61,6 @@
         .btn-add { background: var(--primary); color: white; width: 70px; border: none; border-radius: 4px; padding: 6px; cursor: pointer; }
         .btn-disabled { background: #ccc; color: white; width: 70px; border: none; border-radius: 4px; padding: 6px; cursor: not-allowed; }
 
-        /* ตะกร้าสินค้า */
         .cart-list { flex: 1; overflow-y: auto; margin-bottom: 15px; min-height: 90px; border: 1px solid var(--border); padding: 10px; border-radius: 5px; background: #fafafa; text-align: left; }
         .cart-item { display: flex; flex-direction: column; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 8px; text-align: left; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
@@ -72,22 +68,18 @@
         .cart-sauce-row { background: #fff; padding: 6px; border-radius: 4px; border: 1px dashed #ccc; margin-top: 6px; font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left; }
         .cart-sauce-select { padding: 3px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; width: 100%; }
 
-        /* ปุ่มเลือกช่องทาง & ค่าส่ง */
         .btn-group { display: flex; gap: 5px; margin-bottom: 10px; }
         .btn-group button { flex: 1; padding: 6px 0; border: 1px solid var(--primary); background: white; color: var(--primary); border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; }
         .btn-group button.active { background: var(--primary); color: white; }
 
-        /* สรุปยอดเงิน & ปุ่มออกใบเสร็จ */
         .totals { border-top: 2px dashed #ccc; padding-top: 10px; margin-bottom: 12px; }
         .total-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 15px; }
         .total-row.grand { font-size: 20px; font-weight: bold; color: var(--primary); }
         .btn-print { width: 100%; padding: 12px; background: var(--success); color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3); }
 
-        /* Modal ใบเสร็จ */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 15px; }
         .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 380px; text-align: center; }
 
-        /* ใบเสร็จซ่อน */
         #receipt-container { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; z-index: -1000; }
         #receipt { width: 212px; padding: 10px; font-size: 12px; background: white; color: black; }
         .r-header { text-align: center; border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 5px; }
@@ -108,25 +100,28 @@
     <div class="container">
         <!-- ฝั่งเมนูผลไม้ -->
         <div class="menu-section">
-            <h2>📦 ระบบจัดการออเดอร์หน้าร้าน (POS)</h2>
+            <h2>ระบบจัดการออเดอร์หน้าร้าน (POS)</h2>
             <div id="menu-container">
-                <div style="text-align:center; padding:40px; color:#666;">กำลังโหลดฐานข้อมูลจากคลาวด์... ⏳</div>
+                <div style="text-align:center; padding:40px; color:#666;">กำลังโหลดฐานข้อมูลจากคลาวด์...</div>
             </div>
         </div>
 
         <!-- ฝั่งตะกร้าและข้อมูลลูกค้า -->
         <div class="cart-section">
-            <h2>🛒 รายการสั่งซื้อ</h2>
-            
-            <div class="auto-paste-box">
-                <label style="display:block; font-size:13px; font-weight:bold; color:var(--blue); margin-bottom:5px;">📋 วางข้อความคำสั่งซื้อจากลูกค้า (Auto Paste):</label>
-                <textarea id="auto-paste-area" rows="2" placeholder="วางข้อความที่ลูกค้าคัดลอกส่งมาที่นี่..."></textarea>
-                <button type="button" class="btn-auto-parse" onclick="parseAutoOrder()">✨ โหลดข้อมูลออเดอร์อัตโนมัติ</button>
+            <h2>รายการสั่งซื้อ</h2>
+
+            <!-- กล่องแจ้งเตือนออเดอร์ใหม่จาก LINE (คลาวด์) -->
+            <div class="cloud-orders-box" id="cloud-box" style="display:none;">
+                <div class="cloud-header">
+                    <span class="cloud-title" id="cloud-count-title">มีออเดอร์ใหม่จาก LINE</span>
+                    <button type="button" class="cloud-refresh-btn" onclick="checkCloudOrders()">รีเฟรช</button>
+                </div>
+                <div id="cloud-orders-list"></div>
             </div>
 
             <!-- กล่องเพิ่มรายการพิเศษ -->
             <div class="custom-item-box">
-                <label style="display:block; font-size:13px; font-weight:bold; color:var(--primary); margin-bottom:5px;">➕ เพิ่มรายการพิเศษ (นอกเหนือเมนู):</label>
+                <label style="display:block; font-size:13px; font-weight:bold; color:var(--primary); margin-bottom:5px;">เพิ่มรายการพิเศษ (นอกเหนือเมนู):</label>
                 <div class="custom-item-row">
                     <input type="text" id="custom-name" placeholder="ชื่อรายการ เช่น เมล่อน" style="flex: 2;">
                     <input type="number" id="custom-price" placeholder="ราคา" min="0" style="flex: 1;">
@@ -138,17 +133,16 @@
             <div class="form-group">
                 <label>ช่องทางการสั่งซื้อ:</label>
                 <div class="btn-group">
-                    <button type="button" class="active" onclick="setChannel('LINE', this)">🟢 LINE</button>
-                    <button type="button" onclick="setChannel('Facebook', this)">🔵 FB Inbox</button>
-                    <button type="button" onclick="setChannel('หน้าร้าน', this)">🏠 หน้าร้าน</button>
+                    <button type="button" class="active" onclick="setChannel('LINE', this)">LINE</button>
+                    <button type="button" onclick="setChannel('Facebook', this)">Facebook</button>
+                    <button type="button" onclick="setChannel('หน้าร้าน', this)">หน้าร้าน</button>
                 </div>
             </div>
 
-            <!-- กล่องข้อมูลลูกค้า -->
             <div class="customer-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <label style="font-weight:bold; font-size:13px; color:#2c3e50;">👥 ข้อมูลลูกค้า & สถานที่จัดส่ง:</label>
-                    <button type="button" class="btn-clear-cust" onclick="clearCustomerFields()">➕ ล้างช่องกรอกใหม่</button>
+                    <label style="font-weight:bold; font-size:13px; color:#2c3e50;">ข้อมูลลูกค้าและสถานที่จัดส่ง:</label>
+                    <button type="button" class="btn-clear-cust" onclick="clearCustomerFields()">ล้างช่องกรอกใหม่</button>
                 </div>
 
                 <select id="customer-dropdown" onchange="onSelectCustomerDropdown(this)">
@@ -156,26 +150,26 @@
                 </select>
                 
                 <div class="form-group">
-                    <label>👤 ชื่อลูกค้า: <span class="req">*</span></label>
+                    <label>ชื่อลูกค้า: <span class="req">*</span></label>
                     <input type="text" id="customer-name" placeholder="ระบุชื่อจริง หรือชื่อเล่น">
                 </div>
 
                 <div class="form-group">
-                    <label>📞 เบอร์โทรศัพท์: <span class="req">*</span></label>
-                    <input type="tel" id="customer-phone" placeholder="เช่น 081-xxx-xxxx">
+                    <label>เบอร์โทรศัพท์: <span class="req">*</span></label>
+                    <input type="tel" id="customer-phone" placeholder="เช่น 0812345678">
                 </div>
 
                 <div class="form-group">
-                    <label>📍 สถานที่จัดส่ง: <span class="req">*</span></label>
-                    <textarea id="customer-address" rows="2" placeholder="บ้านเลขที่, ซอย หรือวางลิงก์ Google Maps..."></textarea>
+                    <label>สถานที่จัดส่ง: <span class="req">*</span></label>
+                    <textarea id="customer-address" rows="2" placeholder="บ้านเลขที่, ถนน/ซอย หรือพิกัดแผนที่..."></textarea>
                 </div>
 
-                <button type="button" class="btn-save-cust" onclick="manualSaveCustomer()">💾 บันทึก / อัปเดตข้อมูลลูกค้าลงชีท</button>
+                <button type="button" class="btn-save-cust" onclick="manualSaveCustomer()">บันทึก / อัปเดตข้อมูลลูกค้าลงชีท</button>
                 <div id="customer-save-status" class="status-badge"></div>
             </div>
             
             <div class="form-group">
-                <label>📌 หมายเหตุพิเศษ:</label>
+                <label>หมายเหตุพิเศษ:</label>
                 <input type="text" id="order-note" placeholder="เช่น จัดเซ็ตของขวัญ, ไม่รับช้อนส้อม">
             </div>
 
@@ -185,36 +179,35 @@
                 <label>ค่าบริการจัดส่ง (บาท):</label>
                 <div class="btn-group">
                     <button type="button" class="del-btn active" onclick="setDelivery(0)">ฟรี / รับเอง</button>
-                    <button type="button" class="del-btn" onclick="setDelivery(10)">+ 10฿</button>
-                    <button type="button" class="del-btn" onclick="setDelivery(20)">+ 20฿</button>
-                    <button type="button" class="del-btn" onclick="setDelivery(30)">+ 30฿</button>
+                    <button type="button" class="del-btn" onclick="setDelivery(10)">+ 10 บาท</button>
+                    <button type="button" class="del-btn" onclick="setDelivery(20)">+ 20 บาท</button>
+                    <button type="button" class="del-btn" onclick="setDelivery(30)">+ 30 บาท</button>
                 </div>
             </div>
 
             <div class="totals">
-                <div class="total-row"><span>รวมค่าสินค้า:</span><span id="subtotal">0 ฿</span></div>
-                <div class="total-row"><span>ค่าจัดส่ง:</span><span id="del-fee">0 ฿</span></div>
-                <div class="total-row grand"><span>รวมทั้งหมด:</span><span id="grand-total">0 ฿</span></div>
+                <div class="total-row"><span>รวมค่าสินค้า:</span><span id="subtotal">0 บาท</span></div>
+                <div class="total-row"><span>ค่าจัดส่ง:</span><span id="del-fee">0 บาท</span></div>
+                <div class="total-row grand"><span>รวมทั้งหมด:</span><span id="grand-total">0 บาท</span></div>
             </div>
 
-            <button class="btn-print" id="btn-download" onclick="generateReceiptImage()">🧾 ออกใบเสร็จ</button>
+            <button class="btn-print" id="btn-download" onclick="generateReceiptImage()">ออกใบเสร็จ</button>
         </div>
     </div>
 
     <!-- Modal แสดงรูปใบเสร็จ -->
     <div class="modal-overlay" id="receipt-modal">
         <div class="modal-content">
-            <h3 style="margin:0 0 10px; color:var(--primary); font-size:18px;">📄 สรุปใบเสร็จรับเงิน</h3>
-            <p style="font-size:13px; color:#555; margin-bottom:10px;"><b>แตะค้างที่รูป</b> หรือกดปุ่ม <b>บันทึกใบเสร็จ</b> ได้เลยค่ะ</p>
+            <h3 style="margin:0 0 10px; color:var(--primary); font-size:18px;">สรุปใบเสร็จรับเงิน</h3>
+            <p style="font-size:13px; color:#555; margin-bottom:10px;">แตะค้างที่รูปภาพ หรือกดปุ่มบันทึกใบเสร็จด้านล่าง</p>
             <div style="max-height:60vh; overflow-y:auto; margin-bottom:15px; background:#f0f0f0; border-radius:6px; padding:5px;">
                 <img id="receipt-result-img" src="" style="width:100%; max-width:230px; display:block; margin:0 auto; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
             </div>
             <div id="dl-btn-container"></div>
-            <button style="background:#666; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer;" onclick="closeReceiptModal()">✖ ปิดหน้าต่าง</button>
+            <button style="background:#666; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer;" onclick="closeReceiptModal()">ปิดหน้าต่าง</button>
         </div>
     </div>
 
-    <!-- ต้นฉบับใบเสร็จสำหรับวาดภาพ -->
     <div id="receipt-container">
         <div id="receipt">
             <div class="r-header">
@@ -236,16 +229,17 @@
                 <div class="flex"><span>ค่าจัดส่ง:</span><span id="r-delfee"></span></div>
                 <div class="flex" style="font-weight:bold; font-size:14px;"><span>รวมทั้งหมด:</span><span id="r-grandtotal"></span></div>
             </div>
-            <div class="r-footer">ขอบคุณที่อุดหนุนค่ะ 🙏</div>
+            <div class="r-footer">ขอบคุณที่อุดหนุนค่ะ</div>
         </div>
     </div>
 
     <script>
         const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaPiqWEQhgM7nxSTDj67DU_8TsWVu36aJNLagaQ33OBRKGErUyiA2x3M9YiMF7kuvL/exec'; 
-        const CUSTOMER_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_E7mdky1b9Jle_1YK6-a4SOgbm7nAHYJOtTgS3aNrizeFiOxwywT92BqI8NA7RrEeOA/exec'; 
+        const CORE_API_URL = 'https://script.google.com/macros/s/AKfycbw_E7mdky1b9Jle_1YK6-a4SOgbm7nAHYJOtTgS3aNrizeFiOxwywT92BqI8NA7RrEeOA/exec'; 
 
         let menuData = [], customerList = [], itemDictionary = {};
         let cart = {}, cartSauces = {}, deliveryFee = 0, orderChannel = 'LINE';
+        let pendingOrdersList = [];
 
         const cleanPhone = p => String(p || '').replace(/[^0-9]/g, '');
         const isServiceItem = item => /บริการ|service|addon/i.test(String(item.category || ''));
@@ -267,11 +261,13 @@
                 document.getElementById('menu-container').innerHTML = '<div style="color:red; text-align:center;">โหลดเมนูไม่สำเร็จ กรุณารีเฟรช</div>';
             }
             loadCustomers();
+            checkCloudOrders();
+            setInterval(checkCloudOrders, 20000); // ตรวจสอบออเดอร์ใหม่ทุก 20 วินาทีอัตโนมัติ
         }
 
         async function loadCustomers() {
             try {
-                const res = await fetch(CUSTOMER_SCRIPT_URL);
+                const res = await fetch(CORE_API_URL + '?action=get');
                 customerList = await res.json();
                 renderCustomerDropdown();
             } catch (e) {
@@ -279,9 +275,86 @@
             }
         }
 
+        // ตรวจสอบออเดอร์ใหม่จาก LINE (คลาวด์)
+        async function checkCloudOrders() {
+            try {
+                const res = await fetch(CORE_API_URL + '?action=getPendingOrders');
+                pendingOrdersList = await res.json();
+                renderCloudOrders();
+            } catch (e) {}
+        }
+
+        function renderCloudOrders() {
+            const box = document.getElementById('cloud-box');
+            const listEl = document.getElementById('cloud-orders-list');
+            const titleEl = document.getElementById('cloud-count-title');
+
+            if (!pendingOrdersList || pendingOrdersList.length === 0) {
+                box.style.display = 'none';
+                return;
+            }
+
+            box.style.display = 'block';
+            titleEl.innerText = `มี ${pendingOrdersList.length} ออเดอร์ใหม่จาก LINE`;
+            listEl.innerHTML = '';
+
+            pendingOrdersList.forEach((ord, index) => {
+                const div = document.createElement('div');
+                div.className = 'cloud-order-item';
+                div.innerHTML = `
+                    <div style="font-size:13px; line-height:1.3;">
+                        <b>คุณ ${ord.name || 'ไม่ระบุชื่อ'}</b> (${ord.total || 0} บาท)<br>
+                        <small style="color:#777;">เวลาสั่ง: ${ord.time || '-'}</small>
+                    </div>
+                    <button type="button" class="cloud-btn-load" onclick="loadOrderIntoPOS(${index})">ดึงเข้าบิล</button>
+                `;
+                listEl.appendChild(div);
+            });
+        }
+
+        // ดึงออเดอร์จากคลาวด์ลงใน POS แล้วซ่อนแจ้งเตือนทันที
+        async function loadOrderIntoPOS(idx) {
+            const ord = pendingOrdersList[idx];
+            if (!ord) return;
+
+            document.getElementById('customer-name').value = ord.name || '';
+            document.getElementById('customer-phone').value = ord.phone || '';
+            document.getElementById('customer-address').value = ord.address || '';
+            document.getElementById('order-note').value = ord.note || '';
+
+            // เคลียร์ตะกร้าเดิมและใส่ออเดอร์ใหม่
+            cart = {};
+            cartSauces = {};
+
+            if (Array.isArray(ord.items)) {
+                ord.items.forEach(it => {
+                    let matchedId = it.id;
+                    if (!itemDictionary[matchedId]) {
+                        const found = Object.values(itemDictionary).find(m => m.name === it.name);
+                        if (found) matchedId = found.id;
+                    }
+                    if (matchedId) {
+                        cart[matchedId] = it.qty;
+                        if (Array.isArray(it.sauces)) cartSauces[matchedId] = it.sauces;
+                    }
+                });
+            }
+
+            renderCart();
+
+            // ลบการ์ดเตือนออกจากหน้าจอทันที
+            const targetOrderId = ord.orderId;
+            pendingOrdersList.splice(idx, 1);
+            renderCloudOrders();
+
+            // แจ้งหลังบ้านให้เปลี่ยนสถานะเป็น Completed ใน Google Sheets
+            fetch(`${CORE_API_URL}?action=completeOrder&orderId=${encodeURIComponent(targetOrderId)}`, { mode: 'no-cors' });
+            alert(`ดึงข้อมูลออเดอร์ของคุณ "${ord.name}" ลงบิลเรียบร้อยแล้ว`);
+        }
+
         function renderCustomerDropdown(selectedIdx = null) {
             const dropdown = document.getElementById('customer-dropdown');
-            let html = '<option value="">-- 👤 เลือกลูกค้าเดิม (หรือกรอกใหม่ด้านล่าง) --</option>';
+            let html = '<option value="">-- เลือกลูกค้าเดิม (หรือกรอกใหม่ด้านล่าง) --</option>';
             customerList.forEach((c, idx) => {
                 const isSel = (selectedIdx !== null && selectedIdx === idx) ? 'selected' : '';
                 html += `<option value="${idx}" ${isSel}>${c.name || 'ไม่ระบุชื่อ'} (${c.phone || '-'})</option>`;
@@ -296,7 +369,7 @@
                 document.getElementById('customer-name').value = c.name || '';
                 document.getElementById('customer-phone').value = c.phone || '';
                 document.getElementById('customer-address').value = c.address || '';
-                showSaveStatus(`✅ ดึงข้อมูล: ${c.name} (${c.phone}) เรียบร้อยแล้ว`, '#2980b9');
+                showSaveStatus(`ดึงข้อมูล: ${c.name} (${c.phone}) เรียบร้อยแล้ว`, '#2980b9');
             }
         }
 
@@ -320,13 +393,13 @@
             const phone = document.getElementById('customer-phone').value.trim();
             const address = document.getElementById('customer-address').value.trim();
 
-            if (!name) { alert('⚠️ กรุณากรอก "ชื่อลูกค้า" ก่อนนะคะ'); document.getElementById('customer-name').focus(); return; }
-            if (!phone) { alert('⚠️ กรุณากรอก "เบอร์โทรศัพท์" ก่อนนะคะ'); document.getElementById('customer-phone').focus(); return; }
-            if (!address) { alert('⚠️ กรุณากรอก "สถานที่จัดส่ง" ก่อนนะคะ'); document.getElementById('customer-address').focus(); return; }
+            if (!name) { alert('กรุณากรอกชื่อลูกค้า'); document.getElementById('customer-name').focus(); return; }
+            if (!phone) { alert('กรุณากรอกเบอร์โทรศัพท์'); document.getElementById('customer-phone').focus(); return; }
+            if (!address) { alert('กรุณากรอกสถานที่จัดส่ง'); document.getElementById('customer-address').focus(); return; }
 
-            showSaveStatus('☁️ กำลังบันทึกข้อมูลลง Google Sheets...', '#888');
+            showSaveStatus('กำลังบันทึกข้อมูลลง Google Sheets...', '#888');
 
-            const url = `${CUSTOMER_SCRIPT_URL}?action=save&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&address=${encodeURIComponent(address)}`;
+            const url = `${CORE_API_URL}?action=save&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&address=${encodeURIComponent(address)}`;
             fetch(url).then(r => r.json()).then(() => {
                 const cPhone = cleanPhone(phone);
                 const idx = customerList.findIndex(c => (cPhone && cleanPhone(c.phone) === cPhone) || (name && c.name.toLowerCase() === name.toLowerCase()));
@@ -334,16 +407,16 @@
                 if (idx >= 0) {
                     customerList[idx] = { name, phone, address };
                     renderCustomerDropdown(idx);
-                    alert(`🔄 อัปเดตข้อมูลคุณ "${name}" เรียบร้อยแล้วค่ะ!`);
+                    alert(`อัปเดตข้อมูลคุณ "${name}" เรียบร้อยแล้ว`);
                 } else {
                     customerList.push({ name, phone, address });
                     renderCustomerDropdown(customerList.length - 1);
-                    alert(`✅ บันทึกลูกค้าใหม่คุณ "${name}" ลงชีทสำเร็จแล้วค่ะ!`);
+                    alert(`บันทึกลูกค้าใหม่คุณ "${name}" ลงชีทสำเร็จแล้ว`);
                 }
-                showSaveStatus(`✅ บันทึกข้อมูลสำเร็จ`, '#27ae60');
+                showSaveStatus(`บันทึกข้อมูลสำเร็จ`, '#27ae60');
             }).catch(() => {
-                alert('❌ ไม่สามารถบันทึกได้ กรุณาลองใหม่อีกครั้ง');
-                showSaveStatus('⚠️ บันทึกไม่สำเร็จ', '#e74c3c');
+                alert('ไม่สามารถบันทึกได้ กรุณาลองใหม่อีกครั้ง');
+                showSaveStatus('บันทึกไม่สำเร็จ', '#e74c3c');
             });
         }
 
@@ -373,17 +446,17 @@
             const standardCats = [...new Set(menuData.map(i => Number(i.category)))].filter(c => !isNaN(c) && c >= 40 && c <= 100).sort((a,b)=>a-b);
             standardCats.forEach(cat => {
                 const items = menuData.filter(i => Number(i.category) === cat && !isServiceItem(i));
-                if (items.length) createCategoryBlock(`🍓 ---- กล่องละ ${cat}฿ ---- 🍓`, items, 'fruit');
+                if (items.length) createCategoryBlock(`กล่องละ ${cat} บาท`, items);
             });
 
             const premium = menuData.filter(i => !isNaN(Number(i.category)) && Number(i.category) > 100 && !isServiceItem(i));
-            if (premium.length) createCategoryBlock(`✨ ---- ผลไม้พรีเมียม ---- ✨`, premium, 'fruit');
+            if (premium.length) createCategoryBlock('ผลไม้พรีเมียม', premium);
 
             const services = menuData.filter(i => isServiceItem(i));
-            if (services.length) createCategoryBlock(`🎀 ---- บริการเสริม / ของขวัญ ---- 🎀`, services, 'service');
+            if (services.length) createCategoryBlock('บริการเสริม / แพ็กเกจของขวัญ', services, 'service');
 
             const dips = menuData.filter(i => !isNaN(Number(i.category)) && Number(i.category) < 40 && !isServiceItem(i));
-            if (dips.length) createCategoryBlock(`🥣 ---- ตัวเลือกน้ำจิ้ม / พริกเกลือ ---- 🥣`, dips, 'dip');
+            if (dips.length) createCategoryBlock('น้ำจิ้มและพริกเกลือ (สั่งเพิ่ม)', dips, 'dip');
         }
 
         function createCategoryBlock(title, items, type) {
@@ -398,7 +471,7 @@
                 div.className = `menu-item ${!item.available ? 'out-of-stock' : ''}`;
                 div.innerHTML = `
                     <div class="item-name" ${item.available ? `onclick="addToCart('${item.id}')"` : ''}>
-                        ${item.name} <span style="color:var(--primary); font-size:13px;">(${item.price > 0 ? item.price + '฿' : 'ฟรี'})</span>
+                        ${item.name} <span style="color:var(--primary); font-size:13px;">(${item.price > 0 ? item.price + ' บาท' : 'ฟรี'})</span>
                     </div>
                     ${item.available 
                         ? `<button class="btn-add" onclick="addToCart('${item.id}')">+ เพิ่ม</button>` 
@@ -459,13 +532,13 @@
                         sauceHTML += `
                             <div>กล่องที่ ${i+1}: 
                                 <select class="cart-sauce-select" onchange="cartSauces['${id}'][${i}] = this.value">
-                                    <option value="ไม่รับน้ำจิ้ม" ${cur === 'ไม่รับน้ำจิ้ม' ? 'selected' : ''}>❌ ไม่รับน้ำจิ้ม</option>
+                                    <option value="ไม่รับน้ำจิ้ม" ${cur === 'ไม่รับน้ำจิ้ม' ? 'selected' : ''}>ไม่รับน้ำจิ้ม</option>
                                     <option value="พริกเกลือนัวร์ (ฟรี)" ${cur === 'พริกเกลือนัวร์ (ฟรี)' ? 'selected' : ''}>พริกเกลือนัวร์ (ฟรี)</option>
                                     <option value="พริกเกลือกะปิแห้ง (ฟรี)" ${cur === 'พริกเกลือกะปิแห้ง (ฟรี)' ? 'selected' : ''}>พริกเกลือกะปิแห้ง (ฟรี)</option>
                                     <option value="พริกเกลือลาวแซ่บ (ฟรี)" ${cur === 'พริกเกลือลาวแซ่บ (ฟรี)' ? 'selected' : ''}>พริกเกลือลาวแซ่บ (ฟรี)</option>
                                     <option value="น้ำจิ้มบ๊วยเค็ม (ฟรี)" ${cur === 'น้ำจิ้มบ๊วยเค็ม (ฟรี)' ? 'selected' : ''}>น้ำจิ้มบ๊วยเค็ม (ฟรี)</option>
-                                    <option value="กะปิปลาร้า (+20฿)" ${cur === 'กะปิปลาร้า (+20฿)' ? 'selected' : ''}>กะปิปลาร้า (+20฿)</option>
-                                    <option value="กะปิหวาน (+20฿)" ${cur === 'กะปิหวาน (+20฿)' ? 'selected' : ''}>กะปิหวาน (+20฿)</option>
+                                    <option value="กะปิปลาร้า (+20 บาท)" ${cur === 'กะปิปลาร้า (+20 บาท)' ? 'selected' : ''}>กะปิปลาร้า (+20 บาท)</option>
+                                    <option value="กะปิหวาน (+20 บาท)" ${cur === 'กะปิหวาน (+20 บาท)' ? 'selected' : ''}>กะปิหวาน (+20 บาท)</option>
                                 </select>
                             </div>`;
                     }
@@ -478,7 +551,7 @@
                     <div class="cart-item-main">
                         <div style="flex:1;">
                             ${item.name} ${id.startsWith('custom_') ? '<small style="color:#2980b9;">[พิเศษ]</small>' : ''}<br>
-                            <small style="color:var(--primary); font-weight:bold;">${item.price > 0 ? item.price + '฿' : 'ฟรี'}</small>
+                            <small style="color:var(--primary); font-weight:bold;">${item.price > 0 ? item.price + ' บาท' : 'ฟรี'}</small>
                         </div>
                         <div class="cart-controls">
                             <button onclick="updateQty('${id}', -1)">-</button>
@@ -496,68 +569,9 @@
                 list.innerHTML = '<div style="color:#999; text-align:center; padding-top:35px; font-size:14px;">ยังไม่มีรายการสั่งซื้อ</div>';
             }
 
-            document.getElementById('subtotal').innerText = subtotal + ' ฿';
-            document.getElementById('del-fee').innerText = deliveryFee + ' ฿';
-            document.getElementById('grand-total').innerText = (subtotal + deliveryFee) + ' ฿';
-        }
-
-        function parseAutoOrder() {
-            const text = document.getElementById('auto-paste-area').value;
-            if (!text.trim()) { alert('กรุณาวางข้อความสั่งซื้อของลูกค้าก่อนครับ 😊'); return; }
-
-            cart = {}; cartSauces = {};
-            let custName = '', custPhone = '', custAddress = '', custNote = '';
-
-            text.split('\n').forEach(line => {
-                line = line.trim();
-                if (line.includes('ชื่อลูกค้า:')) custName = line.split('ชื่อลูกค้า:')[1].trim();
-                else if (line.includes('เบอร์โทร:')) custPhone = line.split('เบอร์โทร:')[1].trim();
-                else if (line.includes('สถานที่จัดส่ง:')) custAddress = line.split('สถานที่จัดส่ง:')[1].trim();
-                else if (line.includes('หมายเหตุ:')) custNote = line.split('หมายเหตุ:')[1].trim();
-                else if (line.startsWith('-')) {
-                    const parts = line.split(/\s+x\s+/);
-                    if (parts.length >= 2) {
-                        const left = parts[0].replace(/^-\s*/, '').trim();
-                        const right = parts[1].trim();
-                        const matched = Object.values(itemDictionary).find(i => left.includes(i.name));
-                        if (matched) {
-                            const qtyMatch = right.match(/^(\d+)/);
-                            if (qtyMatch) {
-                                const qty = parseInt(qtyMatch[1]);
-                                cart[matched.id] = qty;
-                                const sauceMatch = right.match(/\((.*)\)/);
-                                if (sauceMatch && !isServiceItem(matched) && checkFruitSauceEligibility(matched.name)) {
-                                    const sauces = sauceMatch[1].split(/,\s+/);
-                                    cartSauces[matched.id] = Array.from({length: qty}, (_, i) => (sauces[i] || "พริกเกลือนัวร์ (ฟรี)").replace(/\s*\*ไม่ฟรี/, ''));
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            document.getElementById('customer-name').value = custName;
-            document.getElementById('customer-phone').value = custPhone;
-            document.getElementById('customer-address').value = custAddress;
-            document.getElementById('order-note').value = custNote;
-
-            const cPhone = cleanPhone(custPhone);
-            const foundIdx = customerList.findIndex(c => (cPhone && cleanPhone(c.phone) === cPhone) || (custName && c.name.toLowerCase() === custName.toLowerCase()));
-
-            if (foundIdx >= 0) {
-                document.getElementById('customer-dropdown').value = foundIdx;
-                if (!custAddress && customerList[foundIdx].address) {
-                    document.getElementById('customer-address').value = customerList[foundIdx].address;
-                }
-                showSaveStatus(`🔍 พบลูกค้าในระบบ (${customerList[foundIdx].name})`, '#2980b9');
-            } else {
-                document.getElementById('customer-dropdown').value = "";
-                showSaveStatus(`✨ ข้อมูลลูกค้าใหม่ (กดปุ่มบันทึกลงชีทได้เลยค่ะ)`, '#d35400');
-            }
-
-            renderCart();
-            alert('✨ ดึงข้อมูลคำสั่งซื้อเรียบร้อยแล้ว!');
-            document.getElementById('auto-paste-area').value = '';
+            document.getElementById('subtotal').innerText = subtotal + ' บาท';
+            document.getElementById('del-fee').innerText = deliveryFee + ' บาท';
+            document.getElementById('grand-total').innerText = (subtotal + deliveryFee) + ' บาท';
         }
 
         function generateReceiptImage() {
@@ -580,11 +594,11 @@
             document.getElementById('r-customer').innerText = 'ลูกค้า : ' + ((name + (phone ? ` (${phone})` : '')).trim() || 'ลูกค้าทั่วไป');
 
             const rAddr = document.getElementById('r-address');
-            if (addr) { rAddr.innerText = '📍 ที่อยู่ส่ง : ' + addr; rAddr.style.display = 'block'; }
+            if (addr) { rAddr.innerText = 'ที่อยู่ส่ง : ' + addr; rAddr.style.display = 'block'; }
             else { rAddr.style.display = 'none'; }
 
             const rNote = document.getElementById('r-note');
-            if (note) { rNote.innerText = '📌 หมายเหตุ: ' + note; rNote.style.display = 'block'; }
+            if (note) { rNote.innerText = 'หมายเหตุ: ' + note; rNote.style.display = 'block'; }
             else { rNote.style.display = 'none'; }
 
             const rItems = document.getElementById('r-items');
@@ -598,27 +612,26 @@
                 const total = qty * item.price;
                 subtotal += total;
 
-                // กรองไม่แสดง "ไม่รับน้ำจิ้ม" บนใบเสร็จ
                 const validSauces = (cartSauces[id] || []).filter(s => s && !s.includes('ไม่รับ'));
                 const sauceLine = validSauces.length ? `<br><small style="color:#555; font-style:italic;">(${validSauces.join(', ')})</small>` : '';
 
                 rItems.innerHTML += `<tr><td style="padding-right:5px;">${item.name}${sauceLine}</td><td style="text-align:center;">x${qty}</td><td style="text-align:right;">${total}</td></tr>`;
             }
 
-            document.getElementById('r-subtotal').innerText = subtotal + ' ฿';
-            document.getElementById('r-delfee').innerText = deliveryFee + ' ฿';
-            document.getElementById('r-grandtotal').innerText = (subtotal + deliveryFee) + ' ฿';
+            document.getElementById('r-subtotal').innerText = subtotal + ' บาท';
+            document.getElementById('r-delfee').innerText = deliveryFee + ' บาท';
+            document.getElementById('r-grandtotal').innerText = (subtotal + deliveryFee) + ' บาท';
 
             setTimeout(() => {
                 html2canvas(document.getElementById('receipt'), { scale: 2, backgroundColor: '#ffffff', logging: false }).then(canvas => {
                     const imgData = canvas.toDataURL("image/png");
                     document.getElementById('receipt-result-img').src = imgData;
-                    document.getElementById('dl-btn-container').innerHTML = `<a href="${imgData}" download="${fileName}" style="background:#27ae60; color:white; padding:12px; border-radius:6px; display:block; text-decoration:none; font-weight:bold; margin-bottom:10px;">💾 บันทึกใบเสร็จ</a>`;
+                    document.getElementById('dl-btn-container').innerHTML = `<a href="${imgData}" download="${fileName}" style="background:#27ae60; color:white; padding:12px; border-radius:6px; display:block; text-decoration:none; font-weight:bold; margin-bottom:10px;">บันทึกใบเสร็จ</a>`;
                     document.getElementById('receipt-modal').style.display = 'flex';
                 }).catch(() => {
                     alert("ไม่สามารถสร้างรูปภาพได้ กรุณาลองใหม่อีกครั้ง");
                 }).finally(() => {
-                    btn.innerText = '🧾 ออกใบเสร็จ'; btn.disabled = false;
+                    btn.innerText = 'ออกใบเสร็จ'; btn.disabled = false;
                 });
             }, 250);
         }
