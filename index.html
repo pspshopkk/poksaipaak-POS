@@ -8,130 +8,127 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            --primary: #d35400;
-            --primary-hover: #ba4a00;
-            --bg: #f9f9f9;
+            --primary: #c0392b;
+            --primary-hover: #962d22;
+            --bg: #f8f9fa;
             --white: #ffffff;
-            --border: #e0e0e0;
+            --border: #e9ecef;
+            --border-dark: #ced4da;
+            --text-main: #2c3e50;
+            --text-sub: #7f8c8d;
             --success: #27ae60;
-            --danger: #e74c3c;
-            --blue: #0084FF;
-            --purple: #8e44ad;
+            --blue: #2980b9;
         }
         * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
-        body { background: var(--bg); margin: 0; padding: 20px; color: #333; }
+        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text-main); }
         .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; }
         @media (max-width: 768px) { .container { flex-direction: column; } }
 
-        .menu-section { flex: 1.8; text-align: left; background: var(--white); padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .cart-section { flex: 1.2; display: flex; flex-direction: column; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; text-align: left; background: var(--white); padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        h2 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 8px; text-align: left; }
+        .menu-section { flex: 1.8; text-align: left; background: var(--white); padding: 20px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .cart-section { flex: 1.2; display: flex; flex-direction: column; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; text-align: left; background: var(--white); padding: 20px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        h2 { margin: 0 0 15px 0; color: var(--text-main); border-bottom: 2px solid var(--border); padding-bottom: 8px; font-size: 18px; font-weight: 700; }
 
         /* แถบแจ้งเตือนออเดอร์ใหม่จาก LINE */
-        .cloud-orders-box { background: #fff8f0; border: 1.5px solid #f39c12; border-radius: 8px; padding: 12px; margin-bottom: 15px; }
+        .cloud-orders-box { background: #fffaf0; border: 1px solid #f39c12; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
         .cloud-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .cloud-title { font-weight: 700; color: #d35400; font-size: 14px; }
-        .cloud-refresh-btn { background: #fff; border: 1px solid #f39c12; color: #d35400; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-        .cloud-order-item { background: #fff; border: 1px solid #fbd8a4; border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .cloud-btn-load { background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: bold; cursor: pointer; }
-        .cloud-btn-load:hover { background: #219a52; }
+        .cloud-title { font-weight: 700; color: #d35400; font-size: 13px; }
+        .cloud-refresh-btn { background: #fff; border: 1px solid #f39c12; color: #d35400; padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+        .cloud-order-item { background: #fff; border: 1px solid #fae5d3; border-radius: 4px; padding: 8px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .cloud-btn-load { background: var(--success); color: #fff; border: none; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
 
-        .custom-item-box { background: #fdf7f2; border: 1px dashed #f5cba7; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
+        .custom-item-box { background: #fdfdfd; border: 1px dashed var(--border-dark); padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; }
         .custom-item-row { display: flex; gap: 6px; margin-bottom: 6px; }
-        .custom-item-row input { padding: 6px 8px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; min-width: 0; }
-        .btn-add-custom { background: var(--primary); color: white; border: none; padding: 7px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
+        .custom-item-row input { padding: 6px 8px; font-size: 13px; border: 1px solid var(--border); border-radius: 4px; min-width: 0; }
+        .btn-add-custom { background: var(--text-main); color: white; border: none; padding: 7px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: 600; font-size: 13px; }
 
-        .customer-box { background: #fdfefe; border: 1px solid #d5dbdb; padding: 12px; border-radius: 8px; margin-bottom: 12px; }
-        .customer-box select { width: 100%; padding: 8px; border: 1px solid var(--blue); border-radius: 4px; font-size: 13px; font-weight: 500; background: #fff; margin-bottom: 10px; }
+        .customer-box { background: #ffffff; border: 1px solid var(--border); padding: 12px; border-radius: 6px; margin-bottom: 12px; }
+        .customer-box select { width: 100%; padding: 8px; border: 1px solid var(--border-dark); border-radius: 4px; font-size: 13px; background: #fff; margin-bottom: 10px; }
         .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-size: 13px; margin-bottom: 3px; font-weight: 600; text-align: left; }
-        .form-group label span.req { color: var(--danger); }
-        .form-group input, .form-group textarea { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; }
-        .btn-save-cust { background: #2980b9; color: white; border: none; padding: 8px; border-radius: 4px; font-size: 13px; font-weight: bold; width: 100%; cursor: pointer; }
-        .btn-clear-cust { background: #ecf0f1; color: #555; border: 1px solid #ccc; padding: 3px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; float: right; }
-        .status-badge { font-size: 12px; margin-top: 4px; min-height: 16px; font-weight: 500; text-align: left; }
+        .form-group label { display: block; font-size: 12px; margin-bottom: 3px; font-weight: 600; color: var(--text-main); }
+        .form-group label span.req { color: var(--primary); }
+        .form-group input, .form-group textarea { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
+        .btn-save-cust { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: 600; width: 100%; cursor: pointer; }
+        .btn-clear-cust { background: #f8f9fa; color: #555; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; float: right; }
+        .status-badge { font-size: 11px; margin-top: 4px; min-height: 16px; font-weight: 500; }
 
-        .category-title { padding: 8px 10px; border-radius: 5px; margin: 15px 0 10px; font-weight: 600; color: var(--primary); font-size: 17px; background: #fdf2e9; text-align: left; }
-        .cat-dip { background: #fff0d4; }
-        .cat-service { background: #f4ecf7; color: var(--purple); }
-        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px dashed var(--border); text-align: left; }
-        .menu-item.out-of-stock { opacity: 0.6; background: #fafafa; }
-        .menu-item.out-of-stock .item-name { text-decoration: line-through; color: #999; }
-        .item-name { cursor: pointer; flex: 1; font-size: 15px; padding-right: 10px; text-align: left; }
-        .btn-add { background: var(--primary); color: white; width: 70px; border: none; border-radius: 4px; padding: 6px; cursor: pointer; }
-        .btn-disabled { background: #ccc; color: white; width: 70px; border: none; border-radius: 4px; padding: 6px; cursor: not-allowed; }
+        .category-title { padding: 6px 10px; border-radius: 4px; margin: 15px 0 8px; font-weight: 700; color: var(--text-main); font-size: 14px; background: #f1f3f5; }
+        .cat-dip { background: #f8f9fa; border-left: 3px solid #f39c12; }
+        .cat-service { background: #f8f9fa; border-left: 3px solid #8e44ad; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--border); }
+        .menu-item.out-of-stock { opacity: 0.5; }
+        .menu-item.out-of-stock .item-name { text-decoration: line-through; }
+        .item-name { cursor: pointer; flex: 1; font-size: 14px; padding-right: 10px; }
+        .btn-add { background: var(--text-main); color: white; width: 65px; border: none; border-radius: 4px; padding: 5px; cursor: pointer; font-size: 12px; }
+        .btn-disabled { background: #e9ecef; color: #adb5bd; width: 65px; border: none; border-radius: 4px; padding: 5px; cursor: not-allowed; font-size: 12px; }
 
-        .cart-list { flex: 1; overflow-y: auto; margin-bottom: 15px; min-height: 90px; border: 1px solid var(--border); padding: 10px; border-radius: 5px; background: #fafafa; text-align: left; }
-        .cart-item { display: flex; flex-direction: column; margin-bottom: 10px; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 8px; text-align: left; }
+        .cart-list { flex: 1; overflow-y: auto; margin-bottom: 15px; min-height: 90px; border: 1px solid var(--border); padding: 10px; border-radius: 4px; background: #fdfdfd; }
+        .cart-item { display: flex; flex-direction: column; margin-bottom: 10px; font-size: 13px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
         .cart-item-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .cart-controls button { width: 28px; height: 28px; cursor: pointer; border: 1px solid #ccc; background: #fff; border-radius: 3px; font-weight: bold; }
-        .cart-sauce-row { background: #fff; padding: 6px; border-radius: 4px; border: 1px dashed #ccc; margin-top: 6px; font-size: 12px; display: flex; flex-direction: column; gap: 4px; text-align: left; }
-        .cart-sauce-select { padding: 3px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; width: 100%; }
+        .cart-controls button { width: 26px; height: 26px; cursor: pointer; border: 1px solid var(--border-dark); background: #fff; border-radius: 3px; font-weight: 600; }
+        .cart-sauce-row { background: #fff; padding: 6px; border-radius: 4px; border: 1px solid var(--border); margin-top: 6px; font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
+        .cart-sauce-select { padding: 3px; border-radius: 4px; border: 1px solid var(--border-dark); font-size: 11px; width: 100%; }
 
         .btn-group { display: flex; gap: 5px; margin-bottom: 10px; }
-        .btn-group button { flex: 1; padding: 6px 0; border: 1px solid var(--primary); background: white; color: var(--primary); border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; }
-        .btn-group button.active { background: var(--primary); color: white; }
+        .btn-group button { flex: 1; padding: 6px 0; border: 1px solid var(--border-dark); background: white; color: var(--text-main); border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .btn-group button.active { background: var(--text-main); color: white; border-color: var(--text-main); }
 
-        .totals { border-top: 2px dashed #ccc; padding-top: 10px; margin-bottom: 12px; }
-        .total-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 15px; }
-        .total-row.grand { font-size: 20px; font-weight: bold; color: var(--primary); }
-        .btn-print { width: 100%; padding: 12px; background: var(--success); color: white; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3); }
+        .totals { border-top: 1px solid var(--border); padding-top: 10px; margin-bottom: 12px; }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 14px; }
+        .total-row.grand { font-size: 18px; font-weight: 700; color: var(--primary); }
+        .btn-print { width: 100%; padding: 11px; background: var(--primary); color: white; font-size: 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-print:hover { background: var(--primary-dark); }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 15px; }
-        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 380px; text-align: center; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 15px; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 100%; max-width: 360px; text-align: center; }
 
         #receipt-container { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; z-index: -1000; }
-        #receipt { width: 212px; padding: 10px; font-size: 12px; background: white; color: black; }
+        #receipt { width: 212px; padding: 10px; font-size: 11px; background: white; color: black; }
         .r-header { text-align: center; border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 5px; }
-        .r-title { font-size: 15px; font-weight: bold; margin: 0; }
-        .r-info { margin: 2px 0; font-size: 11px; }
-        .r-address-print { font-size: 11px; margin: 3px 0; text-align: left; background: #fafafa; padding: 3px; border-radius: 3px; word-break: break-word; }
-        .r-note-print { margin: 5px 0; font-size: 12px; font-weight: bold; color: var(--primary); border: 1px dashed #ccc; padding: 3px; display: none; }
-        .r-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 11px; }
-        .r-table th { border-bottom: 1px dashed black; text-align: left; padding: 4px 0; }
-        .r-table td { padding: 4px 0; vertical-align: top; line-height: 1.3; }
-        .r-totals { border-top: 1px dashed black; padding-top: 5px; font-size: 12px; }
-        .r-totals .flex { display: flex; justify-content: space-between; margin-bottom: 3px; }
-        .r-footer { text-align: center; margin-top: 10px; font-size: 12px; font-weight: bold; }
+        .r-title { font-size: 14px; font-weight: bold; margin: 0; }
+        .r-info { margin: 2px 0; font-size: 10px; }
+        .r-address-print { font-size: 10px; margin: 3px 0; text-align: left; background: #fafafa; padding: 3px; word-break: break-word; }
+        .r-note-print { margin: 4px 0; font-size: 11px; font-weight: bold; border: 1px dashed #999; padding: 2px; display: none; }
+        .r-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 10px; }
+        .r-table th { border-bottom: 1px dashed black; text-align: left; padding: 3px 0; }
+        .r-table td { padding: 3px 0; vertical-align: top; line-height: 1.3; }
+        .r-totals { border-top: 1px dashed black; padding-top: 4px; font-size: 11px; }
+        .r-totals .flex { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .r-footer { text-align: center; margin-top: 8px; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- ฝั่งเมนูผลไม้ -->
         <div class="menu-section">
             <h2>ระบบจัดการออเดอร์หน้าร้าน (POS)</h2>
             <div id="menu-container">
-                <div style="text-align:center; padding:40px; color:#666;">กำลังโหลดฐานข้อมูลจากคลาวด์...</div>
+                <div style="text-align:center; padding:40px; color:#95a5a6; font-size:13px;">กำลังโหลดฐานข้อมูลจากคลาวด์...</div>
             </div>
         </div>
 
-        <!-- ฝั่งตะกร้าและข้อมูลลูกค้า -->
         <div class="cart-section">
             <h2>รายการสั่งซื้อ</h2>
 
-            <!-- กล่องแจ้งเตือนออเดอร์ใหม่จาก LINE (คลาวด์) -->
             <div class="cloud-orders-box" id="cloud-box" style="display:none;">
                 <div class="cloud-header">
-                    <span class="cloud-title" id="cloud-count-title">มีออเดอร์ใหม่จาก LINE</span>
+                    <span class="cloud-title" id="cloud-count-title">ออเดอร์ใหม่จาก LINE</span>
                     <button type="button" class="cloud-refresh-btn" onclick="checkCloudOrders()">รีเฟรช</button>
                 </div>
                 <div id="cloud-orders-list"></div>
             </div>
 
-            <!-- กล่องเพิ่มรายการพิเศษ -->
             <div class="custom-item-box">
-                <label style="display:block; font-size:13px; font-weight:bold; color:var(--primary); margin-bottom:5px;">เพิ่มรายการพิเศษ (นอกเหนือเมนู):</label>
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--text-main); margin-bottom:5px;">เพิ่มรายการพิเศษนอกเมนู</label>
                 <div class="custom-item-row">
                     <input type="text" id="custom-name" placeholder="ชื่อรายการ เช่น เมล่อน" style="flex: 2;">
                     <input type="number" id="custom-price" placeholder="ราคา" min="0" style="flex: 1;">
                     <input type="number" id="custom-qty" value="1" min="1" style="width: 48px; text-align: center;">
                 </div>
-                <button type="button" class="btn-add-custom" onclick="addCustomItem()">+ เพิ่มรายการพิเศษลงบิล</button>
+                <button type="button" class="btn-add-custom" onclick="addCustomItem()">เพิ่มรายการพิเศษลงบิล</button>
             </div>
 
             <div class="form-group">
-                <label>ช่องทางการสั่งซื้อ:</label>
+                <label>ช่องทางการสั่งซื้อ</label>
                 <div class="btn-group">
                     <button type="button" class="active" onclick="setChannel('LINE', this)">LINE</button>
                     <button type="button" onclick="setChannel('Facebook', this)">Facebook</button>
@@ -141,8 +138,8 @@
 
             <div class="customer-box">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <label style="font-weight:bold; font-size:13px; color:#2c3e50;">ข้อมูลลูกค้าและสถานที่จัดส่ง:</label>
-                    <button type="button" class="btn-clear-cust" onclick="clearCustomerFields()">ล้างช่องกรอกใหม่</button>
+                    <label style="font-weight:600; font-size:12px;">ข้อมูลลูกค้าและสถานที่จัดส่ง</label>
+                    <button type="button" class="btn-clear-cust" onclick="clearCustomerFields()">ล้างข้อมูล</button>
                 </div>
 
                 <select id="customer-dropdown" onchange="onSelectCustomerDropdown(this)">
@@ -150,18 +147,18 @@
                 </select>
                 
                 <div class="form-group">
-                    <label>ชื่อลูกค้า: <span class="req">*</span></label>
-                    <input type="text" id="customer-name" placeholder="ระบุชื่อจริง หรือชื่อเล่น">
+                    <label>ชื่อลูกค้า <span class="req">*</span></label>
+                    <input type="text" id="customer-name" placeholder="ระบุชื่อจริง หรือชื่อเรียก">
                 </div>
 
                 <div class="form-group">
-                    <label>เบอร์โทรศัพท์: <span class="req">*</span></label>
+                    <label>เบอร์โทรศัพท์ <span class="req">*</span></label>
                     <input type="tel" id="customer-phone" placeholder="เช่น 0812345678">
                 </div>
 
                 <div class="form-group">
-                    <label>สถานที่จัดส่ง: <span class="req">*</span></label>
-                    <textarea id="customer-address" rows="2" placeholder="บ้านเลขที่, ถนน/ซอย หรือพิกัดแผนที่..."></textarea>
+                    <label>สถานที่จัดส่ง <span class="req">*</span></label>
+                    <textarea id="customer-address" rows="2" placeholder="ระบุบ้านเลขที่, ถนน/ซอย หรือพิกัดแผนที่"></textarea>
                 </div>
 
                 <button type="button" class="btn-save-cust" onclick="manualSaveCustomer()">บันทึก / อัปเดตข้อมูลลูกค้าลงชีท</button>
@@ -169,14 +166,14 @@
             </div>
             
             <div class="form-group">
-                <label>หมายเหตุพิเศษ:</label>
-                <input type="text" id="order-note" placeholder="เช่น จัดเซ็ตของขวัญ, ไม่รับช้อนส้อม">
+                <label>หมายเหตุพิเศษ</label>
+                <input type="text" id="order-note" placeholder="ข้อความเพิ่มเติม">
             </div>
 
             <div class="cart-list" id="cart-list"></div>
 
             <div class="form-group">
-                <label>ค่าบริการจัดส่ง (บาท):</label>
+                <label>ค่าบริการจัดส่ง (บาท)</label>
                 <div class="btn-group">
                     <button type="button" class="del-btn active" onclick="setDelivery(0)">ฟรี / รับเอง</button>
                     <button type="button" class="del-btn" onclick="setDelivery(10)">+ 10 บาท</button>
@@ -195,23 +192,22 @@
         </div>
     </div>
 
-    <!-- Modal แสดงรูปใบเสร็จ -->
     <div class="modal-overlay" id="receipt-modal">
         <div class="modal-content">
-            <h3 style="margin:0 0 10px; color:var(--primary); font-size:18px;">สรุปใบเสร็จรับเงิน</h3>
-            <p style="font-size:13px; color:#555; margin-bottom:10px;">แตะค้างที่รูปภาพ หรือกดปุ่มบันทึกใบเสร็จด้านล่าง</p>
-            <div style="max-height:60vh; overflow-y:auto; margin-bottom:15px; background:#f0f0f0; border-radius:6px; padding:5px;">
-                <img id="receipt-result-img" src="" style="width:100%; max-width:230px; display:block; margin:0 auto; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            <h3 style="margin:0 0 10px; font-size:16px;">สรุปใบเสร็จรับเงิน</h3>
+            <p style="font-size:12px; color:#555; margin-bottom:10px;">แตะค้างที่รูปภาพ หรือกดปุ่มบันทึกด้านล่าง</p>
+            <div style="max-height:60vh; overflow-y:auto; margin-bottom:15px; background:#f0f0f0; border-radius:4px; padding:5px;">
+                <img id="receipt-result-img" src="" style="width:100%; max-width:212px; display:block; margin:0 auto;">
             </div>
             <div id="dl-btn-container"></div>
-            <button style="background:#666; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; width:100%; cursor:pointer;" onclick="closeReceiptModal()">ปิดหน้าต่าง</button>
+            <button style="background:#6c757d; color:white; border:none; padding:9px; border-radius:4px; font-weight:600; width:100%; cursor:pointer;" onclick="closeReceiptModal()">ปิดหน้าต่าง</button>
         </div>
     </div>
 
     <div id="receipt-container">
         <div id="receipt">
             <div class="r-header">
-                <h3 class="r-title">ปอกใส่ปาก ผลไม้พร้อมทาน</h3>
+                <h3 class="r-title">ปอกใส่ปาก</h3>
                 <p class="r-info" id="r-time"></p>
                 <p class="r-info" id="r-channel"></p>
                 <p class="r-info" id="r-customer"></p>
@@ -220,14 +216,14 @@
             </div>
             <table class="r-table">
                 <thead>
-                    <tr><th>รายการ</th><th style="text-align:center; width:30px;">จำนวน</th><th style="text-align:right; width:40px;">ราคา</th></tr>
+                    <tr><th>รายการ</th><th style="text-align:center; width:30px;">จำนวน</th><th style="text-align:right; width:45px;">ราคา</th></tr>
                 </thead>
                 <tbody id="r-items"></tbody>
             </table>
             <div class="r-totals">
                 <div class="flex"><span>ค่าสินค้า:</span><span id="r-subtotal"></span></div>
                 <div class="flex"><span>ค่าจัดส่ง:</span><span id="r-delfee"></span></div>
-                <div class="flex" style="font-weight:bold; font-size:14px;"><span>รวมทั้งหมด:</span><span id="r-grandtotal"></span></div>
+                <div class="flex" style="font-weight:bold; font-size:12px;"><span>รวมทั้งหมด:</span><span id="r-grandtotal"></span></div>
             </div>
             <div class="r-footer">ขอบคุณที่อุดหนุนค่ะ</div>
         </div>
@@ -258,11 +254,11 @@
                 menuData.forEach(item => { itemDictionary[item.id] = item; });
                 renderMenu();
             } catch (e) {
-                document.getElementById('menu-container').innerHTML = '<div style="color:red; text-align:center;">โหลดเมนูไม่สำเร็จ กรุณารีเฟรช</div>';
+                document.getElementById('menu-container').innerHTML = '<div style="color:#e74c3c; text-align:center;">โหลดเมนูไม่สำเร็จ กรุณารีเฟรช</div>';
             }
             loadCustomers();
             checkCloudOrders();
-            setInterval(checkCloudOrders, 20000); // ตรวจสอบออเดอร์ใหม่ทุก 20 วินาทีอัตโนมัติ
+            setInterval(checkCloudOrders, 20000);
         }
 
         async function loadCustomers() {
@@ -275,11 +271,15 @@
             }
         }
 
-        // ตรวจสอบออเดอร์ใหม่จาก LINE (คลาวด์)
         async function checkCloudOrders() {
             try {
                 const res = await fetch(CORE_API_URL + '?action=getPendingOrders');
-                pendingOrdersList = await res.json();
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    pendingOrdersList = data.filter(item => item && item.orderId && String(item.orderId).startsWith('ORD-'));
+                } else {
+                    pendingOrdersList = [];
+                }
                 renderCloudOrders();
             } catch (e) {}
         }
@@ -302,9 +302,9 @@
                 const div = document.createElement('div');
                 div.className = 'cloud-order-item';
                 div.innerHTML = `
-                    <div style="font-size:13px; line-height:1.3;">
+                    <div style="font-size:12px; line-height:1.3;">
                         <b>คุณ ${ord.name || 'ไม่ระบุชื่อ'}</b> (${ord.total || 0} บาท)<br>
-                        <small style="color:#777;">เวลาสั่ง: ${ord.time || '-'}</small>
+                        <small style="color:#7f8c8d;">เวลาสั่ง: ${ord.time || '-'}</small>
                     </div>
                     <button type="button" class="cloud-btn-load" onclick="loadOrderIntoPOS(${index})">ดึงเข้าบิล</button>
                 `;
@@ -312,7 +312,6 @@
             });
         }
 
-        // ดึงออเดอร์จากคลาวด์ลงใน POS แล้วซ่อนแจ้งเตือนทันที
         async function loadOrderIntoPOS(idx) {
             const ord = pendingOrdersList[idx];
             if (!ord) return;
@@ -322,7 +321,6 @@
             document.getElementById('customer-address').value = ord.address || '';
             document.getElementById('order-note').value = ord.note || '';
 
-            // เคลียร์ตะกร้าเดิมและใส่ออเดอร์ใหม่
             cart = {};
             cartSauces = {};
 
@@ -342,12 +340,10 @@
 
             renderCart();
 
-            // ลบการ์ดเตือนออกจากหน้าจอทันที
             const targetOrderId = ord.orderId;
             pendingOrdersList.splice(idx, 1);
             renderCloudOrders();
 
-            // แจ้งหลังบ้านให้เปลี่ยนสถานะเป็น Completed ใน Google Sheets
             fetch(`${CORE_API_URL}?action=completeOrder&orderId=${encodeURIComponent(targetOrderId)}`, { mode: 'no-cors' });
             alert(`ดึงข้อมูลออเดอร์ของคุณ "${ord.name}" ลงบิลเรียบร้อยแล้ว`);
         }
@@ -378,7 +374,7 @@
             document.getElementById('customer-name').value = "";
             document.getElementById('customer-phone').value = "";
             document.getElementById('customer-address').value = "";
-            showSaveStatus('พร้อมกรอกลูกค้าใหม่แล้วค่ะ', '#666');
+            showSaveStatus('พร้อมกรอกลูกค้าใหม่', '#7f8c8d');
             document.getElementById('customer-name').focus();
         }
 
@@ -397,7 +393,7 @@
             if (!phone) { alert('กรุณากรอกเบอร์โทรศัพท์'); document.getElementById('customer-phone').focus(); return; }
             if (!address) { alert('กรุณากรอกสถานที่จัดส่ง'); document.getElementById('customer-address').focus(); return; }
 
-            showSaveStatus('กำลังบันทึกข้อมูลลง Google Sheets...', '#888');
+            showSaveStatus('กำลังบันทึกข้อมูล...', '#7f8c8d');
 
             const url = `${CORE_API_URL}?action=save&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&address=${encodeURIComponent(address)}`;
             fetch(url).then(r => r.json()).then(() => {
@@ -411,7 +407,7 @@
                 } else {
                     customerList.push({ name, phone, address });
                     renderCustomerDropdown(customerList.length - 1);
-                    alert(`บันทึกลูกค้าใหม่คุณ "${name}" ลงชีทสำเร็จแล้ว`);
+                    alert(`บันทึกลูกค้าใหม่คุณ "${name}" สำเร็จแล้ว`);
                 }
                 showSaveStatus(`บันทึกข้อมูลสำเร็จ`, '#27ae60');
             }).catch(() => {
@@ -428,7 +424,7 @@
             const price = parseFloat(priceEl.value);
             const qty = parseInt(qtyEl.value) || 1;
 
-            if (!name) { alert('กรุณากรอกชื่อรายการพิเศษก่อนครับ'); nameEl.focus(); return; }
+            if (!name) { alert('กรุณากรอกชื่อรายการพิเศษ'); nameEl.focus(); return; }
             if (isNaN(price) || price < 0) { alert('กรุณากรอกราคาที่ถูกต้อง'); priceEl.focus(); return; }
 
             const customId = 'custom_' + Date.now();
@@ -471,7 +467,7 @@
                 div.className = `menu-item ${!item.available ? 'out-of-stock' : ''}`;
                 div.innerHTML = `
                     <div class="item-name" ${item.available ? `onclick="addToCart('${item.id}')"` : ''}>
-                        ${item.name} <span style="color:var(--primary); font-size:13px;">(${item.price > 0 ? item.price + ' บาท' : 'ฟรี'})</span>
+                        ${item.name} <span style="color:var(--primary); font-size:12px;">(${item.price > 0 ? item.price + ' บาท' : 'ฟรี'})</span>
                     </div>
                     ${item.available 
                         ? `<button class="btn-add" onclick="addToCart('${item.id}')">+ เพิ่ม</button>` 
@@ -550,15 +546,15 @@
                 div.innerHTML = `
                     <div class="cart-item-main">
                         <div style="flex:1;">
-                            ${item.name} ${id.startsWith('custom_') ? '<small style="color:#2980b9;">[พิเศษ]</small>' : ''}<br>
-                            <small style="color:var(--primary); font-weight:bold;">${item.price > 0 ? item.price + ' บาท' : 'ฟรี'}</small>
+                            ${item.name} ${id.startsWith('custom_') ? '<small style="color:var(--blue);">[พิเศษ]</small>' : ''}<br>
+                            <small style="color:var(--primary); font-weight:600;">${item.price > 0 ? item.price + ' บาท' : 'ฟรี'}</small>
                         </div>
                         <div class="cart-controls">
                             <button onclick="updateQty('${id}', -1)">-</button>
-                            <span style="margin:0 10px; font-weight:bold;">${qty}</span>
+                            <span style="margin:0 8px; font-weight:600;">${qty}</span>
                             <button onclick="updateQty('${id}', 1)">+</button>
                         </div>
-                        <div style="width:50px; text-align:right; font-weight:bold;">${totalItem} ฿</div>
+                        <div style="width:50px; text-align:right; font-weight:600;">${totalItem} ฿</div>
                     </div>
                     ${sauceHTML}
                 `;
@@ -566,7 +562,7 @@
             }
 
             if (!Object.keys(cart).length) {
-                list.innerHTML = '<div style="color:#999; text-align:center; padding-top:35px; font-size:14px;">ยังไม่มีรายการสั่งซื้อ</div>';
+                list.innerHTML = '<div style="color:#adb5bd; text-align:center; padding-top:35px; font-size:13px;">ยังไม่มีรายการสั่งซื้อ</div>';
             }
 
             document.getElementById('subtotal').innerText = subtotal + ' บาท';
@@ -613,7 +609,7 @@
                 subtotal += total;
 
                 const validSauces = (cartSauces[id] || []).filter(s => s && !s.includes('ไม่รับ'));
-                const sauceLine = validSauces.length ? `<br><small style="color:#555; font-style:italic;">(${validSauces.join(', ')})</small>` : '';
+                const sauceLine = validSauces.length ? `<br><small style="color:#666;">(${validSauces.join(', ')})</small>` : '';
 
                 rItems.innerHTML += `<tr><td style="padding-right:5px;">${item.name}${sauceLine}</td><td style="text-align:center;">x${qty}</td><td style="text-align:right;">${total}</td></tr>`;
             }
@@ -626,7 +622,7 @@
                 html2canvas(document.getElementById('receipt'), { scale: 2, backgroundColor: '#ffffff', logging: false }).then(canvas => {
                     const imgData = canvas.toDataURL("image/png");
                     document.getElementById('receipt-result-img').src = imgData;
-                    document.getElementById('dl-btn-container').innerHTML = `<a href="${imgData}" download="${fileName}" style="background:#27ae60; color:white; padding:12px; border-radius:6px; display:block; text-decoration:none; font-weight:bold; margin-bottom:10px;">บันทึกใบเสร็จ</a>`;
+                    document.getElementById('dl-btn-container').innerHTML = `<a href="${imgData}" download="${fileName}" style="background:#27ae60; color:white; padding:10px; border-radius:4px; display:block; text-decoration:none; font-weight:600; margin-bottom:10px;">บันทึกใบเสร็จ</a>`;
                     document.getElementById('receipt-modal').style.display = 'flex';
                 }).catch(() => {
                     alert("ไม่สามารถสร้างรูปภาพได้ กรุณาลองใหม่อีกครั้ง");
