@@ -378,7 +378,7 @@
             const container = document.getElementById('pos-duo-fruit-list');
             container.innerHTML = '';
 
-            const fruits = menuItems.filter(i => !/บริการ|addon/i.test(String(i.category || '')) && Number(i.category) >= 40);
+            const fruits = menuItems.filter(i => !/บริการ|addon/i.test(String(i.category || '')) && Number(i.category) >= 40 && !i.name.includes('ยำ'));
             fruits.forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'fruit-row';
