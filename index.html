@@ -25,7 +25,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-page); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* แถบนำทางด้านบนสำหรับจอแท็บเล็ต/มือถือ */
+        /* แถบนำทางด้านบนสำหรับ iPad / สมาร์ทโฟน */
         .mobile-nav-bar {
             display: none;
             background: #ffffff;
@@ -394,7 +394,7 @@
 
     </div>
 
-    <!-- Modal ผลไม้ดูโอ้ (แก้ไขระบบให้ทำงานทันทีไม่มีสะดุด) -->
+    <!-- Modal ผลไม้ดูโอ้ -->
     <div class="modal-overlay" id="pos-duo-modal">
         <div class="modal-card">
             <div class="modal-title">เลือกผลไม้ดูโอ้ (2 อย่าง)</div>
@@ -442,8 +442,6 @@
         const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaPiqWEQhgM7nxSTDj67DU_8TsWVu36aJNLagaQ33OBRKGErUyiA2x3M9YiMF7kuvL/exec'; 
         const ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbw_E7mdky1b9Jle_1YK6-a4SOgbm7nAHYJOtTgS3aNrizeFiOxwywT92BqI8NA7RrEeOA/exec';
 
-        const PREMIUM_FRUITS = ['แอปเปิ้ลเอนวี่', 'เมล่อนญี่ปุ่น', 'กีวี่', 'อะโวคาโด้'];
-
         let rawMenuItems = [];
         let posCart = [];
         let selectedDuoItems = [];
@@ -488,7 +486,7 @@
                 rawMenuItems = data.filter(i => i.available !== false);
                 buildCategoryFilterBar();
                 renderCategorizedMenu();
-                preRenderDuoList(); // สร้างรายการดูโอ้เตรียมไว้ล่วงหน้าทันที
+                preRenderDuoList(); // เตรียมรายการดูโอ้ไว้ล่วงหน้าทันที
             } catch (e) {
                 console.error("Load menu error:", e);
                 document.getElementById('categorized-menu-container').innerHTML = '<div style="text-align:center; padding:30px; color:#c0392b; font-size:13px;">ไม่สามารถโหลดเมนูได้ กรุณารีเฟรช</div>';
@@ -498,11 +496,19 @@
         const isService = item => /บริการ|service|addon/i.test(String(item.category || ''));
         const isSauceEligible = name => !name.includes('ฝรั่งแช่บ๊วย') && /มะม่วง|สับปะรด|แอปเปิ้ล|ฝรั่ง/.test(name);
 
+        // ตรวจสอบผลไม้พรีเมียม (ตรวจหาคำว่าเมล่อน และผลไม้ที่ราคาตั้งแต่ 90 บาทขึ้นไป)
+        function isPremiumFruit(item) {
+            if (!item) return false;
+            const name = item.name || '';
+            const price = Number(item.price) || 0;
+            const hasKeyword = /เมล่อน|เอนวี่|envy|กีวี่|กีวี|อะโวคาโด้|อะโวคาโด/i.test(name);
+            return hasKeyword || price >= 90;
+        }
+
         function buildCategoryFilterBar() {
             const bar = document.getElementById('category-filter-bar');
             bar.innerHTML = '<button class="cat-chip active" onclick="filterMenuCategory(\'all\', this)">ทั้งหมด</button>';
 
-            // หาหมวดราคาที่มีอยู่จริง
             const cats = [...new Set(rawMenuItems.map(i => Number(i.category)))].filter(c => !isNaN(c) && c >= 40 && c <= 100).sort((a,b)=>a-b);
             cats.forEach(c => {
                 const btn = document.createElement('button');
@@ -542,7 +548,7 @@
             const container = document.getElementById('categorized-menu-container');
             container.innerHTML = '';
 
-            // 1. หมวดดูโอ้ (แสดงเสมอเมื่อเลือก "ทั้งหมด")
+            // แสดงการ์ดดูโอ้เมื่อเลือกหมวดทั้งหมด
             if (currentFilter === 'all') {
                 const duoSecTitle = document.createElement('div');
                 duoSecTitle.className = 'category-section-title';
@@ -560,7 +566,6 @@
                 container.appendChild(duoGrid);
             }
 
-            // 2. หมวดผลไม้แยกตามราคา
             const priceCats = [...new Set(rawMenuItems.map(i => Number(i.category)))].filter(c => !isNaN(c) && c >= 40 && c <= 100).sort((a,b)=>a-b);
             priceCats.forEach(cat => {
                 if (currentFilter !== 'all' && currentFilter !== cat) return;
@@ -568,13 +573,11 @@
                 if (items.length) appendCategorySection(`กล่องละ ${cat} บาท`, items);
             });
 
-            // 3. หมวดพรีเมียม
             if (currentFilter === 'all' || currentFilter === 'premium') {
                 const prem = rawMenuItems.filter(i => !isNaN(Number(i.category)) && Number(i.category) > 100 && !isService(i));
                 if (prem.length) appendCategorySection('ผลไม้พรีเมียม', prem);
             }
 
-            // 4. หมวดน้ำจิ้ม
             if (currentFilter === 'all' || currentFilter === 'dips') {
                 const dips = rawMenuItems.filter(i => !isNaN(Number(i.category)) && Number(i.category) < 40 && !isService(i));
                 if (dips.length) appendCategorySection('น้ำจิ้มและพริกเกลือ', dips);
@@ -606,7 +609,7 @@
             container.appendChild(grid);
         }
 
-        /* ------------------ ฟังก์ชันผลไม้ดูโอ้ (แก้ไขเปิดติดทันที) ------------------ */
+        /* ------------------ ฟังก์ชันผลไม้ดูโอ้ POS ------------------ */
 
         function preRenderDuoList() {
             const list = document.getElementById('pos-duo-fruit-list');
@@ -639,8 +642,6 @@
 
         function openDuoModal() {
             selectedDuoItems = [];
-            
-            // ล้างค่าติ๊กเดิม
             document.querySelectorAll('#pos-duo-fruit-list input[type="checkbox"]').forEach(cb => cb.checked = false);
             
             const addonBox = document.getElementById('pos-duo-addon-box');
@@ -676,12 +677,10 @@
                 selectedDuoItems = selectedDuoItems.filter(i => i.id !== id);
             }
 
-            // แสดงตัวเลือกเสริมสำหรับ อะโวคาโด้
             const hasAvocado = selectedDuoItems.some(i => i.name.includes('อะโวคาโด้'));
             document.getElementById('pos-duo-addon-box').style.display = hasAvocado ? 'block' : 'none';
             if (!hasAvocado) document.getElementById('pos-duo-addon-check').checked = false;
 
-            // แสดงตัวเลือกน้ำจิ้มเมื่อมีผลไม้ที่ทานคู่น้ำจิ้มได้
             const hasSauce = selectedDuoItems.some(i => isSauceEligible(i.name));
             const sauceBox = document.getElementById('pos-duo-sauce-box');
             sauceBox.style.display = hasSauce ? 'block' : 'none';
@@ -696,13 +695,13 @@
 
         function calcDuoPrice(itemA, itemB, withAddon, withPaidSauce) {
             if (!itemA || !itemB) return 70;
-            const isPremA = PREMIUM_FRUITS.some(p => itemA.name.includes(p));
-            const isPremB = PREMIUM_FRUITS.some(p => itemB.name.includes(p));
+            const isPremA = isPremiumFruit(itemA);
+            const isPremB = isPremiumFruit(itemB);
             const count = (isPremA ? 1 : 0) + (isPremB ? 1 : 0);
 
             let price = 70;
-            if (count === 2) price = 120;
-            else if (count === 1) price = 95;
+            if (count === 2) price = 120; // พรีเมียมคู่ เช่น เมล่อนเขียว + เมล่อนส้ม
+            else if (count === 1) price = 95;  // พรีเมียม 1 อย่าง
             else {
                 const pA = Number(itemA.price) || 0;
                 const pB = Number(itemB.price) || 0;
@@ -898,7 +897,7 @@
             document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
 
-            // หากอยู่บนมือถือ/แท็บเล็ต ให้สลับหน้าไปที่แท็บใบเสร็จให้อัตโนมัติ
+            // เมื่ออยู่บนหน้าจอเล็ก (iPad/มือถือ) ให้สลับไปหน้าบิลคิดเงินให้อัตโนมัติ
             if (window.innerWidth <= 992) {
                 switchMobileTab('checkout');
             }
