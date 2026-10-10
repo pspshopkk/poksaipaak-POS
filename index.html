@@ -25,17 +25,17 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-page); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* แถบแจ้งเตือนออเดอร์ใหม่ลอยด้านบน */
+        /* แถบแจ้งเตือนออเดอร์ใหม่จาก LINE */
         .order-alert-toast {
             position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
             background: #ffffff; border: 2px solid var(--primary); border-radius: var(--radius-md);
-            box-shadow: 0 10px 25px rgba(192, 57, 43, 0.2); padding: 12px 18px; z-index: 3000;
-            display: none; align-items: center; gap: 14px; max-width: 90%;
+            box-shadow: 0 10px 25px rgba(192, 57, 43, 0.2); padding: 10px 16px; z-index: 3000;
+            display: none; align-items: center; gap: 12px; max-width: 90%;
             animation: slideDown 0.3s ease;
         }
         @keyframes slideDown { from { top: -60px; opacity: 0; } to { top: 12px; opacity: 1; } }
 
-        /* แถบนำทางสำหรับ iPad / มือถือ */
+        /* แถบแท็บสำหรับ iPad และมือถือ */
         .mobile-nav-bar {
             display: none; background: #ffffff; border-bottom: 1px solid var(--border);
             padding: 8px 12px; gap: 8px; z-index: 50; flex-shrink: 0;
@@ -66,10 +66,10 @@
         .btn-custom-item { background: #fff; border: 1px solid var(--text-main); color: var(--text-main); padding: 7px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; }
         .btn-custom-item:hover { background: var(--text-main); color: #fff; }
 
-        /* แถบตัวกรองราคา (แก้ไขเรื่องจม/ถูกบีบ) */
+        /* แถบตัวกรองราคา */
         .price-category-bar {
             display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
-            padding: 6px 2px 12px 2px; margin-bottom: 8px; flex-shrink: 0; min-height: 52px;
+            padding: 6px 2px 14px 2px; margin-bottom: 8px; flex-shrink: 0; min-height: 54px;
             align-items: center; scrollbar-width: none; position: relative; z-index: 10;
         }
         .price-category-bar::-webkit-scrollbar { display: none; }
@@ -93,18 +93,57 @@
         .tile-price { font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 4px; }
 
         /* คอลัมน์ 3: สรุปบิลและข้อมูลลูกค้า */
-        .panel-checkout { width: 370px; background: var(--card-bg); border-left: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px; flex-shrink: 0; overflow-y: auto; }
-        .cust-input-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .cust-input-field { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12.5px; color: var(--text-main); background: #fff; }
+        .panel-checkout { width: 380px; background: var(--card-bg); border-left: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px; flex-shrink: 0; overflow-y: auto; }
+        .cust-input-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .cust-input-field { width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-main); background: #fff; }
         .cust-input-field:focus { outline: none; border-color: var(--text-main); }
 
-        .receipt-container { background: #fff; border: 1px dashed #cbd5e1; border-radius: var(--radius-sm); padding: 14px; font-size: 12px; flex: 1; overflow-y: auto; margin-bottom: 10px; min-height: 200px; }
+        /* แถบค่าจัดส่ง */
+        .delivery-bar-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 10px; }
+        .delivery-btn-group { display: flex; gap: 6px; overflow-x: auto; margin-top: 6px; scrollbar-width: none; }
+        .delivery-btn-group::-webkit-scrollbar { display: none; }
+        .btn-deliv {
+            padding: 4px 10px; border: 1px solid var(--border); background: var(--gray-btn);
+            border-radius: 14px; font-size: 11.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
+        }
+        .btn-deliv.active { background: var(--text-main); color: #fff; border-color: var(--text-main); }
+
+        /* กล่องใบเสร็จ */
+        .receipt-container { background: #fff; border: 1px dashed #cbd5e1; border-radius: var(--radius-sm); padding: 16px; font-size: 12px; flex: 1; overflow-y: auto; margin-bottom: 10px; min-height: 220px; }
         .receipt-header { text-align: center; margin-bottom: 8px; }
         .receipt-brand { font-size: 16px; font-weight: 700; }
         .receipt-info-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin: 2px 0; }
         .receipt-divider { border-bottom: 1px solid #e2e8f0; margin: 8px 0; }
-        .receipt-item-row { display: flex; justify-content: space-between; align-items: flex-start; margin: 6px 0; }
-        .receipt-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; margin-top: 10px; color: var(--text-main); }
+        
+        /* รายการสินค้าในใบเสร็จ (แยกแถวชัดเจน) */
+        .receipt-item-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed #f1f5f9;
+        }
+        .receipt-item-row:last-child { border-bottom: none; }
+        .item-info-col { flex: 1; padding-right: 8px; }
+        .item-name-text { font-size: 12.5px; font-weight: 600; color: var(--text-main); line-height: 1.3; }
+        .item-sub-text { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+        .item-price-text { font-size: 12.5px; font-weight: 700; color: var(--text-main); white-space: nowrap; text-align: right; }
+
+        /* ปุ่มปรับจำนวน (+ / - / ลบ) */
+        .qty-adjuster-bar {
+            display: flex; align-items: center; gap: 6px; margin-top: 5px;
+        }
+        .btn-qty-mini {
+            width: 22px; height: 22px; border: 1px solid var(--border); background: var(--gray-btn);
+            border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .btn-qty-mini:hover { background: #e2e8f0; }
+        .qty-mini-val { font-size: 12px; font-weight: 700; width: 18px; text-align: center; }
+        .btn-del-mini {
+            border: none; background: none; color: var(--primary); font-size: 11px;
+            font-weight: 600; cursor: pointer; margin-left: 6px; padding: 2px 4px;
+        }
+
+        .receipt-subtotal-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); margin: 3px 0; }
+        .receipt-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; margin-top: 6px; color: var(--text-main); }
 
         .btn-action-group { display: flex; flex-direction: column; gap: 8px; }
         .btn-pos-primary { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
@@ -112,7 +151,7 @@
         .btn-pos-secondary { background: var(--gray-btn); color: var(--text-main); border: 1px solid var(--border); padding: 9px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
         .btn-pos-secondary:hover { background: #e2e8f0; }
 
-        /* Modal ทั่วไป */
+        /* Modal */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
         .modal-card { background: #fff; border-radius: var(--radius-md); width: 100%; max-width: 420px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 88vh; }
         .fruit-scroll-box { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow-y: auto; flex: 1; max-height: 240px; margin-bottom: 12px; }
@@ -120,7 +159,6 @@
         .duo-row:last-child { border-bottom: none; }
         .duo-row:hover { background: #f8fafc; }
 
-        /* Responsive สำหรับมือถือและ iPad แนวตั้ง */
         @media (max-width: 992px) {
             .mobile-nav-bar { display: flex; }
             .pos-layout { height: calc(100vh - 54px); }
@@ -131,7 +169,7 @@
 </head>
 <body>
 
-    <!-- แถบแจ้งเตือนเมื่อมีออเดอร์ใหม่จาก LINE -->
+    <!-- แจ้งเตือนออเดอร์ใหม่ -->
     <div class="order-alert-toast" id="order-alert-toast">
         <div>
             <div style="font-size:13px; font-weight:700; color:var(--primary);">มีออเดอร์ใหม่จาก LINE!</div>
@@ -141,7 +179,7 @@
         <button onclick="document.getElementById('order-alert-toast').style.display='none'" style="border:none; background:none; color:#999; cursor:pointer;">✕</button>
     </div>
 
-    <!-- แถบแท็บสำหรับ iPad และมือถือ -->
+    <!-- แถบนำทางมือถือ/iPad -->
     <div class="mobile-nav-bar">
         <button class="nav-tab-btn active" id="tab-btn-menu" onclick="switchMobileTab('menu')">เมนูขาย</button>
         <button class="nav-tab-btn" id="tab-btn-checkout" onclick="switchMobileTab('checkout')">บิลคิดเงิน (<span id="mobile-cart-badge">0</span>)</button>
@@ -150,7 +188,7 @@
 
     <div class="pos-layout">
 
-        <!-- แผงซ้าย: ออเดอร์จาก LINE -->
+        <!-- แผงซ้าย: ออเดอร์ LINE -->
         <div class="panel-orders" id="view-orders">
             <div class="panel-header">
                 <span style="font-size:14px; font-weight:700;">ออเดอร์จาก LINE</span>
@@ -182,8 +220,9 @@
             </div>
         </div>
 
-        <!-- แผงขวา: ข้อมูลลูกค้าและบิล -->
+        <!-- แผงขวา: ข้อมูลลูกค้า ค่าจัดส่ง และบิล -->
         <div class="panel-checkout" id="view-checkout">
+            <!-- ข้อมูลลูกค้า -->
             <div class="cust-input-box">
                 <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
                     <span>ข้อมูลลูกค้า</span>
@@ -194,6 +233,23 @@
                 <input type="text" id="pos-cust-address" class="cust-input-field" placeholder="สถานที่จัดส่ง / หมายเหตุ (ถ้ามี)">
             </div>
 
+            <!-- ค่าจัดส่ง -->
+            <div class="delivery-bar-box">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px; font-weight:700;">ค่าจัดส่ง</span>
+                    <span id="delivery-fee-display" style="font-size:12px; font-weight:700; color:var(--primary);">0 บาท</span>
+                </div>
+                <div class="delivery-btn-group">
+                    <button type="button" class="btn-deliv active" onclick="setDeliveryFee(0, this)">ฟรี</button>
+                    <button type="button" class="btn-deliv" onclick="setDeliveryFee(20, this)">20฿</button>
+                    <button type="button" class="btn-deliv" onclick="setDeliveryFee(30, this)">30฿</button>
+                    <button type="button" class="btn-deliv" onclick="setDeliveryFee(40, this)">40฿</button>
+                    <button type="button" class="btn-deliv" onclick="setDeliveryFee(50, this)">50฿</button>
+                    <button type="button" class="btn-deliv" onclick="promptDeliveryFee(this)">กำหนดเอง</button>
+                </div>
+            </div>
+
+            <!-- กล่องแสดงใบเสร็จ -->
             <div class="receipt-container" id="receipt-capture-area">
                 <div class="receipt-header">
                     <div class="receipt-brand">ปอกใส่ปาก</div>
@@ -208,15 +264,27 @@
                     <span id="rc-time">-</span>
                     <span id="rc-cust">ลูกค้าทั่วไป</span>
                 </div>
+                <div class="receipt-info-row" id="rc-address-row" style="display:none;">
+                    <span id="rc-address" style="color:var(--text-sub); word-break:break-word;"></span>
+                </div>
 
                 <div class="receipt-divider"></div>
 
+                <!-- ตารางรายการสินค้าแยกบรรทัด -->
                 <div id="receipt-items-list">
                     <div style="text-align:center; padding:30px 0; color:var(--text-sub); font-size:12px;">ยังไม่มีรายการในบิล</div>
                 </div>
 
                 <div class="receipt-divider"></div>
 
+                <div class="receipt-subtotal-row" id="rc-subtotal-line">
+                    <span>รวมค่าสินค้า</span>
+                    <span id="rc-subtotal">0 บาท</span>
+                </div>
+                <div class="receipt-subtotal-row" id="rc-delivery-line" style="display:none;">
+                    <span>ค่าจัดส่ง</span>
+                    <span id="rc-delivery">0 บาท</span>
+                </div>
                 <div class="receipt-total-row">
                     <span>ยอดรวมสุทธิ</span>
                     <span id="rc-total-price">0 บาท</span>
@@ -289,9 +357,7 @@
     </div>
 
     <script>
-        // ลิงก์ชีทเมนูผลไม้
         const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaPiqWEQhgM7nxSTDj67DU_8TsWVu36aJNLagaQ33OBRKGErUyiA2x3M9YiMF7kuvL/exec'; 
-        // ลิงก์ชีทบันทึกออเดอร์และลูกค้า
         const ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbw_E7mdky1b9Jle_1YK6-a4SOgbm7nAHYJOtTgS3aNrizeFiOxwywT92BqI8NA7RrEeOA/exec';
 
         const PREMIUM_KEYWORDS = /เมล่อน|เอนวี่|envy|กีวี่|กีวี|อะโวคาโด้|อะโวคาโด/i;
@@ -302,6 +368,7 @@
         let currentActiveOrderId = null, isCloudOrderLoaded = false, currentFilter = 'all';
         let customerCache = JSON.parse(localStorage.getItem('poksai_customer_db') || '{}');
         let knownOrderIds = new Set(), isFirstLoad = true, pendingToastOrder = null;
+        let deliveryFee = 0;
 
         // ระบบเสียงแจ้งเตือนผ่าน Web Audio API
         let audioCtx = null;
@@ -329,7 +396,7 @@
             updateReceiptMeta();
             loadMenu();
             loadCloudOrders();
-            setInterval(loadCloudOrders, 8000); // ตรวจสอบออเดอร์ใหม่ทุก 8 วินาที
+            setInterval(loadCloudOrders, 8000);
         };
 
         function switchMobileTab(tab) {
@@ -339,7 +406,7 @@
             document.getElementById('view-' + (tab === 'menu' ? 'menu' : (tab === 'checkout' ? 'checkout' : 'orders'))).classList.add('active');
         }
 
-        /* ------------------ ระบบข้อมูลลูกค้า ------------------ */
+        /* ------------------ ข้อมูลลูกค้า ------------------ */
         function handlePhoneSearch(phone) {
             const clean = phone.trim().replace(/-/g, '');
             const badge = document.getElementById('cust-found-badge');
@@ -357,7 +424,16 @@
         function updateReceiptCustomer() {
             const name = document.getElementById('pos-cust-name').value.trim();
             const phone = document.getElementById('pos-cust-phone').value.trim();
+            const address = document.getElementById('pos-cust-address').value.trim();
             document.getElementById('rc-cust').innerText = name ? `${name} ${phone ? '('+phone+')' : ''}` : 'ลูกค้าทั่วไป';
+            
+            const addrRow = document.getElementById('rc-address-row');
+            if (address) {
+                document.getElementById('rc-address').innerText = `ที่อยู่: ${address}`;
+                addrRow.style.display = 'flex';
+            } else {
+                addrRow.style.display = 'none';
+            }
         }
 
         async function saveCustomerToDatabase(name, phone, address) {
@@ -371,6 +447,22 @@
                 const url = `${ORDER_API_URL}?action=saveCustomer&name=${encodeURIComponent(name || '-')}&phone=${encodeURIComponent(clean || '-')}&address=${encodeURIComponent(address || '-')}&t=${Date.now()}`;
                 await fetch(url, { mode: 'no-cors' });
             } catch (err) {}
+        }
+
+        /* ------------------ จัดการค่าจัดส่ง ------------------ */
+        function setDeliveryFee(amt, btnElem) {
+            deliveryFee = Number(amt) || 0;
+            document.querySelectorAll('.delivery-btn-group .btn-deliv').forEach(b => b.classList.remove('active'));
+            if (btnElem) btnElem.classList.add('active');
+            document.getElementById('delivery-fee-display').innerText = `${deliveryFee} บาท`;
+            renderCartReceipt();
+        }
+
+        function promptDeliveryFee(btnElem) {
+            const val = prompt('ระบุค่าจัดส่ง (บาท):', deliveryFee || '30');
+            if (val !== null) {
+                setDeliveryFee(Number(val) || 0, btnElem);
+            }
         }
 
         /* ------------------ เมนูและหมวดหมู่ราคา ------------------ */
@@ -561,8 +653,9 @@
 
             const price = calcDuoPrice(selectedDuoItems[0], selectedDuoItems[1], withAddon, withPaidSauce);
             const addonText = withAddon ? ' (+น้ำผึ้งมูสลี่)' : '';
-            const sauceText = (hasSauce && !sauceSelect.value.includes('ไม่รับ')) ? ` [${sauceSelect.value}]` : '';
-            addItemToCart(`ผลไม้ดูโอ้ (${selectedDuoItems[0].name} + ${selectedDuoItems[1].name}${addonText})${sauceText}`, price);
+            const sauceText = (hasSauce && !sauceSelect.value.includes('ไม่รับ')) ? sauceSelect.value : '';
+
+            addItemToCart(`ผลไม้ดูโอ้ (${selectedDuoItems[0].name} + ${selectedDuoItems[1].name}${addonText})`, price, sauceText);
             closeDuoModal();
         }
 
@@ -581,46 +674,91 @@
             document.getElementById('custom-item-modal').style.display = 'none';
         }
 
-        /* ------------------ ตะกร้าและคิดเงิน ------------------ */
-        function addItemToCart(name, price) {
+        /* ------------------ ตะกร้าและคิดเงิน (ปุ่มเพิ่ม/ลด/ลบ) ------------------ */
+        function addItemToCart(name, price, sauce = '') {
             if (isCloudOrderLoaded) {
                 if (!confirm('ต้องการสลับจากการดูออเดอร์ LINE มาเปิดบิลใหม่ใช่หรือไม่?')) return;
                 clearCurrentCart();
             }
-            const exist = posCart.find(i => i.name === name && i.price === price);
-            if (exist) exist.qty += 1;
-            else posCart.push({ name, price, qty: 1 });
+            const exist = posCart.find(i => i.name === name && i.price === price && i.sauce === sauce);
+            if (exist) {
+                exist.qty += 1;
+            } else {
+                posCart.push({ name, price, qty: 1, sauce });
+            }
+            renderCartReceipt();
+        }
+
+        function changeItemQty(idx, delta) {
+            if (!posCart[idx]) return;
+            posCart[idx].qty += delta;
+            if (posCart[idx].qty <= 0) {
+                posCart.splice(idx, 1);
+            }
+            renderCartReceipt();
+        }
+
+        function removeItem(idx) {
+            posCart.splice(idx, 1);
             renderCartReceipt();
         }
 
         function renderCartReceipt() {
             const list = document.getElementById('receipt-items-list');
+            const subtotalDisplay = document.getElementById('rc-subtotal');
+            const delivLine = document.getElementById('rc-delivery-line');
+            const delivDisplay = document.getElementById('rc-delivery');
             const totalDisplay = document.getElementById('rc-total-price');
+
             if (posCart.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding:30px 0; color:var(--text-sub); font-size:12px;">ยังไม่มีรายการในบิล</div>';
-                totalDisplay.innerText = '0 บาท';
+                subtotalDisplay.innerText = '0 บาท';
+                delivLine.style.display = 'none';
+                totalDisplay.innerText = `${deliveryFee} บาท`;
                 document.getElementById('mobile-cart-badge').innerText = '0';
                 return;
             }
-            let sum = 0, count = 0, html = '';
+
+            let subtotal = 0, totalCount = 0, html = '';
+
             posCart.forEach((item, idx) => {
                 const lineTotal = item.price * item.qty;
-                sum += lineTotal; count += item.qty;
+                subtotal += lineTotal;
+                totalCount += item.qty;
+
                 html += `
                     <div class="receipt-item-row">
-                        <div style="flex:1;">
-                            <div style="font-weight:500;">${item.name}</div>
-                            <div style="font-size:11px; color:var(--text-sub);">
-                                ${item.price} บาท x ${item.qty}
-                                ${!isCloudOrderLoaded ? `<button onclick="posCart.splice(${idx},1); renderCartReceipt();" style="border:none; background:none; color:var(--primary); cursor:pointer; margin-left:6px; font-weight:600;">ลบ</button>` : ''}
+                        <div class="item-info-col">
+                            <div class="item-name-text">${item.name}</div>
+                            ${item.sauce ? `<div class="item-sub-text">น้ำจิ้ม: ${item.sauce}</div>` : ''}
+                            <div class="item-sub-text">${item.price} บาท x ${item.qty}</div>
+                            
+                            <!-- ปุ่มปรับจำนวน (ซ่อนอัตโนมัติตอนแคปเจอร์รูปภาพใบเสร็จ) -->
+                            <div class="qty-adjuster-bar" data-html2canvas-ignore="true">
+                                <button type="button" class="btn-qty-mini" onclick="changeItemQty(${idx}, -1)">-</button>
+                                <span class="qty-mini-val">${item.qty}</span>
+                                <button type="button" class="btn-qty-mini" onclick="changeItemQty(${idx}, 1)">+</button>
+                                <button type="button" class="btn-del-mini" onclick="removeItem(${idx})">ลบ</button>
                             </div>
                         </div>
-                        <div style="font-weight:600;">${lineTotal} บาท</div>
-                    </div>`;
+                        <div class="item-price-text">${lineTotal.toLocaleString()} บาท</div>
+                    </div>
+                `;
             });
+
             list.innerHTML = html;
-            totalDisplay.innerText = `${sum} บาท`;
-            document.getElementById('mobile-cart-badge').innerText = count;
+            subtotalDisplay.innerText = `${subtotal.toLocaleString()} บาท`;
+
+            if (deliveryFee > 0) {
+                delivLine.style.display = 'flex';
+                delivDisplay.innerText = `${deliveryFee.toLocaleString()} บาท`;
+            } else {
+                delivLine.style.display = 'none';
+            }
+
+            const grandTotal = subtotal + deliveryFee;
+            totalDisplay.innerText = `${grandTotal.toLocaleString()} บาท`;
+            document.getElementById('mobile-cart-badge').innerText = totalCount;
         }
 
         function updateReceiptMeta(orderId = null, customerName = null, channel = null) {
@@ -632,61 +770,103 @@
         }
 
         function clearCurrentCart() {
-            posCart = []; currentActiveOrderId = null; isCloudOrderLoaded = false;
+            posCart = []; currentActiveOrderId = null; isCloudOrderLoaded = false; deliveryFee = 0;
             document.getElementById('pos-cust-phone').value = '';
             document.getElementById('pos-cust-name').value = '';
             document.getElementById('pos-cust-address').value = '';
             document.getElementById('cust-found-badge').style.display = 'none';
+            document.getElementById('delivery-fee-display').innerText = '0 บาท';
+            document.querySelectorAll('.delivery-btn-group .btn-deliv').forEach(b => b.classList.remove('active'));
+            document.querySelector('.delivery-btn-group .btn-deliv')?.classList.add('active');
+
             updateReceiptMeta(); renderCartReceipt();
             document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
         }
 
-        /* ------------------ ออเดอร์จาก LINE (เรียลไทม์) ------------------ */
-        function formatItemsSummary(raw) {
-            if (!raw) return '-';
-            if (typeof raw === 'string') {
-                const s = raw.trim();
-                if (s.startsWith('[') || s.startsWith('{')) {
+        /* ------------------ ดึงและแยกบรรทัดออเดอร์จาก LINE ------------------ */
+        function parseOrderItemsList(rawItems, totalFallback) {
+            if (!rawItems) return [{ name: 'รายการผลไม้พร้อมทาน', price: Number(totalFallback) || 0, qty: 1, sauce: '' }];
+
+            let items = [];
+            if (Array.isArray(rawItems)) {
+                items = rawItems;
+            } else if (typeof rawItems === 'string') {
+                const trimmed = rawItems.trim();
+                if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
                     try {
-                        const parsed = JSON.parse(s);
-                        if (Array.isArray(parsed)) {
-                            return parsed.map(i => `${i.name || 'สินค้า'} x${i.qty || 1}${(i.sauces && i.sauces.length) ? ' (' + i.sauces.filter(x => x && !x.includes('ไม่รับ')).join(', ') + ')' : ''}`).join(', ');
-                        }
+                        const parsed = JSON.parse(trimmed);
+                        if (Array.isArray(parsed)) items = parsed;
+                        else if (parsed && typeof parsed === 'object') items = [parsed];
                     } catch (e) {}
                 }
-                return s;
             }
-            if (Array.isArray(raw)) return raw.map(i => `${i.name || 'สินค้า'} x${i.qty || 1}`).join(', ');
-            return String(raw);
+
+            if (items.length > 0) {
+                return items.map(item => {
+                    const name = item.name || item.title || item.product || 'ผลไม้พร้อมทาน';
+                    const price = Number(item.price) || 0;
+                    const qty = Number(item.qty || item.quantity) || 1;
+                    let sauce = '';
+                    if (item.sauce) {
+                        sauce = String(item.sauce);
+                    } else if (Array.isArray(item.sauces)) {
+                        sauce = item.sauces.filter(s => s && !s.includes('ไม่รับ')).join(', ');
+                    }
+                    return { name, price, qty, sauce };
+                });
+            }
+
+            if (typeof rawItems === 'string') {
+                const lines = rawItems.split(/,\s*(?![^\[\(]*[\]\)])|\n+/).map(l => l.trim()).filter(Boolean);
+                if (lines.length > 1 || (lines.length === 1 && lines[0].includes('x'))) {
+                    const parsedList = [];
+                    lines.forEach(line => {
+                        const match = line.match(/^(.*?)(?:\s*x\s*(\d+))?(?:\s*\(([\d\.]+)\s*บาท\))?$/);
+                        if (match) {
+                            const name = match[1].trim();
+                            const qty = Number(match[2]) || 1;
+                            const price = match[3] ? (Number(match[3]) / qty) : 0;
+                            parsedList.push({ name, price, qty, sauce: '' });
+                        } else {
+                            parsedList.push({ name: line, price: 0, qty: 1, sauce: '' });
+                        }
+                    });
+                    if (parsedList.length > 0) return parsedList;
+                }
+                return [{ name: rawItems, price: Number(totalFallback) || 0, qty: 1, sauce: '' }];
+            }
+
+            return [{ name: 'ผลไม้พร้อมทาน', price: Number(totalFallback) || 0, qty: 1, sauce: '' }];
         }
 
         function parseOrderRow(ord) {
             if (!ord) return null;
+            let orderId = '', customerName = '', customerPhone = '', customerAddress = '', rawItems = '', totalAmount = 0, channel = 'LINE';
+
             if (Array.isArray(ord)) {
-                return {
-                    orderId: String(ord[0] || 'ORD-' + Date.now().toString().slice(-4)),
-                    customerName: String(ord[2] || 'ลูกค้าทั่วไป'),
-                    customerPhone: String(ord[3] || ''),
-                    customerAddress: String(ord[4] || ''),
-                    itemsSummary: formatItemsSummary(ord[5]),
-                    totalAmount: Number(ord[6]) || 0,
-                    channel: String(ord[8] || 'LINE')
-                };
+                // อิงตามแท็บ Orders: Col 0:ID, Col 2:Name, Col 3:Phone, Col 4:Address, Col 6:Items Data, Col 7:Total Price, Col 8:Status
+                orderId = String(ord[0] || 'ORD-' + Date.now().toString().slice(-4));
+                customerName = String(ord[2] || 'ลูกค้าทั่วไป');
+                customerPhone = String(ord[3] || '');
+                customerAddress = String(ord[4] || '');
+                rawItems = ord[6] || ord[5] || '';
+                totalAmount = Number(ord[7] || ord[6]) || 0;
+                channel = String(ord[8] || 'LINE');
+            } else if (typeof ord === 'object') {
+                orderId = String(ord.orderId || ord.id || ord.order_id || ord['Order ID'] || ord['รหัส'] || 'ORD-' + Date.now().toString().slice(-4));
+                customerName = String(ord.customerName || ord.name || ord['Customer Name'] || ord['ชื่อลูกค้า'] || 'ลูกค้าทั่วไป');
+                customerPhone = String(ord.customerPhone || ord.phone || ord.tel || ord['Phone'] || ord['เบอร์โทร'] || '');
+                customerAddress = String(ord.customerAddress || ord.address || ord['Address'] || ord['ที่อยู่'] || '');
+                rawItems = ord['Items Data'] || ord.itemsData || ord.items || ord.itemsSummary || ord.rawItems || ord['รายการ'] || '';
+                totalAmount = Number(ord.totalAmount || ord.total || ord.amount || ord['Total Price'] || ord['ยอดรวม']) || 0;
+                channel = String(ord.channel || ord['Channel'] || ord['ช่องทาง'] || 'LINE');
             }
-            return {
-                orderId: String(ord.orderId || ord.id || ord.order_id || ord['รหัส'] || 'ORD-' + Date.now().toString().slice(-4)),
-                customerName: String(ord.customerName || ord.name || ord.customer_name || ord['ชื่อลูกค้า'] || 'ลูกค้าทั่วไป'),
-                customerPhone: String(ord.customerPhone || ord.phone || ord.tel || ord['เบอร์โทร'] || ''),
-                customerAddress: String(ord.customerAddress || ord.address || ord['ที่อยู่'] || ''),
-                itemsSummary: formatItemsSummary(ord.itemsSummary || ord.items || ord.itemSummary || ord.details || ord['รายการ']),
-                totalAmount: Number(ord.totalAmount || ord.total || ord.amount || ord['ยอดรวม']) || 0,
-                channel: String(ord.channel || ord['ช่องทาง'] || 'LINE')
-            };
+
+            return { orderId, customerName, customerPhone, customerAddress, rawItems, totalAmount, channel };
         }
 
         async function loadCloudOrders() {
             try {
-                // เพิ่ม &t=timestamp เพื่อไม่ให้ Safari แคชข้อมูลเก่า
                 const res = await fetch(`${ORDER_API_URL}?action=getPendingOrders&t=${Date.now()}`);
                 const raw = await res.json();
                 let list = [];
@@ -716,7 +896,6 @@
                 }
             });
 
-            // มีออเดอร์ใหม่เข้ามา -> ส่งเสียงและแสดงแถบเตือนทันที
             if (!isFirstLoad && newlyArrived.length > 0) {
                 playAlertSound();
                 showOrderToast(newlyArrived[0]);
@@ -730,11 +909,14 @@
 
             let html = '';
             orders.forEach(ord => {
+                const itemsList = parseOrderItemsList(ord.rawItems, ord.totalAmount);
+                const summaryTxt = itemsList.map(i => `${i.name} x${i.qty}`).join(', ');
+
                 html += `
                     <div class="order-card ${currentActiveOrderId === ord.orderId ? 'selected' : ''}" onclick="selectCloudOrder('${ord.orderId}', '${encodeURIComponent(JSON.stringify(ord))}')">
                         <div style="font-size:13px; font-weight:700;">${ord.orderId}</div>
                         <div style="font-size:12px; color:var(--text-sub);">${ord.customerName} ${ord.customerPhone ? '('+ord.customerPhone+')' : ''}</div>
-                        <div style="font-size:12px; margin:4px 0; line-height:1.4;">${ord.itemsSummary}</div>
+                        <div style="font-size:12px; margin:4px 0; line-height:1.4;">${summaryTxt}</div>
                         <div style="font-size:13px; font-weight:700; color:var(--primary); text-align:right;">${ord.totalAmount.toLocaleString()} บาท</div>
                     </div>`;
             });
@@ -758,13 +940,16 @@
             const ord = JSON.parse(decodeURIComponent(encodedData));
             currentActiveOrderId = ord.orderId;
             isCloudOrderLoaded = true;
+            deliveryFee = 0;
 
             document.getElementById('pos-cust-name').value = ord.customerName || '';
             document.getElementById('pos-cust-phone').value = ord.customerPhone || '';
             document.getElementById('pos-cust-address').value = ord.customerAddress || '';
 
             updateReceiptMeta(ord.orderId, `${ord.customerName} (${ord.customerPhone})`, ord.channel || 'LINE');
-            posCart = [{ name: ord.itemsSummary || 'รายการตามออเดอร์ LINE', price: ord.totalAmount, qty: 1 }];
+
+            // แกะรายการสินค้าออกเป็นบรรทัดแยกกัน
+            posCart = parseOrderItemsList(ord.rawItems, ord.totalAmount);
             renderCartReceipt();
 
             document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
@@ -797,10 +982,13 @@
 
         function exportReceiptPNG() {
             const area = document.getElementById('receipt-capture-area');
-            html2canvas(area, { scale: 2 }).then(canvas => {
+            html2canvas(area, { 
+                scale: 2,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Receipt-${Date.now()}.png`;
-                link.href = canvas.toDataURL();
+                link.href = canvas.toDataURL('image/png');
                 link.click();
             });
         }
