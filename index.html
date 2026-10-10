@@ -368,96 +368,196 @@
             });
         }
 
-        /* ------------------ ฟังก์ชันเลือกผลไม้ดูโอ้ ------------------ */
+/* ------------------ ฟังก์ชันสำหรับผลไม้ดูโอ้ ------------------ */
 
         function openDuoModal() {
-            selectedDuo = [];
-            document.getElementById('pos-duo-addon').checked = false;
-            document.getElementById('pos-addon-box').style.display = 'none';
+            selectedDuoItems = [];
+            document.getElementById('duo-addon-check').checked = false;
+            document.getElementById('duo-addon-section').style.display = 'none';
+            
+            // รีเซ็ตค่าน้ำจิ้ม
+            const sauceSec = document.getElementById('duo-sauce-section');
+            if (sauceSec) {
+                sauceSec.style.display = 'none';
+                document.getElementById('duo-sauce-select').value = 'พริกเกลือนัวร์ (ฟรี)';
+            }
 
-            const container = document.getElementById('pos-duo-fruit-list');
-            container.innerHTML = '';
+            const listContainer = document.getElementById('duo-fruit-list');
+            listContainer.innerHTML = '';
 
-            const fruits = menuItems.filter(i => !/บริการ|addon/i.test(String(i.category || '')) && Number(i.category) >= 40 && !i.name.includes('ยำ'));
-            fruits.forEach(item => {
+            // กรองเอาเฉพาะผลไม้พร้อมจำหน่าย และตัดเมนูยำออก
+            const eligibleFruits = menuData.filter(i => !isService(i) && !isNaN(Number(i.category)) && Number(i.category) >= 40 && i.available && !i.name.includes('ยำ'));
+            
+            eligibleFruits.forEach(item => {
                 const row = document.createElement('div');
-                row.className = 'fruit-row';
+                row.className = 'duo-fruit-row';
                 row.innerHTML = `
-                    <span>${item.name} (${item.price} บาท)</span>
-                    <input type="checkbox" onchange="toggleDuoCheck(this, '${item.name}', ${item.price})">
+                    <span>${item.name} <b style="color:var(--text-sub); font-size:12px;">(${item.price} บาท)</b></span>
+                    <input type="checkbox" id="cb-duo-${item.id}" onchange="handleDuoFruitCheck(this, '${item.id}')">
                 `;
-                container.appendChild(row);
+                listContainer.appendChild(row);
             });
 
-            calcDuoPricePreview();
-            document.getElementById('pos-duo-modal').style.display = 'flex';
+            updateDuoCalcPrice();
+            document.getElementById('duo-modal').style.display = 'flex';
         }
 
         function closeDuoModal() {
-            document.getElementById('pos-duo-modal').style.display = 'none';
+            document.getElementById('duo-modal').style.display = 'none';
         }
 
-        function toggleDuoCheck(cb, name, price) {
-            if (cb.checked) {
-                if (selectedDuo.length >= 2) {
-                    cb.checked = false;
-                    alert('เลือกได้สูงสุด 2 อย่างต่อกล่อง');
+        function handleDuoFruitCheck(checkbox, id) {
+            const item = itemDictionary[id];
+            if (checkbox.checked) {
+                if (selectedDuoItems.length >= 2) {
+                    checkbox.checked = false;
+                    alert('คุณสามารถเลือกผลไม้ได้สูงสุด 2 อย่างต่อหนึ่งกล่องค่ะ');
                     return;
                 }
-                selectedDuo.push({ name, price });
+                selectedDuoItems.push(item);
             } else {
-                selectedDuo = selectedDuo.filter(i => i.name !== name);
+                selectedDuoItems = selectedDuoItems.filter(i => i.id !== id);
             }
 
-            const hasAvocado = selectedDuo.some(i => i.name.includes('อะโวคาโด้'));
-            document.getElementById('pos-addon-box').style.display = hasAvocado ? 'block' : 'none';
-            if (!hasAvocado) document.getElementById('pos-duo-addon').checked = false;
+            // ตรวจสอบว่ามีอะโวคาโด้หรือไม่
+            const hasAvocado = selectedDuoItems.some(i => i.name.includes('อะโวคาโด้'));
+            document.getElementById('duo-addon-section').style.display = hasAvocado ? 'block' : 'none';
+            if (!hasAvocado) document.getElementById('duo-addon-check').checked = false;
 
-            calcDuoPricePreview();
+            // ตรวจสอบว่ามีผลไม้ที่ทานคู่น้ำจิ้มได้หรือไม่ (เช่น มะม่วง ฝรั่ง สับปะรด แอปเปิ้ล)
+            const hasSauceFruit = selectedDuoItems.some(i => isSauceEligible(i.name));
+            const sauceSec = document.getElementById('duo-sauce-section');
+            if (sauceSec) {
+                sauceSec.style.display = hasSauceFruit ? 'block' : 'none';
+                if (!hasSauceFruit) document.getElementById('duo-sauce-select').value = 'ไม่รับน้ำจิ้ม';
+                else if (document.getElementById('duo-sauce-select').value === 'ไม่รับน้ำจิ้ม') {
+                    document.getElementById('duo-sauce-select').value = 'พริกเกลือนัวร์ (ฟรี)';
+                }
+            }
+
+            updateDuoCalcPrice();
         }
 
-        function calcDuoPrice(itemA, itemB, withAddon) {
-            const isPremA = PREMIUM_FRUITS.some(p => itemA.name.includes(p));
-            const isPremB = PREMIUM_FRUITS.some(p => itemB.name.includes(p));
-            const count = (isPremA ? 1 : 0) + (isPremB ? 1 : 0);
+        // คำนวณราคาดูโอ้ตามกฎ 70 / 85 / 95 / 120 บาท
+        function calculateDuoPrice(itemA, itemB, withAddon = false, withPaidSauce = false) {
+            if (!itemA || !itemB) return 70;
+            const isPremA = PREMIUM_FRUIT_NAMES.some(p => itemA.name.includes(p));
+            const isPremB = PREMIUM_FRUIT_NAMES.some(p => itemB.name.includes(p));
+            const premCount = (isPremA ? 1 : 0) + (isPremB ? 1 : 0);
 
             let price = 70;
-            if (count === 2) price = 120;
-            else if (count === 1) price = 95;
-            else if (itemA.price > 60 || itemB.price > 60) price = 85;
-            else price = 70;
+            if (premCount === 2) {
+                price = 120;
+            } else if (premCount === 1) {
+                price = 95;
+            } else {
+                const priceA = Number(itemA.price) || 0;
+                const priceB = Number(itemB.price) || 0;
+                if (priceA > 60 || priceB > 60) {
+                    price = 85;
+                } else {
+                    price = 70;
+                }
+            }
 
             if (withAddon) price += 15;
+            if (withPaidSauce) price += 20; // กรณีเลือกน้ำจิ้มแบบพิเศษ เช่น กะปิปลาร้า หรือ กะปิหวาน
             return price;
         }
 
-        function calcDuoPricePreview() {
-            const countLabel = document.getElementById('duo-count');
-            const preview = document.getElementById('pos-duo-price-preview');
-            const btn = document.getElementById('btn-add-duo');
+        function updateDuoCalcPrice() {
+            const countLabel = document.getElementById('duo-count-label');
+            const pricePreview = document.getElementById('duo-price-preview');
+            const confirmBtn = document.getElementById('btn-confirm-duo');
 
-            countLabel.innerText = `(${selectedDuo.length}/2)`;
+            countLabel.innerText = `(เลือกแล้ว ${selectedDuoItems.length}/2 อย่าง)`;
 
-            if (selectedDuo.length === 2) {
-                const withAddon = document.getElementById('pos-duo-addon').checked;
-                const price = calcDuoPrice(selectedDuo[0], selectedDuo[1], withAddon);
-                preview.innerText = `${price} บาท`;
-                btn.disabled = false;
+            if (selectedDuoItems.length === 2) {
+                const withAddon = document.getElementById('duo-addon-check').checked;
+                
+                // ตรวจสอบน้ำจิ้มว่าเลือกแบบ +20 หรือไม่
+                const hasSauceFruit = selectedDuoItems.some(i => isSauceEligible(i.name));
+                const sauceSelect = document.getElementById('duo-sauce-select');
+                const withPaidSauce = hasSauceFruit && sauceSelect && sauceSelect.value.includes('+20');
+
+                const price = calculateDuoPrice(selectedDuoItems[0], selectedDuoItems[1], withAddon, withPaidSauce);
+                pricePreview.innerText = `${price} บาท`;
+                confirmBtn.disabled = false;
             } else {
-                preview.innerText = `เลือกอีก ${2 - selectedDuo.length} อย่าง`;
-                btn.disabled = true;
+                pricePreview.innerText = `เลือกอีก ${2 - selectedDuoItems.length} อย่าง`;
+                confirmBtn.disabled = true;
             }
         }
 
-        function addDuoToCart() {
-            if (selectedDuo.length !== 2) return;
-            const withAddon = document.getElementById('pos-duo-addon').checked;
-            const price = calcDuoPrice(selectedDuo[0], selectedDuo[1], withAddon);
-            const addonText = withAddon ? ' (+น้ำผึ้งมูสลี่)' : '';
-            const title = `ผลไม้ดูโอ้ (${selectedDuo[0].name} + ${selectedDuo[1].name}${addonText})`;
+        function addDuoBoxToCart() {
+            if (selectedDuoItems.length !== 2) return;
+            const withAddon = document.getElementById('duo-addon-check').checked;
+            
+            const hasSauceFruit = selectedDuoItems.some(i => isSauceEligible(i.name));
+            const sauceSelect = document.getElementById('duo-sauce-select');
+            const withPaidSauce = hasSauceFruit && sauceSelect && sauceSelect.value.includes('+20');
+            
+            const finalPrice = calculateDuoPrice(selectedDuoItems[0], selectedDuoItems[1], withAddon, withPaidSauce);
 
-            addItemToCart(title, price);
+            const duoId = 'DUO_' + (++duoUniqueCounter);
+            const addonText = withAddon ? ' (+น้ำผึ้งมูสลี่)' : '';
+            const boxName = `ผลไม้ดูโอ้ (${selectedDuoItems[0].name} + ${selectedDuoItems[1].name}${addonText})`;
+
+            itemDictionary[duoId] = {
+                id: duoId,
+                name: boxName,
+                price: finalPrice,
+                category: finalPrice,
+                available: true,
+                isDuo: true
+            };
+
+            cart[duoId] = 1;
+
+            // บันทึกน้ำจิ้มลงในระบบ cartSauces เพื่อส่งต่อให้ Flex Message และ Google Sheets
+            if (hasSauceFruit && sauceSelect) {
+                cartSauces[duoId] = [sauceSelect.value];
+            }
+
             closeDuoModal();
+            renderDuoCartList();
+            updateCartBar();
+        }
+
+        function renderDuoCartList() {
+            const container = document.getElementById('duo-cart-container');
+            const duoKeys = Object.keys(cart).filter(id => id.startsWith('DUO_'));
+            
+            if (duoKeys.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            duoKeys.forEach(id => {
+                const item = itemDictionary[id];
+                if (!item) return;
+                const sauceName = (cartSauces[id] && cartSauces[id][0] && !cartSauces[id][0].includes('ไม่รับ')) ? cartSauces[id][0] : '';
+                html += `
+                    <div class="duo-cart-item">
+                        <div>
+                            <div class="duo-cart-title">${item.name}</div>
+                            <div class="duo-cart-sub">${item.price} บาท</div>
+                            ${sauceName ? `<div style="font-size:11px; color:var(--text-sub); margin-top:2px;">น้ำจิ้ม: <b>${sauceName}</b></div>` : ''}
+                        </div>
+                        <button class="btn-duo-delete" onclick="removeDuoItem('${id}')">ลบ</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function removeDuoItem(id) {
+            delete cart[id];
+            delete itemDictionary[id];
+            delete cartSauces[id];
+            renderDuoCartList();
+            updateCartBar();
         }
 
         /* ------------------ ระบบตะกร้าและการจัดการบิล ------------------ */
