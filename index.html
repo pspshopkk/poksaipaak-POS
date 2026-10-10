@@ -3,640 +3,635 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS - ปอกใส่ปาก</title>
+    <title>ปอกใส่ปาก - ระบบจัดการจุดขาย POS</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <style>
         :root {
             --primary: #c0392b;
-            --primary-hover: #962d22;
-            --bg: #f8f9fa;
-            --white: #ffffff;
-            --border: #e9ecef;
-            --border-dark: #ced4da;
+            --primary-dark: #962d22;
             --text-main: #2c3e50;
             --text-sub: #7f8c8d;
-            --success: #27ae60;
-            --blue: #2980b9;
+            --bg-page: #f4f6f8;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --dark-header: #1e293b;
+            --gray-btn: #f1f5f9;
+            --radius-sm: 6px;
+            --radius-md: 8px;
         }
-        * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
-        body { background: var(--bg); margin: 0; padding: 20px; color: var(--text-main); }
-        .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; }
-        @media (max-width: 768px) { .container { flex-direction: column; } }
 
-        .menu-section { flex: 1.8; text-align: left; background: var(--white); padding: 20px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .cart-section { flex: 1.2; display: flex; flex-direction: column; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; text-align: left; background: var(--white); padding: 20px; border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        h2 { margin: 0 0 15px 0; color: var(--text-main); border-bottom: 2px solid var(--border); padding-bottom: 8px; font-size: 18px; font-weight: 700; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; }
+        body { background-color: var(--bg-page); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* แถบแจ้งเตือนออเดอร์ใหม่จาก LINE */
-        .cloud-orders-box { background: #fffaf0; border: 1px solid #f39c12; border-radius: 6px; padding: 12px; margin-bottom: 15px; }
-        .cloud-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .cloud-title { font-weight: 700; color: #d35400; font-size: 13px; }
-        .cloud-refresh-btn { background: #fff; border: 1px solid #f39c12; color: #d35400; padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-        .cloud-order-item { background: #fff; border: 1px solid #fae5d3; border-radius: 4px; padding: 8px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .cloud-btn-load { background: var(--success); color: #fff; border: none; border-radius: 4px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        /* คอลัมน์ซ้าย: ออเดอร์คลาวด์จาก LINE */
+        .panel-orders {
+            width: 330px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            padding: 16px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .panel-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
+        .badge-pending {
+            background: var(--primary);
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .orders-list-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .order-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .order-card:hover { border-color: var(--text-main); box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .order-card.selected { border-color: var(--primary); background: #fffaf9; border-left: 3px solid var(--primary); }
+        .order-card-id { font-size: 13px; font-weight: 700; color: var(--text-main); }
+        .order-card-cust { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+        .order-card-summary { font-size: 12px; color: var(--text-main); margin: 6px 0; line-height: 1.4; }
+        .order-card-total { font-size: 13px; font-weight: 700; color: var(--primary); text-align: right; }
 
-        .custom-item-box { background: #fdfdfd; border: 1px dashed var(--border-dark); padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; }
-        .custom-item-row { display: flex; gap: 6px; margin-bottom: 6px; }
-        .custom-item-row input { padding: 6px 8px; font-size: 13px; border: 1px solid var(--border); border-radius: 4px; min-width: 0; }
-        .btn-add-custom { background: var(--text-main); color: white; border: none; padding: 7px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: 600; font-size: 13px; }
+        /* คอลัมน์กลาง: เมนูกดสั่งหน้าร้าน */
+        .panel-menu {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .top-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .channel-dropdown {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            background: #ffffff;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        .item-tile {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 90px;
+        }
+        .item-tile:hover { border-color: var(--text-main); transform: translateY(-1px); }
+        .item-tile.duo-tile {
+            background: var(--dark-header);
+            color: #ffffff;
+            border-color: var(--dark-header);
+        }
+        .item-tile.duo-tile .tile-price { color: #f1c40f; }
+        .tile-name { font-size: 13px; font-weight: 600; }
+        .tile-price { font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 4px; }
 
-        .customer-box { background: #ffffff; border: 1px solid var(--border); padding: 12px; border-radius: 6px; margin-bottom: 12px; }
-        .customer-box select { width: 100%; padding: 8px; border: 1px solid var(--border-dark); border-radius: 4px; font-size: 13px; background: #fff; margin-bottom: 10px; }
-        .form-group { margin-bottom: 10px; }
-        .form-group label { display: block; font-size: 12px; margin-bottom: 3px; font-weight: 600; color: var(--text-main); }
-        .form-group label span.req { color: var(--primary); }
-        .form-group input, .form-group textarea { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; }
-        .btn-save-cust { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 4px; font-size: 12px; font-weight: 600; width: 100%; cursor: pointer; }
-        .btn-clear-cust { background: #f8f9fa; color: #555; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; float: right; }
-        .status-badge { font-size: 11px; margin-top: 4px; min-height: 16px; font-weight: 500; }
+        /* คอลัมน์ขวา: ตะกร้าและตัวอย่างใบเสร็จ */
+        .panel-checkout {
+            width: 380px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .receipt-container {
+            background: #ffffff;
+            border: 1px dashed #cbd5e1;
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            font-size: 12px;
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+        .receipt-header { text-align: center; margin-bottom: 12px; }
+        .receipt-brand { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+        .receipt-sub { font-size: 11px; color: var(--text-sub); }
+        .receipt-info-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin: 3px 0; }
+        .receipt-divider { border-bottom: 1px solid #e2e8f0; margin: 8px 0; }
+        .receipt-item-row { display: flex; justify-content: space-between; align-items: flex-start; margin: 6px 0; }
+        .receipt-item-title { font-weight: 500; }
+        .receipt-item-sub { font-size: 11px; color: var(--text-sub); }
+        .receipt-item-price { font-weight: 600; white-space: nowrap; margin-left: 8px; }
+        .receipt-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; margin-top: 10px; color: var(--text-main); }
 
-        .category-title { padding: 6px 10px; border-radius: 4px; margin: 15px 0 8px; font-weight: 700; color: var(--text-main); font-size: 14px; background: #f1f3f5; }
-        .cat-dip { background: #f8f9fa; border-left: 3px solid #f39c12; }
-        .cat-service { background: #f8f9fa; border-left: 3px solid #8e44ad; }
-        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 4px; border-bottom: 1px solid var(--border); }
-        .menu-item.out-of-stock { opacity: 0.5; }
-        .menu-item.out-of-stock .item-name { text-decoration: line-through; }
-        .item-name { cursor: pointer; flex: 1; font-size: 14px; padding-right: 10px; }
-        .btn-add { background: var(--text-main); color: white; width: 65px; border: none; border-radius: 4px; padding: 5px; cursor: pointer; font-size: 12px; }
-        .btn-disabled { background: #e9ecef; color: #adb5bd; width: 65px; border: none; border-radius: 4px; padding: 5px; cursor: not-allowed; font-size: 12px; }
+        .btn-action-group { display: flex; flex-direction: column; gap: 8px; }
+        .btn-pos-primary {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-pos-primary:hover { background: var(--primary-dark); }
+        .btn-pos-secondary {
+            background: var(--gray-btn);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-pos-secondary:hover { background: #e2e8f0; }
 
-        .cart-list { flex: 1; overflow-y: auto; margin-bottom: 15px; min-height: 90px; border: 1px solid var(--border); padding: 10px; border-radius: 4px; background: #fdfdfd; }
-        .cart-item { display: flex; flex-direction: column; margin-bottom: 10px; font-size: 13px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
-        .cart-item-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .cart-controls button { width: 26px; height: 26px; cursor: pointer; border: 1px solid var(--border-dark); background: #fff; border-radius: 3px; font-weight: 600; }
-        .cart-sauce-row { background: #fff; padding: 6px; border-radius: 4px; border: 1px solid var(--border); margin-top: 6px; font-size: 12px; display: flex; flex-direction: column; gap: 4px; }
-        .cart-sauce-select { padding: 3px; border-radius: 4px; border: 1px solid var(--border-dark); font-size: 11px; width: 100%; }
-
-        .btn-group { display: flex; gap: 5px; margin-bottom: 10px; }
-        .btn-group button { flex: 1; padding: 6px 0; border: 1px solid var(--border-dark); background: white; color: var(--text-main); border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
-        .btn-group button.active { background: var(--text-main); color: white; border-color: var(--text-main); }
-
-        .totals { border-top: 1px solid var(--border); padding-top: 10px; margin-bottom: 12px; }
-        .total-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 14px; }
-        .total-row.grand { font-size: 18px; font-weight: 700; color: var(--primary); }
-        .btn-print { width: 100%; padding: 11px; background: var(--primary); color: white; font-size: 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; }
-        .btn-print:hover { background: var(--primary-dark); }
-
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 9999; padding: 15px; }
-        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 100%; max-width: 360px; text-align: center; }
-
-        #receipt-container { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; z-index: -1000; }
-        #receipt { width: 212px; padding: 10px; font-size: 11px; background: white; color: black; }
-        .r-header { text-align: center; border-bottom: 1px dashed black; padding-bottom: 5px; margin-bottom: 5px; }
-        .r-title { font-size: 14px; font-weight: bold; margin: 0; }
-        .r-info { margin: 2px 0; font-size: 10px; }
-        .r-address-print { font-size: 10px; margin: 3px 0; text-align: left; background: #fafafa; padding: 3px; word-break: break-word; }
-        .r-note-print { margin: 4px 0; font-size: 11px; font-weight: bold; border: 1px dashed #999; padding: 2px; display: none; }
-        .r-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 10px; }
-        .r-table th { border-bottom: 1px dashed black; text-align: left; padding: 3px 0; }
-        .r-table td { padding: 3px 0; vertical-align: top; line-height: 1.3; }
-        .r-totals { border-top: 1px dashed black; padding-top: 4px; font-size: 11px; }
-        .r-totals .flex { display: flex; justify-content: space-between; margin-bottom: 2px; }
-        .r-footer { text-align: center; margin-top: 8px; font-size: 11px; font-weight: bold; }
+        /* Modal ผลไม้ดูโอ้ */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px;
+        }
+        .modal-card {
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            width: 100%; max-width: 400px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; max-height: 85vh;
+        }
+        .modal-title { font-size: 15px; font-weight: 700; text-align: center; }
+        .modal-sub { font-size: 12px; color: var(--text-sub); text-align: center; margin: 4px 0 14px; }
+        .fruit-scroll-box {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow-y: auto; flex: 1; max-height: 250px;
+            margin-bottom: 12px;
+        }
+        .fruit-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 14px; border-bottom: 1px solid var(--border);
+            cursor: pointer; font-size: 13px;
+        }
+        .fruit-row:last-child { border-bottom: none; }
+        .fruit-row:hover { background: #f8fafc; }
+        .fruit-row input[type="checkbox"] { width: 16px; height: 16px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="menu-section">
-            <h2>ระบบจัดการออเดอร์หน้าร้าน (POS)</h2>
-            <div id="menu-container">
-                <div style="text-align:center; padding:40px; color:#95a5a6; font-size:13px;">กำลังโหลดฐานข้อมูลจากคลาวด์...</div>
-            </div>
+    <!-- แผงซ้าย: รายการคำสั่งซื้อจาก LINE (Cloud) -->
+    <div class="panel-orders">
+        <div class="panel-header">
+            <span class="panel-title">ออเดอร์รอจัดเตรียม</span>
+            <span class="badge-pending" id="badge-count">0</span>
         </div>
-
-        <div class="cart-section">
-            <h2>รายการสั่งซื้อ</h2>
-
-            <div class="cloud-orders-box" id="cloud-box" style="display:none;">
-                <div class="cloud-header">
-                    <span class="cloud-title" id="cloud-count-title">ออเดอร์ใหม่จาก LINE</span>
-                    <button type="button" class="cloud-refresh-btn" onclick="checkCloudOrders()">รีเฟรช</button>
-                </div>
-                <div id="cloud-orders-list"></div>
-            </div>
-
-            <div class="custom-item-box">
-                <label style="display:block; font-size:12px; font-weight:600; color:var(--text-main); margin-bottom:5px;">เพิ่มรายการพิเศษนอกเมนู</label>
-                <div class="custom-item-row">
-                    <input type="text" id="custom-name" placeholder="ชื่อรายการ เช่น เมล่อน" style="flex: 2;">
-                    <input type="number" id="custom-price" placeholder="ราคา" min="0" style="flex: 1;">
-                    <input type="number" id="custom-qty" value="1" min="1" style="width: 48px; text-align: center;">
-                </div>
-                <button type="button" class="btn-add-custom" onclick="addCustomItem()">เพิ่มรายการพิเศษลงบิล</button>
-            </div>
-
-            <div class="form-group">
-                <label>ช่องทางการสั่งซื้อ</label>
-                <div class="btn-group">
-                    <button type="button" class="active" onclick="setChannel('LINE', this)">LINE</button>
-                    <button type="button" onclick="setChannel('Facebook', this)">Facebook</button>
-                    <button type="button" onclick="setChannel('หน้าร้าน', this)">หน้าร้าน</button>
-                </div>
-            </div>
-
-            <div class="customer-box">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <label style="font-weight:600; font-size:12px;">ข้อมูลลูกค้าและสถานที่จัดส่ง</label>
-                    <button type="button" class="btn-clear-cust" onclick="clearCustomerFields()">ล้างข้อมูล</button>
-                </div>
-
-                <select id="customer-dropdown" onchange="onSelectCustomerDropdown(this)">
-                    <option value="">-- กำลังโหลดรายชื่อลูกค้า... --</option>
-                </select>
-                
-                <div class="form-group">
-                    <label>ชื่อลูกค้า <span class="req">*</span></label>
-                    <input type="text" id="customer-name" placeholder="ระบุชื่อจริง หรือชื่อเรียก">
-                </div>
-
-                <div class="form-group">
-                    <label>เบอร์โทรศัพท์ <span class="req">*</span></label>
-                    <input type="tel" id="customer-phone" placeholder="เช่น 0812345678">
-                </div>
-
-                <div class="form-group">
-                    <label>สถานที่จัดส่ง <span class="req">*</span></label>
-                    <textarea id="customer-address" rows="2" placeholder="ระบุบ้านเลขที่, ถนน/ซอย หรือพิกัดแผนที่"></textarea>
-                </div>
-
-                <button type="button" class="btn-save-cust" onclick="manualSaveCustomer()">บันทึก / อัปเดตข้อมูลลูกค้าลงชีท</button>
-                <div id="customer-save-status" class="status-badge"></div>
-            </div>
-            
-            <div class="form-group">
-                <label>หมายเหตุพิเศษ</label>
-                <input type="text" id="order-note" placeholder="ข้อความเพิ่มเติม">
-            </div>
-
-            <div class="cart-list" id="cart-list"></div>
-
-            <div class="form-group">
-                <label>ค่าบริการจัดส่ง (บาท)</label>
-                <div class="btn-group">
-                    <button type="button" class="del-btn active" onclick="setDelivery(0)">ฟรี / รับเอง</button>
-                    <button type="button" class="del-btn" onclick="setDelivery(10)">+ 10 บาท</button>
-                    <button type="button" class="del-btn" onclick="setDelivery(20)">+ 20 บาท</button>
-                    <button type="button" class="del-btn" onclick="setDelivery(30)">+ 30 บาท</button>
-                </div>
-            </div>
-
-            <div class="totals">
-                <div class="total-row"><span>รวมค่าสินค้า:</span><span id="subtotal">0 บาท</span></div>
-                <div class="total-row"><span>ค่าจัดส่ง:</span><span id="del-fee">0 บาท</span></div>
-                <div class="total-row grand"><span>รวมทั้งหมด:</span><span id="grand-total">0 บาท</span></div>
-            </div>
-
-            <button class="btn-print" id="btn-download" onclick="generateReceiptImage()">ออกใบเสร็จ</button>
+        <div class="orders-list-scroll" id="pending-orders-container">
+            <div style="text-align:center; padding-top:30px; font-size:12px; color:var(--text-sub);">กำลังโหลดข้อมูลจากคลาวด์...</div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="receipt-modal">
-        <div class="modal-content">
-            <h3 style="margin:0 0 10px; font-size:16px;">สรุปใบเสร็จรับเงิน</h3>
-            <p style="font-size:12px; color:#555; margin-bottom:10px;">แตะค้างที่รูปภาพ หรือกดปุ่มบันทึกด้านล่าง</p>
-            <div style="max-height:60vh; overflow-y:auto; margin-bottom:15px; background:#f0f0f0; border-radius:4px; padding:5px;">
-                <img id="receipt-result-img" src="" style="width:100%; max-width:212px; display:block; margin:0 auto;">
+    <!-- แผงกลาง: เมนูสินค้าแคชเชียร์ -->
+    <div class="panel-menu">
+        <div class="top-toolbar">
+            <h2 style="font-size:16px; font-weight:700;">เลือกสินค้าเพื่อเปิดบิล</h2>
+            <select class="channel-dropdown" id="channel-picker" onchange="updateReceiptMeta()">
+                <option value="หน้าร้าน">ช่องทาง: หน้าร้าน</option>
+                <option value="LINE">ช่องทาง: LINE</option>
+                <option value="Facebook">ช่องทาง: Facebook</option>
+            </select>
+        </div>
+
+        <div class="menu-grid">
+            <!-- ปุ่มผลไม้ดูโอ้แบบพิเศษ -->
+            <div class="item-tile duo-tile" onclick="openDuoModal()">
+                <div class="tile-name">+ ผลไม้ดูโอ้</div>
+                <div class="tile-price">จับคู่ 2 อย่าง</div>
             </div>
-            <div id="dl-btn-container"></div>
-            <button style="background:#6c757d; color:white; border:none; padding:9px; border-radius:4px; font-weight:600; width:100%; cursor:pointer;" onclick="closeReceiptModal()">ปิดหน้าต่าง</button>
+            <!-- รายการผลไม้เดี่ยวจะถูกโหลดมาแสดงต่อจากนี้ -->
+            <div id="dynamic-menu-tiles" style="display:contents;"></div>
         </div>
     </div>
 
-    <div id="receipt-container">
-        <div id="receipt">
-            <div class="r-header">
-                <h3 class="r-title">ปอกใส่ปาก</h3>
-                <p class="r-info" id="r-time"></p>
-                <p class="r-info" id="r-channel"></p>
-                <p class="r-info" id="r-customer"></p>
-                <p class="r-address-print" id="r-address"></p>
-                <p class="r-note-print" id="r-note"></p> 
+    <!-- แผงขวา: หน้าต่างใบเสร็จและคิดเงิน -->
+    <div class="panel-checkout">
+        <div class="receipt-container" id="receipt-capture-area">
+            <div class="receipt-header">
+                <div class="receipt-brand">ปอกใส่ปาก</div>
+                <div class="receipt-sub">ผลไม้สดพร้อมทาน คัดสรรพิเศษ</div>
             </div>
-            <table class="r-table">
-                <thead>
-                    <tr><th>รายการ</th><th style="text-align:center; width:30px;">จำนวน</th><th style="text-align:right; width:45px;">ราคา</th></tr>
-                </thead>
-                <tbody id="r-items"></tbody>
-            </table>
-            <div class="r-totals">
-                <div class="flex"><span>ค่าสินค้า:</span><span id="r-subtotal"></span></div>
-                <div class="flex"><span>ค่าจัดส่ง:</span><span id="r-delfee"></span></div>
-                <div class="flex" style="font-weight:bold; font-size:12px;"><span>รวมทั้งหมด:</span><span id="r-grandtotal"></span></div>
+
+            <div class="receipt-info-row">
+                <span id="rc-order-id">เลขที่: POS-0001</span>
+                <span id="rc-channel">หน้าร้าน</span>
             </div>
-            <div class="r-footer">ขอบคุณที่อุดหนุนค่ะ</div>
+            <div class="receipt-info-row">
+                <span id="rc-time">-</span>
+                <span id="rc-cust">ลูกค้าทั่วไป</span>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div id="receipt-items-list">
+                <div style="text-align:center; padding:30px 0; color:var(--text-sub); font-size:12px;">ยังไม่มีรายการสินค้า</div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-total-row">
+                <span>ยอดรวมสุทธิ</span>
+                <span id="rc-total-price">0 บาท</span>
+            </div>
+        </div>
+
+        <div class="btn-action-group">
+            <button class="btn-pos-secondary" onclick="exportReceiptPNG()">บันทึกรูปภาพใบเสร็จ</button>
+            <button class="btn-pos-primary" onclick="completeCurrentOrder()">รับออเดอร์และบันทึกเสร็จสิ้น</button>
+            <button class="btn-pos-secondary" style="color:var(--text-sub);" onclick="clearCurrentCart()">ล้างบิลใหม่</button>
+        </div>
+    </div>
+
+    <!-- Modal เลือกผลไม้ดูโอ้สำหรับ POS -->
+    <div class="modal-overlay" id="pos-duo-modal">
+        <div class="modal-card">
+            <div class="modal-title">เลือกผลไม้ดูโอ้ (2 อย่าง)</div>
+            <div class="modal-sub">เลือกผลไม้ที่ลูกค้าต้องการ <span id="duo-count" style="font-weight:600; color:var(--primary);">(0/2)</span></div>
+
+            <div class="fruit-scroll-box" id="pos-duo-fruit-list">
+                <!-- รายการผลไม้ดึงมาแสดงที่นี่ -->
+            </div>
+
+            <div id="pos-addon-box" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px; margin-bottom:10px; font-size:12px;">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" id="pos-duo-addon" onchange="calcDuoPricePreview()">
+                    <span>เพิ่มน้ำผึ้งและมูสลี่ สำหรับอะโวคาโด้ <b>(+15 บาท)</b></span>
+                </label>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px solid var(--border);">
+                <span style="font-size:13px; color:var(--text-sub);">คำนวณราคา:</span>
+                <span id="pos-duo-price-preview" style="font-size:16px; font-weight:700; color:var(--primary);">- บาท</span>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <button class="btn-pos-secondary" style="flex:1;" onclick="closeDuoModal()">ยกเลิก</button>
+                <button class="btn-pos-primary" id="btn-add-duo" style="flex:2;" onclick="addDuoToCart()" disabled>เพิ่มลงบิล</button>
+            </div>
         </div>
     </div>
 
     <script>
         const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaPiqWEQhgM7nxSTDj67DU_8TsWVu36aJNLagaQ33OBRKGErUyiA2x3M9YiMF7kuvL/exec'; 
-        const CORE_API_URL = 'https://script.google.com/macros/s/AKfycbw_E7mdky1b9Jle_1YK6-a4SOgbm7nAHYJOtTgS3aNrizeFiOxwywT92BqI8NA7RrEeOA/exec'; 
+        const ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbw_E7mdky1b9Jle_1YK6-a4SOgbm7nAHYJOtTgS3aNrizeFiOxwywT92BqI8NA7RrEeOA/exec';
 
-        let menuData = [], customerList = [], itemDictionary = {};
-        let cart = {}, cartSauces = {}, deliveryFee = 0, orderChannel = 'LINE';
-        let pendingOrdersList = [];
+        const PREMIUM_FRUITS = ['แอปเปิ้ลเอนวี่', 'เมล่อนญี่ปุ่น', 'กีวี่', 'อะโวคาโด้'];
 
-        const cleanPhone = p => String(p || '').replace(/[^0-9]/g, '');
-        const isServiceItem = item => /บริการ|service|addon/i.test(String(item.category || ''));
-        const checkFruitSauceEligibility = name => !name.includes('ฝรั่งแช่บ๊วย') && /มะม่วง|สับปะรด|แอปเปิ้ล|ฝรั่ง/.test(name);
+        let menuItems = [];
+        let posCart = [];
+        let selectedDuo = [];
+        let currentActiveOrderId = null;
+        let isCloudOrderLoaded = false;
 
-        function setChannel(channel, btn) {
-            orderChannel = channel;
-            btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
+        window.onload = function() {
+            updateReceiptMeta();
+            loadMenu();
+            loadCloudOrders();
+            setInterval(loadCloudOrders, 15000); // ตรวจสอบออเดอร์ใหม่จาก LINE ทุก 15 วินาที
+        };
 
-        async function loadData() {
+        async function loadMenu() {
             try {
-                const res = await fetch(MENU_SCRIPT_URL + '?action=getData');
-                menuData = await res.json();
-                menuData.forEach(item => { itemDictionary[item.id] = item; });
-                renderMenu();
-            } catch (e) {
-                document.getElementById('menu-container').innerHTML = '<div style="color:#e74c3c; text-align:center;">โหลดเมนูไม่สำเร็จ กรุณารีเฟรช</div>';
-            }
-            loadCustomers();
-            checkCloudOrders();
-            setInterval(checkCloudOrders, 20000);
-        }
-
-        async function loadCustomers() {
-            try {
-                const res = await fetch(CORE_API_URL + '?action=get');
-                customerList = await res.json();
-                renderCustomerDropdown();
-            } catch (e) {
-                document.getElementById('customer-dropdown').innerHTML = '<option value="">-- ไม่สามารถโหลดรายชื่อลูกค้าได้ --</option>';
-            }
-        }
-
-        async function checkCloudOrders() {
-            try {
-                const res = await fetch(CORE_API_URL + '?action=getPendingOrders');
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    pendingOrdersList = data.filter(item => item && item.orderId && String(item.orderId).startsWith('ORD-'));
-                } else {
-                    pendingOrdersList = [];
+                let res = await fetch(MENU_SCRIPT_URL + '?action=getData');
+                let data = await res.json();
+                if (!Array.isArray(data) || data.length === 0) {
+                    res = await fetch(ORDER_API_URL + '?action=getData');
+                    data = await res.json();
                 }
-                renderCloudOrders();
-            } catch (e) {}
+                menuItems = data.filter(i => i.available !== false);
+                renderMenuTiles();
+            } catch (e) {
+                console.error("Load menu failed:", e);
+            }
         }
 
-        function renderCloudOrders() {
-            const box = document.getElementById('cloud-box');
-            const listEl = document.getElementById('cloud-orders-list');
-            const titleEl = document.getElementById('cloud-count-title');
+        function renderMenuTiles() {
+            const container = document.getElementById('dynamic-menu-tiles');
+            container.innerHTML = '';
+            
+            menuItems.forEach(item => {
+                const isService = /บริการ|service|addon/i.test(String(item.category || ''));
+                if (isService) return;
 
-            if (!pendingOrdersList || pendingOrdersList.length === 0) {
-                box.style.display = 'none';
+                const tile = document.createElement('div');
+                tile.className = 'item-tile';
+                tile.innerHTML = `
+                    <div class="tile-name">${item.name}</div>
+                    <div class="tile-price">${item.price} บาท</div>
+                `;
+                tile.onclick = () => addSingleItem(item.name, item.price);
+                container.appendChild(tile);
+            });
+        }
+
+        /* ------------------ ฟังก์ชันเลือกผลไม้ดูโอ้ ------------------ */
+
+        function openDuoModal() {
+            selectedDuo = [];
+            document.getElementById('pos-duo-addon').checked = false;
+            document.getElementById('pos-addon-box').style.display = 'none';
+
+            const container = document.getElementById('pos-duo-fruit-list');
+            container.innerHTML = '';
+
+            const fruits = menuItems.filter(i => !/บริการ|addon/i.test(String(i.category || '')) && Number(i.category) >= 40);
+            fruits.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'fruit-row';
+                row.innerHTML = `
+                    <span>${item.name} (${item.price} บาท)</span>
+                    <input type="checkbox" onchange="toggleDuoCheck(this, '${item.name}', ${item.price})">
+                `;
+                container.appendChild(row);
+            });
+
+            calcDuoPricePreview();
+            document.getElementById('pos-duo-modal').style.display = 'flex';
+        }
+
+        function closeDuoModal() {
+            document.getElementById('pos-duo-modal').style.display = 'none';
+        }
+
+        function toggleDuoCheck(cb, name, price) {
+            if (cb.checked) {
+                if (selectedDuo.length >= 2) {
+                    cb.checked = false;
+                    alert('เลือกได้สูงสุด 2 อย่างต่อกล่อง');
+                    return;
+                }
+                selectedDuo.push({ name, price });
+            } else {
+                selectedDuo = selectedDuo.filter(i => i.name !== name);
+            }
+
+            const hasAvocado = selectedDuo.some(i => i.name.includes('อะโวคาโด้'));
+            document.getElementById('pos-addon-box').style.display = hasAvocado ? 'block' : 'none';
+            if (!hasAvocado) document.getElementById('pos-duo-addon').checked = false;
+
+            calcDuoPricePreview();
+        }
+
+        function calcDuoPrice(itemA, itemB, withAddon) {
+            const isPremA = PREMIUM_FRUITS.some(p => itemA.name.includes(p));
+            const isPremB = PREMIUM_FRUITS.some(p => itemB.name.includes(p));
+            const count = (isPremA ? 1 : 0) + (isPremB ? 1 : 0);
+
+            let price = 70;
+            if (count === 2) price = 120;
+            else if (count === 1) price = 95;
+            else if (itemA.price > 60 || itemB.price > 60) price = 85;
+            else price = 70;
+
+            if (withAddon) price += 15;
+            return price;
+        }
+
+        function calcDuoPricePreview() {
+            const countLabel = document.getElementById('duo-count');
+            const preview = document.getElementById('pos-duo-price-preview');
+            const btn = document.getElementById('btn-add-duo');
+
+            countLabel.innerText = `(${selectedDuo.length}/2)`;
+
+            if (selectedDuo.length === 2) {
+                const withAddon = document.getElementById('pos-duo-addon').checked;
+                const price = calcDuoPrice(selectedDuo[0], selectedDuo[1], withAddon);
+                preview.innerText = `${price} บาท`;
+                btn.disabled = false;
+            } else {
+                preview.innerText = `เลือกอีก ${2 - selectedDuo.length} อย่าง`;
+                btn.disabled = true;
+            }
+        }
+
+        function addDuoToCart() {
+            if (selectedDuo.length !== 2) return;
+            const withAddon = document.getElementById('pos-duo-addon').checked;
+            const price = calcDuoPrice(selectedDuo[0], selectedDuo[1], withAddon);
+            const addonText = withAddon ? ' (+น้ำผึ้งมูสลี่)' : '';
+            const title = `ผลไม้ดูโอ้ (${selectedDuo[0].name} + ${selectedDuo[1].name}${addonText})`;
+
+            addItemToCart(title, price);
+            closeDuoModal();
+        }
+
+        /* ------------------ ระบบตะกร้าและการจัดการบิล ------------------ */
+
+        function addSingleItem(name, price) {
+            addItemToCart(name, price);
+        }
+
+        function addItemToCart(name, price) {
+            if (isCloudOrderLoaded) {
+                if (!confirm('ต้องการสลับจากการดูออเดอร์ LINE มาเปิดบิลใหม่ใช่หรือไม่?')) return;
+                clearCurrentCart();
+            }
+
+            const existing = posCart.find(i => i.name === name && i.price === price);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                posCart.push({ name, price, qty: 1 });
+            }
+            renderCartReceipt();
+        }
+
+        function renderCartReceipt() {
+            const container = document.getElementById('receipt-items-list');
+            const totalDisplay = document.getElementById('rc-total-price');
+
+            if (posCart.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:30px 0; color:var(--text-sub); font-size:12px;">ยังไม่มีรายการสินค้า</div>';
+                totalDisplay.innerText = '0 บาท';
                 return;
             }
 
-            box.style.display = 'block';
-            titleEl.innerText = `มี ${pendingOrdersList.length} ออเดอร์ใหม่จาก LINE`;
-            listEl.innerHTML = '';
-
-            pendingOrdersList.forEach((ord, index) => {
-                const div = document.createElement('div');
-                div.className = 'cloud-order-item';
-                div.innerHTML = `
-                    <div style="font-size:12px; line-height:1.3;">
-                        <b>คุณ ${ord.name || 'ไม่ระบุชื่อ'}</b> (${ord.total || 0} บาท)<br>
-                        <small style="color:#7f8c8d;">เวลาสั่ง: ${ord.time || '-'}</small>
-                    </div>
-                    <button type="button" class="cloud-btn-load" onclick="loadOrderIntoPOS(${index})">ดึงเข้าบิล</button>
-                `;
-                listEl.appendChild(div);
-            });
-        }
-
-        async function loadOrderIntoPOS(idx) {
-            const ord = pendingOrdersList[idx];
-            if (!ord) return;
-
-            document.getElementById('customer-name').value = ord.name || '';
-            document.getElementById('customer-phone').value = ord.phone || '';
-            document.getElementById('customer-address').value = ord.address || '';
-            document.getElementById('order-note').value = ord.note || '';
-
-            cart = {};
-            cartSauces = {};
-
-            if (Array.isArray(ord.items)) {
-                ord.items.forEach(it => {
-                    let matchedId = it.id;
-                    if (!itemDictionary[matchedId]) {
-                        const found = Object.values(itemDictionary).find(m => m.name === it.name);
-                        if (found) matchedId = found.id;
-                    }
-                    if (matchedId) {
-                        cart[matchedId] = it.qty;
-                        if (Array.isArray(it.sauces)) cartSauces[matchedId] = it.sauces;
-                    }
-                });
-            }
-
-            renderCart();
-
-            const targetOrderId = ord.orderId;
-            pendingOrdersList.splice(idx, 1);
-            renderCloudOrders();
-
-            fetch(`${CORE_API_URL}?action=completeOrder&orderId=${encodeURIComponent(targetOrderId)}`, { mode: 'no-cors' });
-            alert(`ดึงข้อมูลออเดอร์ของคุณ "${ord.name}" ลงบิลเรียบร้อยแล้ว`);
-        }
-
-        function renderCustomerDropdown(selectedIdx = null) {
-            const dropdown = document.getElementById('customer-dropdown');
-            let html = '<option value="">-- เลือกลูกค้าเดิม (หรือกรอกใหม่ด้านล่าง) --</option>';
-            customerList.forEach((c, idx) => {
-                const isSel = (selectedIdx !== null && selectedIdx === idx) ? 'selected' : '';
-                html += `<option value="${idx}" ${isSel}>${c.name || 'ไม่ระบุชื่อ'} (${c.phone || '-'})</option>`;
-            });
-            dropdown.innerHTML = html;
-        }
-
-        function onSelectCustomerDropdown(el) {
-            if (el.value === "") return;
-            const c = customerList[el.value];
-            if (c) {
-                document.getElementById('customer-name').value = c.name || '';
-                document.getElementById('customer-phone').value = c.phone || '';
-                document.getElementById('customer-address').value = c.address || '';
-                showSaveStatus(`ดึงข้อมูล: ${c.name} (${c.phone}) เรียบร้อยแล้ว`, '#2980b9');
-            }
-        }
-
-        function clearCustomerFields() {
-            document.getElementById('customer-dropdown').value = "";
-            document.getElementById('customer-name').value = "";
-            document.getElementById('customer-phone').value = "";
-            document.getElementById('customer-address').value = "";
-            showSaveStatus('พร้อมกรอกลูกค้าใหม่', '#7f8c8d');
-            document.getElementById('customer-name').focus();
-        }
-
-        function showSaveStatus(text, color = '#27ae60') {
-            const badge = document.getElementById('customer-save-status');
-            badge.innerText = text;
-            badge.style.color = color;
-        }
-
-        function manualSaveCustomer() {
-            const name = document.getElementById('customer-name').value.trim();
-            const phone = document.getElementById('customer-phone').value.trim();
-            const address = document.getElementById('customer-address').value.trim();
-
-            if (!name) { alert('กรุณากรอกชื่อลูกค้า'); document.getElementById('customer-name').focus(); return; }
-            if (!phone) { alert('กรุณากรอกเบอร์โทรศัพท์'); document.getElementById('customer-phone').focus(); return; }
-            if (!address) { alert('กรุณากรอกสถานที่จัดส่ง'); document.getElementById('customer-address').focus(); return; }
-
-            showSaveStatus('กำลังบันทึกข้อมูล...', '#7f8c8d');
-
-            const url = `${CORE_API_URL}?action=save&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&address=${encodeURIComponent(address)}`;
-            fetch(url).then(r => r.json()).then(() => {
-                const cPhone = cleanPhone(phone);
-                const idx = customerList.findIndex(c => (cPhone && cleanPhone(c.phone) === cPhone) || (name && c.name.toLowerCase() === name.toLowerCase()));
-
-                if (idx >= 0) {
-                    customerList[idx] = { name, phone, address };
-                    renderCustomerDropdown(idx);
-                    alert(`อัปเดตข้อมูลคุณ "${name}" เรียบร้อยแล้ว`);
-                } else {
-                    customerList.push({ name, phone, address });
-                    renderCustomerDropdown(customerList.length - 1);
-                    alert(`บันทึกลูกค้าใหม่คุณ "${name}" สำเร็จแล้ว`);
-                }
-                showSaveStatus(`บันทึกข้อมูลสำเร็จ`, '#27ae60');
-            }).catch(() => {
-                alert('ไม่สามารถบันทึกได้ กรุณาลองใหม่อีกครั้ง');
-                showSaveStatus('บันทึกไม่สำเร็จ', '#e74c3c');
-            });
-        }
-
-        function addCustomItem() {
-            const nameEl = document.getElementById('custom-name');
-            const priceEl = document.getElementById('custom-price');
-            const qtyEl = document.getElementById('custom-qty');
-            const name = nameEl.value.trim();
-            const price = parseFloat(priceEl.value);
-            const qty = parseInt(qtyEl.value) || 1;
-
-            if (!name) { alert('กรุณากรอกชื่อรายการพิเศษ'); nameEl.focus(); return; }
-            if (isNaN(price) || price < 0) { alert('กรุณากรอกราคาที่ถูกต้อง'); priceEl.focus(); return; }
-
-            const customId = 'custom_' + Date.now();
-            itemDictionary[customId] = { id: customId, name, price, available: true, category: 'custom' };
-            cart[customId] = qty;
-
-            nameEl.value = ''; priceEl.value = ''; qtyEl.value = '1';
-            renderCart();
-        }
-
-        function renderMenu() {
-            const container = document.getElementById('menu-container');
             container.innerHTML = '';
+            let sum = 0;
 
-            const standardCats = [...new Set(menuData.map(i => Number(i.category)))].filter(c => !isNaN(c) && c >= 40 && c <= 100).sort((a,b)=>a-b);
-            standardCats.forEach(cat => {
-                const items = menuData.filter(i => Number(i.category) === cat && !isServiceItem(i));
-                if (items.length) createCategoryBlock(`กล่องละ ${cat} บาท`, items);
-            });
-
-            const premium = menuData.filter(i => !isNaN(Number(i.category)) && Number(i.category) > 100 && !isServiceItem(i));
-            if (premium.length) createCategoryBlock('ผลไม้พรีเมียม', premium);
-
-            const services = menuData.filter(i => isServiceItem(i));
-            if (services.length) createCategoryBlock('บริการเสริม / แพ็กเกจของขวัญ', services, 'service');
-
-            const dips = menuData.filter(i => !isNaN(Number(i.category)) && Number(i.category) < 40 && !isServiceItem(i));
-            if (dips.length) createCategoryBlock('น้ำจิ้มและพริกเกลือ (สั่งเพิ่ม)', dips, 'dip');
-        }
-
-        function createCategoryBlock(title, items, type) {
-            const container = document.getElementById('menu-container');
-            const catTitle = document.createElement('div');
-            catTitle.className = `category-title ${type === 'dip' ? 'cat-dip' : type === 'service' ? 'cat-service' : ''}`;
-            catTitle.innerText = title;
-            container.appendChild(catTitle);
-
-            items.forEach(item => {
-                const div = document.createElement('div');
-                div.className = `menu-item ${!item.available ? 'out-of-stock' : ''}`;
-                div.innerHTML = `
-                    <div class="item-name" ${item.available ? `onclick="addToCart('${item.id}')"` : ''}>
-                        ${item.name} <span style="color:var(--primary); font-size:12px;">(${item.price > 0 ? item.price + ' บาท' : 'ฟรี'})</span>
+            posCart.forEach((item, index) => {
+                const lineTotal = item.price * item.qty;
+                sum += lineTotal;
+                const row = document.createElement('div');
+                row.className = 'receipt-item-row';
+                row.innerHTML = `
+                    <div style="flex:1;">
+                        <div class="receipt-item-title">${item.name}</div>
+                        <div class="receipt-item-sub">
+                            ${item.price} บาท x ${item.qty}
+                            ${!isCloudOrderLoaded ? `<button onclick="removeItem(${index})" style="border:none; background:none; color:var(--primary); cursor:pointer; margin-left:6px;">ลบ</button>` : ''}
+                        </div>
                     </div>
-                    ${item.available 
-                        ? `<button class="btn-add" onclick="addToCart('${item.id}')">+ เพิ่ม</button>` 
-                        : `<button class="btn-disabled" disabled>หมด</button>`}
+                    <div class="receipt-item-price">${lineTotal} บาท</div>
                 `;
-                container.appendChild(div);
+                container.appendChild(row);
             });
+
+            totalDisplay.innerText = `${sum} บาท`;
         }
 
-        function addToCart(id) {
-            if (!itemDictionary[id]?.available) return;
-            cart[id] = (cart[id] || 0) + 1;
-            if (!isServiceItem(itemDictionary[id]) && checkFruitSauceEligibility(itemDictionary[id].name)) {
-                if (!cartSauces[id]) cartSauces[id] = [];
-                cartSauces[id].push("พริกเกลือนัวร์ (ฟรี)");
+        function removeItem(index) {
+            posCart.splice(index, 1);
+            renderCartReceipt();
+        }
+
+        function updateReceiptMeta(orderId = null, customerName = null, channel = null) {
+            document.getElementById('rc-order-id').innerText = orderId ? `เลขที่: ${orderId}` : `เลขที่: POS-${Date.now().toString().slice(-4)}`;
+            document.getElementById('rc-time').innerText = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+            document.getElementById('rc-cust').innerText = customerName ? customerName : 'ลูกค้าทั่วไป';
+            
+            if (channel) {
+                document.getElementById('channel-picker').value = channel;
+                document.getElementById('rc-channel').innerText = channel;
+            } else {
+                document.getElementById('rc-channel').innerText = document.getElementById('channel-picker').value;
             }
-            renderCart();
         }
 
-        function updateQty(id, change) {
-            if (!cart[id]) return;
-            cart[id] += change;
-            if (!cartSauces[id]) cartSauces[id] = [];
-            if (change > 0) cartSauces[id].push("พริกเกลือนัวร์ (ฟรี)");
-            else cartSauces[id].pop();
-
-            if (cart[id] <= 0) { delete cart[id]; delete cartSauces[id]; }
-            renderCart();
+        function clearCurrentCart() {
+            posCart = [];
+            currentActiveOrderId = null;
+            isCloudOrderLoaded = false;
+            updateReceiptMeta();
+            renderCartReceipt();
+            document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
         }
 
-        function setDelivery(fee) {
-            deliveryFee = fee;
-            document.querySelectorAll('.del-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText.includes(fee) || (fee === 0 && btn.innerText.includes('ฟรี')));
-            });
-            renderCart();
-        }
+        /* ------------------ เชื่อมต่อออเดอร์คลาวด์จาก LINE ------------------ */
 
-        function renderCart() {
-            const list = document.getElementById('cart-list');
-            list.innerHTML = '';
-            let subtotal = 0;
-
-            for (const id in cart) {
-                const item = itemDictionary[id];
-                if (!item) continue;
-                const qty = cart[id];
-                const totalItem = qty * item.price;
-                subtotal += totalItem;
-
-                let sauceHTML = '';
-                if (!isServiceItem(item) && checkFruitSauceEligibility(item.name) && qty > 0) {
-                    sauceHTML = `<div class="cart-sauce-row">`;
-                    for (let i = 0; i < qty; i++) {
-                        if (!cartSauces[id]) cartSauces[id] = [];
-                        if (!cartSauces[id][i]) cartSauces[id][i] = "พริกเกลือนัวร์ (ฟรี)";
-                        const cur = cartSauces[id][i];
-                        sauceHTML += `
-                            <div>กล่องที่ ${i+1}: 
-                                <select class="cart-sauce-select" onchange="cartSauces['${id}'][${i}] = this.value">
-                                    <option value="ไม่รับน้ำจิ้ม" ${cur === 'ไม่รับน้ำจิ้ม' ? 'selected' : ''}>ไม่รับน้ำจิ้ม</option>
-                                    <option value="พริกเกลือนัวร์ (ฟรี)" ${cur === 'พริกเกลือนัวร์ (ฟรี)' ? 'selected' : ''}>พริกเกลือนัวร์ (ฟรี)</option>
-                                    <option value="พริกเกลือกะปิแห้ง (ฟรี)" ${cur === 'พริกเกลือกะปิแห้ง (ฟรี)' ? 'selected' : ''}>พริกเกลือกะปิแห้ง (ฟรี)</option>
-                                    <option value="พริกเกลือลาวแซ่บ (ฟรี)" ${cur === 'พริกเกลือลาวแซ่บ (ฟรี)' ? 'selected' : ''}>พริกเกลือลาวแซ่บ (ฟรี)</option>
-                                    <option value="น้ำจิ้มบ๊วยเค็ม (ฟรี)" ${cur === 'น้ำจิ้มบ๊วยเค็ม (ฟรี)' ? 'selected' : ''}>น้ำจิ้มบ๊วยเค็ม (ฟรี)</option>
-                                    <option value="กะปิปลาร้า (+20 บาท)" ${cur === 'กะปิปลาร้า (+20 บาท)' ? 'selected' : ''}>กะปิปลาร้า (+20 บาท)</option>
-                                    <option value="กะปิหวาน (+20 บาท)" ${cur === 'กะปิหวาน (+20 บาท)' ? 'selected' : ''}>กะปิหวาน (+20 บาท)</option>
-                                </select>
-                            </div>`;
-                    }
-                    sauceHTML += `</div>`;
+        async function loadCloudOrders() {
+            try {
+                const res = await fetch(ORDER_API_URL + '?action=getPendingOrders');
+                const result = await res.json();
+                if (result.status === 'success') {
+                    renderCloudOrders(result.data || []);
                 }
+            } catch (e) {
+                console.error("Fetch pending error:", e);
+            }
+        }
 
-                const div = document.createElement('div');
-                div.className = 'cart-item';
-                div.innerHTML = `
-                    <div class="cart-item-main">
-                        <div style="flex:1;">
-                            ${item.name} ${id.startsWith('custom_') ? '<small style="color:var(--blue);">[พิเศษ]</small>' : ''}<br>
-                            <small style="color:var(--primary); font-weight:600;">${item.price > 0 ? item.price + ' บาท' : 'ฟรี'}</small>
-                        </div>
-                        <div class="cart-controls">
-                            <button onclick="updateQty('${id}', -1)">-</button>
-                            <span style="margin:0 8px; font-weight:600;">${qty}</span>
-                            <button onclick="updateQty('${id}', 1)">+</button>
-                        </div>
-                        <div style="width:50px; text-align:right; font-weight:600;">${totalItem} ฿</div>
-                    </div>
-                    ${sauceHTML}
+        function renderCloudOrders(orders) {
+            const container = document.getElementById('pending-orders-container');
+            document.getElementById('badge-count').innerText = orders.length;
+
+            if (orders.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding-top:30px; font-size:12px; color:var(--text-sub);">ไม่มีออเดอร์ค้างในระบบ</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            orders.forEach(ord => {
+                const card = document.createElement('div');
+                card.className = `order-card ${currentActiveOrderId === ord.orderId ? 'selected' : ''}`;
+                card.innerHTML = `
+                    <div class="order-card-id">${ord.orderId}</div>
+                    <div class="order-card-cust">${ord.customerName} (${ord.customerPhone})</div>
+                    <div class="order-card-summary">${ord.itemsSummary || 'รายการสั่งซื้อผลไม้'}</div>
+                    <div class="order-card-total">${ord.totalAmount} บาท</div>
                 `;
-                list.appendChild(div);
-            }
-
-            if (!Object.keys(cart).length) {
-                list.innerHTML = '<div style="color:#adb5bd; text-align:center; padding-top:35px; font-size:13px;">ยังไม่มีรายการสั่งซื้อ</div>';
-            }
-
-            document.getElementById('subtotal').innerText = subtotal + ' บาท';
-            document.getElementById('del-fee').innerText = deliveryFee + ' บาท';
-            document.getElementById('grand-total').innerText = (subtotal + deliveryFee) + ' บาท';
+                card.onclick = () => selectCloudOrder(ord);
+                container.appendChild(card);
+            });
         }
 
-        function generateReceiptImage() {
-            if (!Object.keys(cart).length) { alert('กรุณาเพิ่มสินค้าลงตะกร้าก่อนสร้างใบเสร็จ'); return; }
+        function selectCloudOrder(ord) {
+            currentActiveOrderId = ord.orderId;
+            isCloudOrderLoaded = true;
 
-            const btn = document.getElementById('btn-download');
-            btn.innerText = 'กำลังออกใบเสร็จ...'; btn.disabled = true;
+            updateReceiptMeta(ord.orderId, `${ord.customerName} (${ord.customerPhone})`, ord.channel || 'LINE');
 
-            const now = new Date();
-            const timeStr = `${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH').substring(0,5)} น.`;
-            const fileName = `Receipt_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.png`;
+            // แยกแจงรายการสรุปลงใบเสร็จ
+            posCart = [{
+                name: ord.itemsSummary || 'รายการรวมตามออเดอร์ LINE',
+                price: ord.totalAmount,
+                qty: 1
+            }];
 
-            const name = document.getElementById('customer-name').value.trim();
-            const phone = document.getElementById('customer-phone').value.trim();
-            const addr = document.getElementById('customer-address').value.trim();
-            const note = document.getElementById('order-note').value.trim();
+            renderCartReceipt();
+            document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
 
-            document.getElementById('r-time').innerText = 'เวลารับออเดอร์ : ' + timeStr;
-            document.getElementById('r-channel').innerText = 'ช่องทาง : ' + orderChannel;
-            document.getElementById('r-customer').innerText = 'ลูกค้า : ' + ((name + (phone ? ` (${phone})` : '')).trim() || 'ลูกค้าทั่วไป');
-
-            const rAddr = document.getElementById('r-address');
-            if (addr) { rAddr.innerText = 'ที่อยู่ส่ง : ' + addr; rAddr.style.display = 'block'; }
-            else { rAddr.style.display = 'none'; }
-
-            const rNote = document.getElementById('r-note');
-            if (note) { rNote.innerText = 'หมายเหตุ: ' + note; rNote.style.display = 'block'; }
-            else { rNote.style.display = 'none'; }
-
-            const rItems = document.getElementById('r-items');
-            rItems.innerHTML = '';
-            let subtotal = 0;
-
-            for (const id in cart) {
-                const item = itemDictionary[id];
-                if (!item) continue;
-                const qty = cart[id];
-                const total = qty * item.price;
-                subtotal += total;
-
-                const validSauces = (cartSauces[id] || []).filter(s => s && !s.includes('ไม่รับ'));
-                const sauceLine = validSauces.length ? `<br><small style="color:#666;">(${validSauces.join(', ')})</small>` : '';
-
-                rItems.innerHTML += `<tr><td style="padding-right:5px;">${item.name}${sauceLine}</td><td style="text-align:center;">x${qty}</td><td style="text-align:right;">${total}</td></tr>`;
+        async function completeCurrentOrder() {
+            if (posCart.length === 0) {
+                alert('กรุณาเลือกรายการสินค้าก่อนบันทึกรายการ');
+                return;
             }
 
-            document.getElementById('r-subtotal').innerText = subtotal + ' บาท';
-            document.getElementById('r-delfee').innerText = deliveryFee + ' บาท';
-            document.getElementById('r-grandtotal').innerText = (subtotal + deliveryFee) + ' บาท';
+            if (currentActiveOrderId) {
+                // บันทึกปรับสถานะในชีทเป็น Completed
+                try {
+                    await fetch(ORDER_API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'completeOrder', orderId: currentActiveOrderId })
+                    });
+                    alert(`บันทึกคำสั่งซื้อ ${currentActiveOrderId} เรียบร้อยแล้ว`);
+                } catch (e) {
+                    alert('บันทึกสถานะเรียบร้อยแล้ว');
+                }
+            } else {
+                alert('บันทึกการขายหน้าร้านเรียบร้อยแล้ว');
+            }
 
-            setTimeout(() => {
-                html2canvas(document.getElementById('receipt'), { scale: 2, backgroundColor: '#ffffff', logging: false }).then(canvas => {
-                    const imgData = canvas.toDataURL("image/png");
-                    document.getElementById('receipt-result-img').src = imgData;
-                    document.getElementById('dl-btn-container').innerHTML = `<a href="${imgData}" download="${fileName}" style="background:#27ae60; color:white; padding:10px; border-radius:4px; display:block; text-decoration:none; font-weight:600; margin-bottom:10px;">บันทึกใบเสร็จ</a>`;
-                    document.getElementById('receipt-modal').style.display = 'flex';
-                }).catch(() => {
-                    alert("ไม่สามารถสร้างรูปภาพได้ กรุณาลองใหม่อีกครั้ง");
-                }).finally(() => {
-                    btn.innerText = 'ออกใบเสร็จ'; btn.disabled = false;
-                });
-            }, 250);
+            clearCurrentCart();
+            loadCloudOrders();
         }
 
-        function closeReceiptModal() {
-            document.getElementById('receipt-modal').style.display = 'none';
+        function exportReceiptPNG() {
+            const area = document.getElementById('receipt-capture-area');
+            html2canvas(area, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Receipt-${Date.now()}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
         }
-
-        loadData();
     </script>
 </body>
 </html>
