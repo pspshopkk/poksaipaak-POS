@@ -33,10 +33,11 @@
             padding: 8px 12px;
             gap: 8px;
             z-index: 50;
+            flex-shrink: 0;
         }
         .nav-tab-btn {
             flex: 1;
-            padding: 8px 4px;
+            padding: 9px 4px;
             border: 1px solid var(--border);
             background: var(--gray-btn);
             border-radius: var(--radius-sm);
@@ -56,13 +57,13 @@
         .pos-layout {
             display: flex;
             flex: 1;
-            height: calc(100vh - 48px);
+            height: 100vh;
             overflow: hidden;
         }
 
         /* คอลัมน์ 1: ออเดอร์คลาวด์ LINE (ซ้าย) */
         .panel-orders {
-            width: 300px;
+            width: 310px;
             background: var(--card-bg);
             border-right: 1px solid var(--border);
             display: flex;
@@ -117,14 +118,20 @@
             padding: 16px 20px;
             overflow-y: auto;
             background: var(--bg-page);
+            position: relative;
         }
         .menu-topbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
         .channel-dropdown {
             padding: 8px 12px;
@@ -135,28 +142,43 @@
             color: var(--text-main);
             font-weight: 600;
         }
+        .btn-custom-item {
+            background: #ffffff;
+            border: 1px solid var(--text-main);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-custom-item:hover { background: var(--text-main); color: #fff; }
 
-        /* แถบตัวกรองราคา */
+        /* แถบตัวกรองราคา (แก้ไขเรื่องการถูกบัง/กดไม่ได้) */
         .price-category-bar {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             overflow-x: auto;
-            padding-bottom: 8px;
+            padding: 6px 2px 10px;
             margin-bottom: 12px;
-            scrollbar-width: none;
+            position: relative;
+            z-index: 5;
+            scrollbar-width: thin;
         }
-        .price-category-bar::-webkit-scrollbar { display: none; }
         .cat-chip {
-            padding: 6px 14px;
+            padding: 7px 16px;
             background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 12.5px;
             font-weight: 600;
             color: var(--text-main);
             cursor: pointer;
             white-space: nowrap;
+            user-select: none;
+            transition: all 0.15s ease;
         }
+        .cat-chip:hover { border-color: var(--text-main); }
         .cat-chip.active {
             background: var(--text-main);
             color: #ffffff;
@@ -167,7 +189,7 @@
             font-size: 13px;
             font-weight: 700;
             color: var(--text-sub);
-            margin: 16px 0 8px;
+            margin: 14px 0 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: flex;
@@ -195,7 +217,7 @@
             justify-content: center;
             min-height: 80px;
         }
-        .item-tile:hover { border-color: var(--text-main); }
+        .item-tile:hover { border-color: var(--text-main); transform: translateY(-1px); }
         .item-tile.duo-tile {
             background: var(--dark-header);
             color: #ffffff;
@@ -207,14 +229,40 @@
 
         /* คอลัมน์ 3: บิลและคิดเงิน (ขวา) */
         .panel-checkout {
-            width: 360px;
+            width: 370px;
             background: var(--card-bg);
             border-left: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 16px;
             flex-shrink: 0;
+            overflow-y: auto;
         }
+
+        /* กล่องข้อมูลลูกค้า */
+        .cust-input-box {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .cust-input-title { font-size: 12px; font-weight: 700; color: var(--text-main); display: flex; justify-content: space-between; }
+        .cust-input-field {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            color: var(--text-main);
+            background: #fff;
+        }
+        .cust-input-field:focus { outline: none; border-color: var(--text-main); }
+        .cust-badge-found { font-size: 11px; color: #27ae60; font-weight: 600; display: none; }
+
         .receipt-container {
             background: #ffffff;
             border: 1px dashed #cbd5e1;
@@ -224,6 +272,7 @@
             flex: 1;
             overflow-y: auto;
             margin-bottom: 12px;
+            min-height: 220px;
         }
         .receipt-header { text-align: center; margin-bottom: 10px; }
         .receipt-brand { font-size: 16px; font-weight: 700; }
@@ -241,7 +290,7 @@
             background: var(--primary);
             color: #ffffff;
             border: none;
-            padding: 11px;
+            padding: 12px;
             border-radius: var(--radius-sm);
             font-size: 14px;
             font-weight: 600;
@@ -262,7 +311,7 @@
         }
         .btn-pos-secondary:hover { background: #e2e8f0; }
 
-        /* Modal ผลไม้ดูโอ้ */
+        /* Modal ทั่วไป */
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(0,0,0,0.5);
@@ -294,7 +343,7 @@
         .duo-row:hover { background: #f8fafc; }
         .duo-row input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
 
-        /* การปรับแต่ง Responsive สำหรับ iPad และสมาร์ทโฟน */
+        /* Responsive สำหรับ iPad และมือถือ */
         @media (max-width: 992px) {
             .mobile-nav-bar { display: flex; }
             .pos-layout { height: calc(100vh - 54px); }
@@ -312,7 +361,7 @@
 </head>
 <body>
 
-    <!-- แถบสลับหน้าจอสำหรับมือถือและ iPad -->
+    <!-- แถบนำทางสำหรับ iPad และมือถือ -->
     <div class="mobile-nav-bar">
         <button class="nav-tab-btn active" id="tab-btn-menu" onclick="switchMobileTab('menu')">เมนูขาย</button>
         <button class="nav-tab-btn" id="tab-btn-checkout" onclick="switchMobileTab('checkout')">บิลคิดเงิน (<span id="mobile-cart-badge">0</span>)</button>
@@ -321,7 +370,7 @@
 
     <div class="pos-layout">
 
-        <!-- คอลัมน์ 1: ออเดอร์รอจัดเตรียมจาก LINE -->
+        <!-- คอลัมน์ 1: ออเดอร์จาก LINE -->
         <div class="panel-orders" id="view-orders">
             <div class="panel-header">
                 <span class="panel-title">ออเดอร์จาก LINE</span>
@@ -335,7 +384,9 @@
         <!-- คอลัมน์ 2: เมนูกดสั่งหน้าร้าน -->
         <div class="panel-menu active" id="view-menu">
             <div class="menu-topbar">
-                <h2 style="font-size:15px; font-weight:700;">รายการสินค้า</h2>
+                <div class="topbar-actions">
+                    <button class="btn-custom-item" onclick="openCustomItemModal()">+ สินค้าพิเศษ</button>
+                </div>
                 <select class="channel-dropdown" id="channel-picker" onchange="updateReceiptMeta()">
                     <option value="หน้าร้าน">ช่องทาง: หน้าร้าน</option>
                     <option value="LINE">ช่องทาง: LINE</option>
@@ -343,19 +394,31 @@
                 </select>
             </div>
 
-            <!-- แถบปุ่มลัดเลือกหมวดราคา -->
+            <!-- แถบตัวกรองราคา (คลิกได้สมบูรณ์ ไม่ถูกบัง) -->
             <div class="price-category-bar" id="category-filter-bar">
                 <button class="cat-chip active" onclick="filterMenuCategory('all', this)">ทั้งหมด</button>
             </div>
 
-            <!-- กล่องแสดงรายการเมนูที่จัดหมวดหมู่แล้ว -->
+            <!-- รายการเมนูที่จัดหมวดหมู่ -->
             <div id="categorized-menu-container">
                 <div style="text-align:center; padding:40px 0; color:var(--text-sub); font-size:13px;">กำลังโหลดรายการผลไม้...</div>
             </div>
         </div>
 
-        <!-- คอลัมน์ 3: สรุปบิลและชำระเงิน -->
+        <!-- คอลัมน์ 3: สรุปบิลและข้อมูลลูกค้า -->
         <div class="panel-checkout" id="view-checkout">
+            <!-- ส่วนกรอกข้อมูลลูกค้า -->
+            <div class="cust-input-box">
+                <div class="cust-input-title">
+                    <span>ข้อมูลลูกค้า</span>
+                    <span class="cust-badge-found" id="cust-found-badge">พบข้อมูลเดิม</span>
+                </div>
+                <input type="tel" id="pos-cust-phone" class="cust-input-field" placeholder="เบอร์โทรศัพท์ (ค้นหาอัตโนมัติ)" oninput="handleCustomerPhoneInput(this.value)">
+                <input type="text" id="pos-cust-name" class="cust-input-field" placeholder="ชื่อลูกค้า" oninput="updateReceiptCustomer()">
+                <input type="text" id="pos-cust-address" class="cust-input-field" placeholder="สถานที่จัดส่ง / หมายเหตุ (ถ้ามี)">
+            </div>
+
+            <!-- ตัวอย่างใบเสร็จ -->
             <div class="receipt-container" id="receipt-capture-area">
                 <div class="receipt-header">
                     <div class="receipt-brand">ปอกใส่ปาก</div>
@@ -400,11 +463,8 @@
             <div class="modal-title">เลือกผลไม้ดูโอ้ (2 อย่าง)</div>
             <div class="modal-sub">เลือกผลไม้ที่ต้องการ <span id="duo-count-label" style="font-weight:600; color:var(--primary);">(เลือกแล้ว 0/2 อย่าง)</span></div>
 
-            <div class="fruit-scroll-box" id="pos-duo-fruit-list">
-                <!-- รายชื่อผลไม้จะถูกเตรียมไว้ที่นี่ -->
-            </div>
+            <div class="fruit-scroll-box" id="pos-duo-fruit-list"></div>
 
-            <!-- กล่องเลือกน้ำจิ้ม -->
             <div id="pos-duo-sauce-box" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; margin-bottom:10px; font-size:12px;">
                 <div style="font-weight:600; color:var(--text-main); margin-bottom:6px;">เลือกน้ำจิ้ม / พริกเกลือ (ฟรี 1 อย่าง):</div>
                 <select id="pos-duo-sauce-select" onchange="calcDuoPricePreview()" style="width:100%; padding:7px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:13px; background:#fff;">
@@ -418,7 +478,6 @@
                 </select>
             </div>
 
-            <!-- กล่องท็อปปิ้งอะโวคาโด้ -->
             <div id="pos-duo-addon-box" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px; margin-bottom:10px; font-size:12px;">
                 <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                     <input type="checkbox" id="pos-duo-addon-check" onchange="calcDuoPricePreview()">
@@ -438,6 +497,30 @@
         </div>
     </div>
 
+    <!-- Modal เพิ่มสินค้าพิเศษนอกเหนือเมนู -->
+    <div class="modal-overlay" id="custom-item-modal">
+        <div class="modal-card">
+            <div class="modal-title">เพิ่มสินค้าพิเศษ (นอกเหนือเมนู)</div>
+            <div class="modal-sub">ระบุชื่อรายการและราคาที่ต้องการคิดเงิน</div>
+
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+                <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-sub); display:block; margin-bottom:4px;">ชื่อรายการสินค้า</label>
+                    <input type="text" id="custom-item-name" class="cust-input-field" placeholder="เช่น ผลไม้รวมพิเศษ, ค่าจัดส่ง">
+                </div>
+                <div>
+                    <label style="font-size:12px; font-weight:600; color:var(--text-sub); display:block; margin-bottom:4px;">ราคา (บาท)</label>
+                    <input type="number" id="custom-item-price" class="cust-input-field" placeholder="0" min="0">
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                <button class="btn-pos-secondary" style="flex:1;" onclick="closeCustomItemModal()">ยกเลิก</button>
+                <button class="btn-pos-primary" style="flex:2;" onclick="confirmAddCustomItem()">เพิ่มลงบิล</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaPiqWEQhgM7nxSTDj67DU_8TsWVu36aJNLagaQ33OBRKGErUyiA2x3M9YiMF7kuvL/exec'; 
         const ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbw_E7mdky1b9Jle_1YK6-a4SOgbm7nAHYJOtTgS3aNrizeFiOxwywT92BqI8NA7RrEeOA/exec';
@@ -448,6 +531,9 @@
         let currentActiveOrderId = null;
         let isCloudOrderLoaded = false;
         let currentFilter = 'all';
+
+        // ฐานข้อมูลลูกค้าแคชในหน่วยความจำ
+        let customerCache = JSON.parse(localStorage.getItem('poksai_customer_db') || '{}');
 
         window.onload = function() {
             updateReceiptMeta();
@@ -473,6 +559,57 @@
             }
         }
 
+        /* ------------------ ระบบจัดการข้อมูลลูกค้า (Auto-Fill & Save) ------------------ */
+        function handleCustomerPhoneInput(phone) {
+            const cleanPhone = phone.trim().replace(/-/g, '');
+            const badge = document.getElementById('cust-found-badge');
+
+            if (cleanPhone.length >= 9 && customerCache[cleanPhone]) {
+                const cust = customerCache[cleanPhone];
+                document.getElementById('pos-cust-name').value = cust.name || '';
+                document.getElementById('pos-cust-address').value = cust.address || '';
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+            updateReceiptCustomer();
+        }
+
+        function updateReceiptCustomer() {
+            const name = document.getElementById('pos-cust-name').value.trim();
+            const phone = document.getElementById('pos-cust-phone').value.trim();
+            document.getElementById('rc-cust').innerText = name ? `${name} ${phone ? '('+phone+')' : ''}` : 'ลูกค้าทั่วไป';
+        }
+
+        async function saveCustomerToDatabase(name, phone, address) {
+            if (!phone && !name) return;
+            const cleanPhone = (phone || '').trim().replace(/-/g, '');
+            
+            // อัปเดตแคชในเครื่อง
+            if (cleanPhone) {
+                customerCache[cleanPhone] = { name: name || '-', phone: cleanPhone, address: address || '-' };
+                localStorage.setItem('poksai_customer_db', JSON.stringify(customerCache));
+            }
+
+            // บันทึกขึ้น Google Sheets (แท็บ Customer list)
+            try {
+                await fetch(ORDER_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'saveCustomer',
+                        customer: {
+                            userId: cleanPhone || ('WALKIN_' + Date.now()),
+                            name: name || '-',
+                            phone: cleanPhone || '-',
+                            address: address || '-'
+                        }
+                    })
+                });
+            } catch (err) {
+                console.warn('บันทึกข้อมูลลูกค้าขึ้นคลาวด์ไม่สำเร็จ:', err);
+            }
+        }
+
         /* ------------------ โหลดและจัดกลุ่มเมนูตามราคา ------------------ */
         async function loadMenu() {
             try {
@@ -486,7 +623,7 @@
                 rawMenuItems = data.filter(i => i.available !== false);
                 buildCategoryFilterBar();
                 renderCategorizedMenu();
-                preRenderDuoList(); // เตรียมรายการดูโอ้ไว้ล่วงหน้าทันที
+                preRenderDuoList();
             } catch (e) {
                 console.error("Load menu error:", e);
                 document.getElementById('categorized-menu-container').innerHTML = '<div style="text-align:center; padding:30px; color:#c0392b; font-size:13px;">ไม่สามารถโหลดเมนูได้ กรุณารีเฟรช</div>';
@@ -496,7 +633,6 @@
         const isService = item => /บริการ|service|addon/i.test(String(item.category || ''));
         const isSauceEligible = name => !name.includes('ฝรั่งแช่บ๊วย') && /มะม่วง|สับปะรด|แอปเปิ้ล|ฝรั่ง/.test(name);
 
-        // ตรวจสอบผลไม้พรีเมียม (ตรวจหาคำว่าเมล่อน และผลไม้ที่ราคาตั้งแต่ 90 บาทขึ้นไป)
         function isPremiumFruit(item) {
             if (!item) return false;
             const name = item.name || '';
@@ -548,7 +684,6 @@
             const container = document.getElementById('categorized-menu-container');
             container.innerHTML = '';
 
-            // แสดงการ์ดดูโอ้เมื่อเลือกหมวดทั้งหมด
             if (currentFilter === 'all') {
                 const duoSecTitle = document.createElement('div');
                 duoSecTitle.className = 'category-section-title';
@@ -610,7 +745,6 @@
         }
 
         /* ------------------ ฟังก์ชันผลไม้ดูโอ้ POS ------------------ */
-
         function preRenderDuoList() {
             const list = document.getElementById('pos-duo-fruit-list');
             list.innerHTML = '';
@@ -700,8 +834,8 @@
             const count = (isPremA ? 1 : 0) + (isPremB ? 1 : 0);
 
             let price = 70;
-            if (count === 2) price = 120; // พรีเมียมคู่ เช่น เมล่อนเขียว + เมล่อนส้ม
-            else if (count === 1) price = 95;  // พรีเมียม 1 อย่าง
+            if (count === 2) price = 120;
+            else if (count === 1) price = 95;
             else {
                 const pA = Number(itemA.price) || 0;
                 const pB = Number(itemB.price) || 0;
@@ -757,8 +891,29 @@
             closeDuoModal();
         }
 
-        /* ------------------ ตะกร้าสินค้าและการคิดเงิน ------------------ */
+        /* ------------------ สินค้าพิเศษนอกเหนือเมนู ------------------ */
+        function openCustomItemModal() {
+            document.getElementById('custom-item-name').value = '';
+            document.getElementById('custom-item-price').value = '';
+            document.getElementById('custom-item-modal').style.display = 'flex';
+        }
 
+        function closeCustomItemModal() {
+            document.getElementById('custom-item-modal').style.display = 'none';
+        }
+
+        function confirmAddCustomItem() {
+            const name = document.getElementById('custom-item-name').value.trim();
+            const price = Number(document.getElementById('custom-item-price').value);
+
+            if (!name) { alert('กรุณาระบุชื่อรายการสินค้า'); return; }
+            if (isNaN(price) || price < 0) { alert('กรุณาระบุราคาให้ถูกต้อง'); return; }
+
+            addItemToCart(name, price);
+            closeCustomItemModal();
+        }
+
+        /* ------------------ ตะกร้าสินค้าและการคิดเงิน ------------------ */
         function addSingleItem(name, price) {
             addItemToCart(name, price);
         }
@@ -823,7 +978,8 @@
         function updateReceiptMeta(orderId = null, customerName = null, channel = null) {
             document.getElementById('rc-order-id').innerText = orderId ? `เลขที่: ${orderId}` : `เลขที่: POS-${Date.now().toString().slice(-4)}`;
             document.getElementById('rc-time').innerText = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
-            document.getElementById('rc-cust').innerText = customerName ? customerName : 'ลูกค้าทั่วไป';
+            
+            updateReceiptCustomer();
             
             if (channel) {
                 document.getElementById('channel-picker').value = channel;
@@ -837,13 +993,16 @@
             posCart = [];
             currentActiveOrderId = null;
             isCloudOrderLoaded = false;
+            document.getElementById('pos-cust-phone').value = '';
+            document.getElementById('pos-cust-name').value = '';
+            document.getElementById('pos-cust-address').value = '';
+            document.getElementById('cust-found-badge').style.display = 'none';
             updateReceiptMeta();
             renderCartReceipt();
             document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
         }
 
         /* ------------------ ออเดอร์คลาวด์จาก LINE ------------------ */
-
         async function loadCloudOrders() {
             try {
                 const res = await fetch(ORDER_API_URL + '?action=getPendingOrders');
@@ -885,6 +1044,10 @@
             currentActiveOrderId = ord.orderId;
             isCloudOrderLoaded = true;
 
+            document.getElementById('pos-cust-name').value = ord.customerName || '';
+            document.getElementById('pos-cust-phone').value = ord.customerPhone || '';
+            document.getElementById('pos-cust-address').value = ord.customerAddress || '';
+
             updateReceiptMeta(ord.orderId, `${ord.customerName} (${ord.customerPhone})`, ord.channel || 'LINE');
 
             posCart = [{
@@ -897,7 +1060,6 @@
             document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
 
-            // เมื่ออยู่บนหน้าจอเล็ก (iPad/มือถือ) ให้สลับไปหน้าบิลคิดเงินให้อัตโนมัติ
             if (window.innerWidth <= 992) {
                 switchMobileTab('checkout');
             }
@@ -907,6 +1069,15 @@
             if (posCart.length === 0) {
                 alert('กรุณาเลือกรายการสินค้าก่อนบันทึกรายการ');
                 return;
+            }
+
+            const name = document.getElementById('pos-cust-name').value.trim();
+            const phone = document.getElementById('pos-cust-phone').value.trim();
+            const address = document.getElementById('pos-cust-address').value.trim();
+
+            // บันทึก/อัปเดตข้อมูลลูกค้าลงชีท
+            if (phone || name) {
+                await saveCustomerToDatabase(name, phone, address);
             }
 
             if (currentActiveOrderId) {
