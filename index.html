@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ปอกใส่ปาก - ระบบจัดการจุดขาย POS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- โหลดฟอนต์ Prompt (ไม่มีหัว ดูโมเดิร์น) และ Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
@@ -132,46 +133,55 @@
         }
         .btn-deliv.active { background: var(--text-main); color: #fff; border-color: var(--text-main); }
 
-        /* กล่องแสดงใบเสร็จ (กระชับพอดีข้อความท้ายสุด ไม่เหลือที่ว่างเกิน) */
+        /* กล่องแสดงใบเสร็จ: จัดขนาดพอดีกระดาษ 56mm (ความกว้าง 280px พอดีเป๊ะ) */
         .receipt-container {
+            width: 280px; max-width: 100%; margin: 0 auto 12px auto;
             background: #fff; border: 1px dashed #cbd5e1; border-radius: var(--radius-sm);
-            padding: 14px 14px 12px 14px; font-size: 12px;
-            margin-bottom: 12px; height: auto;
+            padding: 12px 10px 10px 10px; font-size: 11.5px;
+            box-sizing: border-box; height: auto;
         }
-        .receipt-header { text-align: center; margin-bottom: 10px; }
-        .receipt-brand { font-size: 17px; font-weight: 700; color: var(--text-main); letter-spacing: 0.2px; line-height: 1.3; }
-        .receipt-sub { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
-        .receipt-info-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin: 2px 0; }
-        .receipt-divider { border-bottom: 1px solid #e2e8f0; margin: 8px 0; }
+        .receipt-header { text-align: center; margin-bottom: 8px; }
+        
+        /* ชื่อร้านฟอนต์ไม่มีหัว (Prompt) โมเดิร์น เรียบหรู */
+        .receipt-brand {
+            font-family: 'Prompt', sans-serif;
+            font-size: 16px; font-weight: 700; color: var(--text-main);
+            letter-spacing: 0.2px; line-height: 1.25; margin-bottom: 2px;
+        }
+        .receipt-sub { font-size: 10px; color: var(--text-sub); }
+        .receipt-info-row { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-sub); margin: 2px 0; }
+        .receipt-divider { border-bottom: 1px solid #e2e8f0; margin: 6px 0; }
         
         /* รายการสินค้าในใบเสร็จ (แยกแถวชัดเจน) */
         .receipt-item-row {
             display: flex; justify-content: space-between; align-items: flex-start;
-            margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px dashed #f1f5f9;
+            margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px dashed #f1f5f9;
         }
         .receipt-item-row:last-child { border-bottom: none; }
-        .item-info-col { flex: 1; padding-right: 8px; }
-        .item-name-text { font-size: 12.5px; font-weight: 600; color: var(--text-main); line-height: 1.3; }
-        .item-sub-text { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
-        .item-price-text { font-size: 12.5px; font-weight: 700; color: var(--text-main); white-space: nowrap; text-align: right; }
+        .item-info-col { flex: 1; padding-right: 6px; }
+        .item-name-text { font-size: 11.5px; font-weight: 600; color: var(--text-main); line-height: 1.25; }
+        .item-sub-text { font-size: 10px; color: var(--text-sub); margin-top: 1px; }
+        .item-price-text { font-size: 11.5px; font-weight: 700; color: var(--text-main); white-space: nowrap; text-align: right; }
 
         /* ปุ่มปรับจำนวน (+ / - / ลบ) */
-        .qty-adjuster-bar { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
+        .qty-adjuster-bar { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
         .btn-qty-mini {
-            width: 22px; height: 22px; border: 1px solid var(--border); background: var(--gray-btn);
-            border-radius: 4px; font-size: 12px; font-weight: 700; cursor: pointer; display: flex;
+            width: 20px; height: 20px; border: 1px solid var(--border); background: var(--gray-btn);
+            border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; display: flex;
             align-items: center; justify-content: center;
         }
         .btn-qty-mini:hover { background: #e2e8f0; }
-        .qty-mini-val { font-size: 12px; font-weight: 700; width: 18px; text-align: center; }
-        .btn-del-mini { border: none; background: none; color: var(--primary); font-size: 11px; font-weight: 600; cursor: pointer; margin-left: 6px; padding: 2px 4px; }
+        .qty-mini-val { font-size: 11px; font-weight: 700; width: 16px; text-align: center; }
+        .btn-del-mini { border: none; background: none; color: var(--primary); font-size: 10.5px; font-weight: 600; cursor: pointer; margin-left: 4px; padding: 2px 4px; }
 
-        .receipt-subtotal-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); margin: 3px 0; }
-        .receipt-total-row { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; margin-top: 6px; color: var(--text-main); }
+        .receipt-subtotal-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin: 2px 0; }
+        .receipt-total-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-top: 4px; color: var(--text-main); }
+        
+        /* ท้ายใบเสร็จตัดพอดี ไม่เหลือที่ว่างเกิน */
         .receipt-footer-text {
-            text-align: center; font-size: 11px; color: var(--text-sub);
-            margin-top: 10px; padding-top: 8px; border-top: 1px dashed #e2e8f0;
-            line-height: 1.4;
+            text-align: center; font-size: 10.5px; color: var(--text-sub);
+            margin-top: 8px; padding-top: 6px; border-top: 1px dashed #e2e8f0;
+            line-height: 1.35;
         }
 
         .btn-action-group { display: flex; flex-direction: column; gap: 8px; }
@@ -306,11 +316,11 @@
                 </div>
             </div>
 
-            <!-- กล่องแสดงใบเสร็จ -->
+            <!-- กล่องแสดงใบเสร็จ (กระชับพอดีเครื่อง 56mm) -->
             <div class="receipt-container" id="receipt-capture-area">
                 <div class="receipt-header">
                     <div class="receipt-brand">ปอกใส่ปาก ผลไม้พร้อมทาน</div>
-                    <div class="receipt-sub">ผลไม้สด คัดสรรพิเศษ คุณภาพเต็มกล่อง</div>
+                    <div class="receipt-sub">ผลไม้สด คัดสรรพิเศษ คุณภาพคับกล่อง</div>
                 </div>
 
                 <div class="receipt-info-row">
@@ -334,6 +344,11 @@
 
                 <div class="receipt-divider"></div>
 
+                <!-- สรุปจำนวนรายการและยอดเงิน -->
+                <div class="receipt-subtotal-row" id="rc-count-line">
+                    <span>จำนวนสินค้ารวม</span>
+                    <span id="rc-total-qty" style="font-weight:600; color:var(--text-main);">0 รายการ</span>
+                </div>
                 <div class="receipt-subtotal-row" id="rc-subtotal-line">
                     <span>รวมค่าสินค้า</span>
                     <span id="rc-subtotal">0 บาท</span>
@@ -434,7 +449,7 @@
 
         let recentOrders = JSON.parse(localStorage.getItem('poksai_recent_orders_5') || '[]');
 
-        // ระบบเสียงแจ้งเตือน
+        // ระบบเสียงแจ้งเตือนผ่าน Web Audio API
         let audioCtx = null;
         function playAlertSound() {
             try {
@@ -844,11 +859,13 @@
             const delivLine = document.getElementById('rc-delivery-line');
             const delivDisplay = document.getElementById('rc-delivery');
             const totalDisplay = document.getElementById('rc-total-price');
+            const totalQtyDisplay = document.getElementById('rc-total-qty');
 
             if (posCart.length === 0) {
                 list.innerHTML = '<div style="text-align:center; padding:30px 0; color:var(--text-sub); font-size:12px;">ยังไม่มีรายการในบิล</div>';
                 subtotalDisplay.innerText = '0 บาท';
                 delivLine.style.display = 'none';
+                totalQtyDisplay.innerText = '0 รายการ';
                 totalDisplay.innerText = `${deliveryFee} บาท`;
                 document.getElementById('mobile-cart-badge').innerText = '0';
                 return;
@@ -868,7 +885,7 @@
                             ${item.sauce ? `<div class="item-sub-text">น้ำจิ้ม: ${item.sauce}</div>` : ''}
                             <div class="item-sub-text">${item.price} บาท x ${item.qty}</div>
                             
-                            <!-- ปุ่มปรับจำนวน (ซ่อนอัตโนมัติตอนแคปเจอร์รูปภาพใบเสร็จ) -->
+                            <!-- ปุ่มปรับจำนวน (ซ่อนตอนแคปเจอร์รูปภาพใบเสร็จ) -->
                             <div class="qty-adjuster-bar" data-html2canvas-ignore="true">
                                 <button type="button" class="btn-qty-mini" onclick="changeItemQty(${idx}, -1)">-</button>
                                 <span class="qty-mini-val">${item.qty}</span>
@@ -882,6 +899,7 @@
             });
 
             list.innerHTML = html;
+            totalQtyDisplay.innerText = `${totalCount} รายการ`;
             subtotalDisplay.innerText = `${subtotal.toLocaleString()} บาท`;
 
             if (deliveryFee > 0) {
@@ -1156,7 +1174,6 @@
 
             updateReceiptMeta(ord.orderId, `${ord.customerName} (${ord.customerPhone})`, ord.channel || 'LINE');
 
-            // แยกแจงรายการสินค้าออกเป็นบรรทัด
             posCart = parseOrderItemsList(ord.rawItems, ord.totalAmount);
             renderCartReceipt();
 
