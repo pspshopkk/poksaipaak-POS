@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ปอกใส่ปาก - ระบบจัดการจุดขาย POS</title>
-    <!-- โหลดฟอนต์ Prompt (ไม่มีหัว ดูโมเดิร์น) และ Sarabun -->
+    <!-- ฟอนต์ Prompt (ไม่มีหัว สไตล์โมเดิร์น) และ Sarabun -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -26,7 +26,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-page); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* แจ้งเตือนออเดอร์ใหม่ด้านบน */
+        /* แจ้งเตือนออเดอร์ใหม่จาก LINE */
         .order-alert-toast {
             position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
             background: #ffffff; border: 2px solid var(--primary); border-radius: var(--radius-md);
@@ -74,7 +74,7 @@
         .btn-custom-item { background: #fff; border: 1px solid var(--text-main); color: var(--text-main); padding: 7px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; }
         .btn-custom-item:hover { background: var(--text-main); color: #fff; }
 
-        /* แถบตัวกรองราคา */
+        /* แถบตัวกรองราคา (แคปซูล ไม่จม/ไม่ถูกบีบ) */
         .price-category-bar {
             display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
             padding: 6px 2px 14px 2px; margin-bottom: 8px; flex-shrink: 0; min-height: 54px;
@@ -103,25 +103,25 @@
         /* คอลัมน์ 3: สรุปบิลและข้อมูลลูกค้า */
         .panel-checkout { width: 380px; background: var(--card-bg); border-left: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px; flex-shrink: 0; overflow-y: auto; }
         .cust-input-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 6px; position: relative; }
-        .cust-input-field { width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-main); background: #fff; }
+        .cust-input-field { width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-main); background: #fff; }
         .cust-input-field:focus { outline: none; border-color: var(--text-main); }
 
-        /* เมนู Dropdown รายชื่อลูกค้า */
+        /* Dropdown แสดงรายชื่อลูกค้าเดิม */
         .customer-dropdown-menu {
-            position: absolute; top: 100%; left: 0; right: 0; background: #ffffff;
+            position: absolute; top: calc(100% + 2px); left: 0; right: 0; background: #ffffff;
             border: 1px solid var(--border); border-radius: var(--radius-sm);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15); max-height: 220px; overflow-y: auto;
-            z-index: 100; display: none; margin-top: 2px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18); max-height: 240px; overflow-y: auto;
+            z-index: 9999; display: none;
         }
         .cust-drop-item {
-            padding: 8px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer;
+            padding: 9px 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer;
             font-size: 12px; transition: background 0.15s;
         }
         .cust-drop-item:last-child { border-bottom: none; }
         .cust-drop-item:hover { background: #f8fafc; }
         .cust-drop-name { font-weight: 600; color: var(--text-main); }
         .cust-drop-phone { color: var(--primary); margin-left: 6px; font-weight: 600; }
-        .cust-drop-addr { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+        .cust-drop-addr { font-size: 11px; color: var(--text-sub); margin-top: 2px; line-height: 1.3; }
 
         /* แถบค่าจัดส่ง */
         .delivery-bar-box { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 10px; }
@@ -133,7 +133,7 @@
         }
         .btn-deliv.active { background: var(--text-main); color: #fff; border-color: var(--text-main); }
 
-        /* กล่องแสดงใบเสร็จ: จัดขนาดพอดีกระดาษ 56mm (ความกว้าง 280px พอดีเป๊ะ) */
+        /* กล่องแสดงใบเสร็จ (จัดพอดีกระดาษ 56mm / กว้าง 280px) */
         .receipt-container {
             width: 280px; max-width: 100%; margin: 0 auto 12px auto;
             background: #fff; border: 1px dashed #cbd5e1; border-radius: var(--radius-sm);
@@ -142,7 +142,7 @@
         }
         .receipt-header { text-align: center; margin-bottom: 8px; }
         
-        /* ชื่อร้านฟอนต์ไม่มีหัว (Prompt) โมเดิร์น เรียบหรู */
+        /* ชื่อร้านฟอนต์ Prompt ไม่มีหัว สไตล์โมเดิร์น */
         .receipt-brand {
             font-family: 'Prompt', sans-serif;
             font-size: 16px; font-weight: 700; color: var(--text-main);
@@ -177,7 +177,6 @@
         .receipt-subtotal-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-sub); margin: 2px 0; }
         .receipt-total-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; margin-top: 4px; color: var(--text-main); }
         
-        /* ท้ายใบเสร็จตัดพอดี ไม่เหลือที่ว่างเกิน */
         .receipt-footer-text {
             text-align: center; font-size: 10.5px; color: var(--text-sub);
             margin-top: 8px; padding-top: 6px; border-top: 1px dashed #e2e8f0;
@@ -284,12 +283,16 @@
             <div class="cust-input-box">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:12px; font-weight:700;">ข้อมูลลูกค้า</span>
-                    <span id="cust-found-badge" style="display:none; color:#27ae60; font-size:11px; font-weight:600;">พบข้อมูลเดิม</span>
+                    <span id="cust-count-badge" style="font-size:11px; color:var(--text-sub);">กำลังโหลดข้อมูล...</span>
                 </div>
 
                 <!-- ช่องค้นหาพร้อม Dropdown Menu -->
-                <div style="position: relative;">
-                    <input type="text" id="pos-cust-search" class="cust-input-field" placeholder="ค้นหาลูกค้าเดิม (พิมพ์ชื่อหรือเบอร์โทร)..." oninput="handleCustomerSearch(this.value)" onfocus="handleCustomerSearch(this.value)" autocomplete="off">
+                <div style="position: relative; width: 100%;">
+                    <input type="text" id="pos-cust-search" class="cust-input-field" 
+                           placeholder="แตะเพื่อเลือกลูกค้า หรือพิมพ์ชื่อ/เบอร์โทร..." 
+                           oninput="handleCustomerSearch(this.value)" 
+                           onfocus="handleCustomerSearch(this.value)" 
+                           autocomplete="off">
                     <div id="customer-dropdown-list" class="customer-dropdown-menu"></div>
                 </div>
 
@@ -362,7 +365,7 @@
                     <span id="rc-total-price">0 บาท</span>
                 </div>
 
-                <!-- ข้อความปิดท้ายใบเสร็จ (ตัดพอดีบรรทัดนี้ ไม่เหลือที่ว่างเกิน) -->
+                <!-- ข้อความปิดท้ายใบเสร็จ -->
                 <div class="receipt-footer-text">
                     ขอบคุณที่ให้เราดูแลมื้อผลไม้ แล้วแวะมาอีกนะคะ
                 </div>
@@ -474,6 +477,7 @@
         window.onload = function() {
             updateReceiptMeta();
             loadMenu();
+            updateCustomerCountBadge();
             loadCustomerDatabase();
             renderRecentOrders();
             loadCloudOrders();
@@ -495,7 +499,16 @@
             document.getElementById('view-' + (tab === 'menu' ? 'menu' : (tab === 'checkout' ? 'checkout' : 'orders'))).classList.add('active');
         }
 
-        /* ------------------ ข้อมูลลูกค้า & Dropdown ------------------ */
+        /* ------------------ ข้อมูลลูกค้า & Dropdown ตัวเลือก ------------------ */
+        function updateCustomerCountBadge() {
+            const count = Object.keys(customerCache).length;
+            const badge = document.getElementById('cust-count-badge');
+            if (badge) {
+                badge.innerText = count > 0 ? `(ในระบบ ${count} คน)` : `(รอเชื่อมต่อ...)`;
+                badge.style.color = count > 0 ? '#27ae60' : 'var(--text-sub)';
+            }
+        }
+
         async function loadCustomerDatabase() {
             try {
                 const res = await fetch(`${ORDER_API_URL}?action=getCustomers&t=${Date.now()}`);
@@ -505,25 +518,31 @@
                 else if (raw && Array.isArray(raw.data)) list = raw.data;
                 else if (raw && Array.isArray(raw.customers)) list = raw.customers;
 
-                list.forEach(c => {
-                    const name = c.name || c['Customer Name'] || c['Name'] || c['ชื่อ'] || '';
-                    const phone = String(c.phone || c['Phone'] || c['เบอร์โทร'] || '').replace(/-/g, '').trim();
-                    const address = c.address || c['Address'] || c['Place to Deliver'] || c['ที่อยู่'] || '';
-                    if (phone || name) {
-                        customerCache[phone || name] = { name, phone, address };
-                    }
-                });
-                localStorage.setItem('poksai_customer_db', JSON.stringify(customerCache));
-            } catch (e) {}
+                if (list.length > 0) {
+                    list.forEach(c => {
+                        const name = c.name || c['Customer Name'] || c['Name'] || c['ชื่อ'] || '';
+                        const phone = String(c.phone || c['Phone'] || c['เบอร์โทร'] || '').replace(/[- ]/g, '').trim();
+                        const address = c.address || c['Address'] || c['Place to Deliver'] || c['ที่อยู่'] || '';
+                        const key = phone || name;
+                        if (key) {
+                            customerCache[key] = { name, phone, address };
+                        }
+                    });
+                    localStorage.setItem('poksai_customer_db', JSON.stringify(customerCache));
+                    updateCustomerCountBadge();
+                }
+            } catch (e) {
+                console.warn('Load customers error:', e);
+            }
         }
 
         function handleCustomerSearch(query) {
             const drop = document.getElementById('customer-dropdown-list');
-            const q = query.trim().toLowerCase().replace(/-/g, '');
+            const q = (query || '').trim().toLowerCase().replace(/[- ]/g, '');
             const entries = Object.values(customerCache);
 
             if (entries.length === 0) {
-                drop.innerHTML = '<div style="padding:10px; font-size:11.5px; color:var(--text-sub); text-align:center;">ยังไม่มีรายชื่อลูกค้าในฐานข้อมูล</div>';
+                drop.innerHTML = '<div style="padding:12px; font-size:11.5px; color:var(--text-sub); text-align:center;">ยังไม่มีรายชื่อลูกค้าในฐานข้อมูล (พิมพ์เพื่อบันทึกใหม่ได้)</div>';
                 drop.style.display = 'block';
                 return;
             }
@@ -531,13 +550,13 @@
             const matched = entries.filter(c => {
                 if (!q) return true;
                 const name = (c.name || '').toLowerCase();
-                const phone = (c.phone || '').replace(/-/g, '');
+                const phone = (c.phone || '').replace(/[- ]/g, '');
                 const addr = (c.address || '').toLowerCase();
                 return name.includes(q) || phone.includes(q) || addr.includes(q);
-            }).slice(0, 20);
+            }).slice(0, 30);
 
             if (matched.length === 0) {
-                drop.innerHTML = '<div style="padding:10px; font-size:11.5px; color:var(--text-sub); text-align:center;">ไม่พบข้อมูลลูกค้าที่ตรงกัน</div>';
+                drop.innerHTML = '<div style="padding:12px; font-size:11.5px; color:var(--text-sub); text-align:center;">ไม่พบข้อมูลลูกค้าที่ตรงกัน</div>';
                 drop.style.display = 'block';
                 return;
             }
@@ -546,7 +565,7 @@
             matched.forEach(c => {
                 html += `
                     <div class="cust-drop-item" onclick="selectCustomerFromDropdown('${encodeURIComponent(JSON.stringify(c))}')">
-                        <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span class="cust-drop-name">${c.name || 'ลูกค้าทั่วไป'}</span>
                             <span class="cust-drop-phone">${c.phone || ''}</span>
                         </div>
@@ -564,9 +583,10 @@
             document.getElementById('pos-cust-name').value = c.name || '';
             document.getElementById('pos-cust-phone').value = c.phone || '';
             document.getElementById('pos-cust-address').value = c.address || '';
-            document.getElementById('pos-cust-search').value = c.name ? `${c.name} (${c.phone || ''})` : '';
-            document.getElementById('cust-found-badge').style.display = 'inline';
-            document.getElementById('customer-dropdown-list').style.display = 'none';
+            document.getElementById('pos-cust-search').value = c.name ? `${c.name} (${c.phone || ''})` : (c.phone || '');
+            
+            const drop = document.getElementById('customer-dropdown-list');
+            if (drop) drop.style.display = 'none';
 
             updateReceiptCustomer();
         }
@@ -588,10 +608,12 @@
 
         async function saveCustomerToDatabase(name, phone, address) {
             if (!phone && !name) return;
-            const clean = (phone || '').trim().replace(/-/g, '');
-            if (clean) {
-                customerCache[clean] = { name: name || '-', phone: clean, address: address || '-' };
+            const clean = (phone || '').trim().replace(/[- ]/g, '');
+            const key = clean || name;
+            if (key) {
+                customerCache[key] = { name: name || '-', phone: clean, address: address || '-' };
                 localStorage.setItem('poksai_customer_db', JSON.stringify(customerCache));
+                updateCustomerCountBadge();
             }
             try {
                 const url = `${ORDER_API_URL}?action=saveCustomer&name=${encodeURIComponent(name || '-')}&phone=${encodeURIComponent(clean || '-')}&address=${encodeURIComponent(address || '-')}&t=${Date.now()}`;
@@ -928,7 +950,6 @@
             document.getElementById('pos-cust-name').value = '';
             document.getElementById('pos-cust-address').value = '';
             document.getElementById('pos-cust-search').value = '';
-            document.getElementById('cust-found-badge').style.display = 'none';
             document.getElementById('delivery-fee-display').innerText = '0 บาท';
             document.querySelectorAll('.delivery-btn-group .btn-deliv').forEach(b => b.classList.remove('active'));
             document.querySelector('.delivery-btn-group .btn-deliv')?.classList.add('active');
@@ -1114,7 +1135,10 @@
 
             let newlyArrived = [];
             orders.forEach(ord => {
-                if (ord.customerPhone) customerCache[ord.customerPhone.replace(/-/g,'')] = { name: ord.customerName, address: ord.customerAddress };
+                if (ord.customerPhone) {
+                    const clean = ord.customerPhone.replace(/[- ]/g,'').trim();
+                    customerCache[clean] = { name: ord.customerName, phone: clean, address: ord.customerAddress };
+                }
                 if (ord.orderId && !knownOrderIds.has(ord.orderId)) {
                     if (!isFirstLoad) newlyArrived.push(ord);
                     knownOrderIds.add(ord.orderId);
