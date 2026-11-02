@@ -26,7 +26,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-page); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* แจ้งเตือนออเดอร์ใหม่จาก LINE */
+        /* แถบแจ้งเตือนออเดอร์ใหม่จาก LINE */
         .order-alert-toast {
             position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
             background: #ffffff; border: 2px solid var(--primary); border-radius: var(--radius-md);
@@ -51,7 +51,7 @@
         /* Layout หลัก */
         .pos-layout { display: flex; flex: 1; height: 100vh; overflow: hidden; }
 
-        /* คอลัมน์ 1: ออเดอร์ LINE (แบ่ง 2 ส่วน) */
+        /* คอลัมน์ 1: ออเดอร์ LINE */
         .panel-orders { width: 320px; background: var(--card-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
         .panel-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .badge-pending { background: var(--primary); color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
@@ -74,7 +74,7 @@
         .btn-custom-item { background: #fff; border: 1px solid var(--text-main); color: var(--text-main); padding: 7px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; }
         .btn-custom-item:hover { background: var(--text-main); color: #fff; }
 
-        /* แถบตัวกรองราคา (แคปซูล ไม่จม/ไม่ถูกบีบ) */
+        /* แถบตัวกรองราคา */
         .price-category-bar {
             display: flex; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch;
             padding: 6px 2px 14px 2px; margin-bottom: 8px; flex-shrink: 0; min-height: 54px;
@@ -134,77 +134,74 @@
         }
         .btn-deliv.active { background: var(--text-main); color: #fff; border-color: var(--text-main); }
 
-        /* กล่องแสดงใบเสร็จ: จัดขนาดไม่เกิน 56mm (กว้าง 220px) พร้อมระยะขอบ Margin ไม่ชนขอบ */
+        /* กล่องใบเสร็จ (ขาวดำ 100% กว้าง 220px พอดี 56mm) */
         .receipt-container {
             width: 220px; max-width: 100%; margin: 0 auto 12px auto;
-            background: #ffffff; border: 1px solid #e2e8f0;
+            background: #ffffff; border: 1px solid #000000;
             padding: 16px 14px 12px 14px; font-size: 11px;
             box-sizing: border-box; height: auto;
+            color: #000000;
         }
         .receipt-header { text-align: center; margin-bottom: 8px; }
         
-        /* ชื่อร้านฟอนต์ไม่มีหัว (Prompt) โมเดิร์น ชัดเจน */
         .receipt-brand {
             font-family: 'Prompt', sans-serif;
-            font-size: 15px; font-weight: 700; color: #1e293b;
+            font-size: 15px; font-weight: 700; color: #000000;
             letter-spacing: 0.2px; line-height: 1.25; margin-bottom: 2px;
         }
         .receipt-sub {
             font-family: 'Prompt', sans-serif;
-            font-size: 9.5px; color: #64748b; line-height: 1.3;
+            font-size: 9.5px; color: #000000; font-weight: 400; line-height: 1.3;
         }
-        .receipt-info-row { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-sub); margin: 2px 0; }
-        .receipt-divider { border-bottom: 1px solid #e2e8f0; margin: 6px 0; }
+        .receipt-info-row { display: flex; justify-content: space-between; font-size: 10px; color: #000000; font-weight: 400; margin: 2px 0; }
+        .receipt-divider { border-bottom: 1px dashed #000000; margin: 6px 0; }
         
-        /* บรรทัดสถานที่จัดส่ง */
         .receipt-address-box {
-            font-size: 10.5px; color: var(--text-main); margin: 4px 0 2px 0;
+            font-size: 10.5px; color: #000000; margin: 4px 0 2px 0;
             line-height: 1.35; word-break: break-word;
         }
-        .receipt-address-box .rc-label { font-weight: 700; color: var(--text-main); }
-        .receipt-address-box .rc-val { color: var(--text-main); }
+        .receipt-address-box .rc-label { font-weight: 700; color: #000000; }
+        .receipt-address-box .rc-val { color: #000000; font-weight: 400; }
 
-        /* กล่องโน้ต/รีเควสพิเศษ (ตีกรอบดึงดูดสายตา ไม่ลืมแน่นอน) */
         .receipt-note-box {
             margin: 6px 0 4px 0; padding: 6px 8px;
-            border: 1.5px solid var(--primary); background: #ffffff;
+            border: 1.5px solid #000000; background: #ffffff;
             border-radius: 4px; font-size: 10.5px; line-height: 1.35;
-            word-break: break-word;
+            word-break: break-word; color: #000000;
         }
         .receipt-note-title {
             font-family: 'Prompt', sans-serif; font-weight: 700;
-            font-size: 10.5px; color: var(--primary); margin-bottom: 2px;
+            font-size: 10.5px; color: #000000; margin-bottom: 2px;
         }
-        .receipt-note-content { color: #1e293b; font-weight: 600; }
+        .receipt-note-content { color: #000000; font-weight: 400; }
 
-        /* รายการสินค้าในใบเสร็จ (แยกแถวชัดเจน) */
         .receipt-item-row {
             display: flex; justify-content: space-between; align-items: flex-start;
-            margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px dashed #f1f5f9;
+            margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px dashed #000000;
+            color: #000000;
         }
         .receipt-item-row:last-child { border-bottom: none; }
         .item-info-col { flex: 1; padding-right: 6px; }
-        .item-name-text { font-size: 11px; font-weight: 600; color: var(--text-main); line-height: 1.25; }
-        .item-sub-text { font-size: 9.5px; color: var(--text-sub); margin-top: 1px; }
-        .item-price-text { font-size: 11px; font-weight: 700; color: var(--text-main); white-space: nowrap; text-align: right; }
+        .item-name-text { font-size: 11px; font-weight: 700; color: #000000; line-height: 1.25; }
+        .item-sub-text { font-size: 9.5px; color: #000000; font-weight: 400; margin-top: 1px; }
+        .item-price-text { font-size: 11px; font-weight: 700; color: #000000; white-space: nowrap; text-align: right; }
 
-        /* ปุ่มปรับจำนวน (+ / - / ลบ) */
         .qty-adjuster-bar { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
         .btn-qty-mini {
             width: 19px; height: 19px; border: 1px solid var(--border); background: var(--gray-btn);
             border-radius: 3px; font-size: 10.5px; font-weight: 700; cursor: pointer; display: flex;
-            align-items: center; justify-content: center;
+            align-items: center; justify-content: center; color: var(--text-main);
         }
         .btn-qty-mini:hover { background: #e2e8f0; }
-        .qty-mini-val { font-size: 10.5px; font-weight: 700; width: 16px; text-align: center; }
+        .qty-mini-val { font-size: 10.5px; font-weight: 700; width: 16px; text-align: center; color: var(--text-main); }
         .btn-del-mini { border: none; background: none; color: var(--primary); font-size: 10px; font-weight: 600; cursor: pointer; margin-left: 4px; padding: 1px 3px; }
 
-        .receipt-subtotal-row { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-sub); margin: 2px 0; }
-        .receipt-total-row { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 700; margin-top: 4px; color: var(--text-main); }
+        .receipt-subtotal-row { display: flex; justify-content: space-between; font-size: 10.5px; color: #000000; font-weight: 400; margin: 2px 0; }
+        .receipt-total-row { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 700; margin-top: 4px; color: #000000; }
         
         .receipt-footer-text {
-            font-family: 'Prompt', sans-serif; text-align: center; font-size: 9.5px; color: var(--text-sub);
-            margin-top: 8px; padding-top: 6px; border-top: 1px dashed #cbd5e1; line-height: 1.35;
+            font-family: 'Prompt', sans-serif; text-align: center; font-size: 9.5px; color: #000000; font-weight: 400;
+            margin-top: 8px; padding-top: 6px; border-top: 1px dashed #000000; line-height: 1.35;
         }
 
         .btn-action-group { display: flex; flex-direction: column; gap: 8px; }
@@ -213,7 +210,6 @@
         .btn-pos-secondary { background: var(--gray-btn); color: var(--text-main); border: 1px solid var(--border); padding: 9px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
         .btn-pos-secondary:hover { background: #e2e8f0; }
 
-        /* Modal ทั่วไป */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
         .modal-card { background: #fff; border-radius: var(--radius-md); width: 100%; max-width: 420px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; max-height: 88vh; }
         .fruit-scroll-box { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow-y: auto; flex: 1; max-height: 240px; margin-bottom: 12px; }
@@ -221,7 +217,6 @@
         .duo-row:last-child { border-bottom: none; }
         .duo-row:hover { background: #f8fafc; }
 
-        /* ปุ่มเลือกน้ำจิ้มใน Modal */
         .sauce-pick-btn {
             width: 100%; text-align: left; padding: 10px 12px; border: 1px solid var(--border);
             border-radius: var(--radius-sm); background: #ffffff; font-size: 12.5px; font-weight: 600;
@@ -239,7 +234,6 @@
 </head>
 <body>
 
-    <!-- แจ้งเตือนออเดอร์ใหม่จาก LINE -->
     <div class="order-alert-toast" id="order-alert-toast">
         <div>
             <div style="font-size:13px; font-weight:700; color:var(--primary);">มีออเดอร์ใหม่จาก LINE!</div>
@@ -249,7 +243,6 @@
         <button onclick="document.getElementById('order-alert-toast').style.display='none'" style="border:none; background:none; color:#999; cursor:pointer;">✕</button>
     </div>
 
-    <!-- แถบนำทางมือถือ/iPad -->
     <div class="mobile-nav-bar">
         <button class="nav-tab-btn active" id="tab-btn-menu" onclick="switchMobileTab('menu')">เมนูขาย</button>
         <button class="nav-tab-btn" id="tab-btn-checkout" onclick="switchMobileTab('checkout')">บิลคิดเงิน (<span id="mobile-cart-badge">0</span>)</button>
@@ -258,14 +251,12 @@
 
     <div class="pos-layout">
 
-        <!-- แผงซ้าย: ออเดอร์ LINE (แบ่ง 2 ส่วน) -->
         <div class="panel-orders" id="view-orders">
             <div class="panel-header">
                 <span style="font-size:14px; font-weight:700;">ออเดอร์จาก LINE</span>
                 <span class="badge-pending" id="badge-count">0</span>
             </div>
 
-            <!-- ส่วนที่ 1: ออเดอร์เข้าใหม่ -->
             <div class="orders-split-section">
                 <div class="sub-section-header">
                     <span>ออเดอร์เข้าใหม่</span>
@@ -276,7 +267,6 @@
                 </div>
             </div>
 
-            <!-- ส่วนที่ 2: 5 รายการล่าสุด -->
             <div class="orders-split-section" style="border-top:1px solid var(--border);">
                 <div class="sub-section-header">
                     <span>5 รายการล่าสุด</span>
@@ -288,7 +278,6 @@
             </div>
         </div>
 
-        <!-- แผงกลาง: เมนูสินค้า -->
         <div class="panel-menu active" id="view-menu">
             <div class="menu-topbar">
                 <button class="btn-custom-item" onclick="openCustomItemModal()">+ สินค้าพิเศษ</button>
@@ -299,7 +288,6 @@
                 </select>
             </div>
 
-            <!-- แถบหมวดหมู่ราคา -->
             <div class="price-category-bar" id="category-filter-bar">
                 <button class="cat-chip active" onclick="filterMenuCategory('all', this)">ทั้งหมด</button>
             </div>
@@ -309,16 +297,13 @@
             </div>
         </div>
 
-        <!-- แผงขวา: ข้อมูลลูกค้า ค่าจัดส่ง และบิล -->
         <div class="panel-checkout" id="view-checkout">
-            <!-- ข้อมูลลูกค้าพร้อม Dropdown ตัวเลือก -->
             <div class="cust-input-box">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:12px; font-weight:700;">ข้อมูลลูกค้า</span>
                     <span id="cust-count-badge" style="font-size:11px; color:var(--text-sub);">กำลังโหลดข้อมูล...</span>
                 </div>
 
-                <!-- ช่องค้นหาพร้อม Dropdown Menu -->
                 <div style="position: relative; width: 100%;">
                     <input type="text" id="pos-cust-search" class="cust-input-field" 
                            placeholder="แตะเพื่อเลือกลูกค้า หรือพิมพ์ชื่อ/เบอร์โทร..." 
@@ -329,14 +314,13 @@
                 </div>
 
                 <div style="display:flex; gap:6px;">
-                    <input type="tel" id="pos-cust-phone" class="cust-input-field" placeholder="เบอร์โทรศัพท์" oninput="updateReceiptCustomer()" style="flex:1;">
+                    <input type="tel" id="pos-cust-phone" class="cust-input-field" maxlength="12" placeholder="0xx-xxx-xxxx" oninput="this.value = formatPhoneDigits(this.value); updateReceiptCustomer()" style="flex:1;">
                     <input type="text" id="pos-cust-name" class="cust-input-field" placeholder="ชื่อลูกค้า" oninput="updateReceiptCustomer()" style="flex:1;">
                 </div>
                 <input type="text" id="pos-cust-address" class="cust-input-field" placeholder="สถานที่จัดส่ง (ถ้ามี)" oninput="updateReceiptCustomer()">
                 <input type="text" id="pos-cust-note" class="cust-input-field" placeholder="หมายเหตุ / รีเควสพิเศษจากลูกค้า" oninput="updateReceiptCustomer()">
             </div>
 
-            <!-- ค่าจัดส่ง -->
             <div class="delivery-bar-box">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:12px; font-weight:700;">ค่าจัดส่ง</span>
@@ -352,7 +336,6 @@
                 </div>
             </div>
 
-            <!-- กล่องแสดงใบเสร็จ (ขนาดพอดีกระดาษ 56mm สีขาวสะอาดตา) -->
             <div class="receipt-container" id="receipt-capture-area">
                 <div class="receipt-header">
                     <div class="receipt-brand">ปอกใส่ปาก ผลไม้พร้อมทาน</div>
@@ -368,13 +351,11 @@
                     <span id="rc-cust">ลูกค้าทั่วไป</span>
                 </div>
 
-                <!-- บรรทัดสถานที่จัดส่ง (แยกบรรทัดเฉพาะ) -->
                 <div class="receipt-address-box" id="rc-address-row" style="display:none;">
                     <span class="rc-label">สถานที่จัดส่ง: </span>
                     <span id="rc-address" class="rc-val"></span>
                 </div>
 
-                <!-- กล่องหมายเหตุพิเศษ (ตีกรอบดึงดูดสายตา ไม่ลืมแน่นอน) -->
                 <div class="receipt-note-box" id="rc-note-box" style="display:none;">
                     <div class="receipt-note-title">หมายเหตุ / รีเควสพิเศษ:</div>
                     <div id="rc-note" class="receipt-note-content"></div>
@@ -382,32 +363,29 @@
 
                 <div class="receipt-divider"></div>
 
-                <!-- ตารางรายการสินค้าแยกบรรทัด -->
                 <div id="receipt-items-list">
-                    <div style="text-align:center; padding:30px 0; color:var(--text-sub); font-size:12px;">ยังไม่มีรายการในบิล</div>
+                    <div style="text-align:center; padding:30px 0; color:#000000; font-size:12px;">ยังไม่มีรายการในบิล</div>
                 </div>
 
                 <div class="receipt-divider"></div>
 
-                <!-- สรุปจำนวนรายการและยอดเงิน -->
                 <div class="receipt-subtotal-row" id="rc-count-line">
                     <span>จำนวนสินค้ารวม</span>
-                    <span id="rc-total-qty" style="font-weight:700; color:var(--text-main);">0 รายการ</span>
+                    <span id="rc-total-qty" style="font-weight:700; color:#000000;">0 รายการ</span>
                 </div>
                 <div class="receipt-subtotal-row" id="rc-subtotal-line">
                     <span>รวมค่าสินค้า</span>
-                    <span id="rc-subtotal">0 บาท</span>
+                    <span id="rc-subtotal" style="font-weight:400; color:#000000;">0 บาท</span>
                 </div>
                 <div class="receipt-subtotal-row" id="rc-delivery-line" style="display:none;">
                     <span>ค่าจัดส่ง</span>
-                    <span id="rc-delivery">0 บาท</span>
+                    <span id="rc-delivery" style="font-weight:400; color:#000000;">0 บาท</span>
                 </div>
                 <div class="receipt-total-row">
                     <span>ยอดรวมสุทธิ</span>
-                    <span id="rc-total-price">0 บาท</span>
+                    <span id="rc-total-price" style="font-weight:700; color:#000000;">0 บาท</span>
                 </div>
 
-                <!-- ข้อความปิดท้ายใบเสร็จ -->
                 <div class="receipt-footer-text">
                     ขอบคุณที่ให้เราดูแลมื้อผลไม้ แล้วแวะมาอีกนะคะ
                 </div>
@@ -422,7 +400,7 @@
 
     </div>
 
-    <!-- Modal เลือกน้ำจิ้มสำหรับผลไม้กล่องเดี่ยวหน้าร้าน POS -->
+    <!-- Modal เลือกน้ำจิ้มหน้าร้าน POS -->
     <div class="modal-overlay" id="pos-single-sauce-modal">
         <div class="modal-card" style="max-width: 320px;">
             <div style="font-size:15px; font-weight:700; text-align:center;" id="pos-sauce-item-name">ชื่อเมนู</div>
@@ -456,7 +434,7 @@
         </div>
     </div>
 
-    <!-- Modal ผลไม้ดูโอ้ -->
+    <!-- Modal ดูโอ้ -->
     <div class="modal-overlay" id="pos-duo-modal">
         <div class="modal-card">
             <div style="font-size:15px; font-weight:700; text-align:center;">เลือกผลไม้ดูโอ้ (2 อย่าง)</div>
@@ -520,7 +498,16 @@
         const isSauceEligible = name => !name.includes('ฝรั่งแช่บ๊วย') && /มะม่วง|สับปะรด|แอปเปิ้ล|ฝรั่ง/.test(name);
         const isService = item => /บริการ|service|addon/i.test(String(item.category || ''));
 
-        // ตรวจสอบว่าเมนูนี้ต้องเลือกน้ำจิ้มหรือไม่ (ดึงจากสถานะใน Sheet ก่อน และมี Fallback ตรวจจากชื่อ)
+        function formatPhoneDigits(val) {
+            let digits = String(val).replace(/\D/g, '').slice(0, 10);
+            if (digits.length > 6) {
+                return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+            } else if (digits.length > 3) {
+                return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+            }
+            return digits;
+        }
+
         function checkItemHasSauce(item) {
             if (!item || isService(item)) return false;
             const val = item.hasSauce !== undefined ? item.hasSauce : (item['เลือกน้ำจิ้ม'] !== undefined ? item['เลือกน้ำจิ้ม'] : item['มีน้ำจิ้ม']);
@@ -541,7 +528,6 @@
 
         let recentOrders = JSON.parse(localStorage.getItem('poksai_recent_orders_5') || '[]');
 
-        // ระบบเสียงแจ้งเตือนผ่าน Web Audio API
         let audioCtx = null;
         function playAlertSound() {
             try {
@@ -609,39 +595,39 @@
 
                 if (list.length > 0) {
                     list.forEach(c => {
-                        const name = c.name || c['Customer Name'] || c['Name'] || c['ชื่อ'] || '';
-                        const phone = String(c.phone || c['Phone'] || c['เบอร์โทร'] || '').replace(/[- ]/g, '').trim();
-                        const address = c.address || c['Address'] || c['Place to Deliver'] || c['ที่อยู่'] || '';
-                        const key = phone || name;
+                        const name = c.name || '';
+                        const address = c.address || '';
+                        const phone = formatPhoneDigits(c.phone || c.rawPhone || '');
+                        const rawDigits = phone.replace(/\D/g, '');
+                        const key = rawDigits || name;
                         if (key) {
-                            customerCache[key] = { name, phone, address };
+                            customerCache[key] = { name, phone, address, rawPhone: rawDigits };
                         }
                     });
                     localStorage.setItem('poksai_customer_db', JSON.stringify(customerCache));
                     updateCustomerCountBadge();
                 }
-            } catch (e) {
-                console.warn('Load customers error:', e);
-            }
+            } catch (e) {}
         }
 
         function handleCustomerSearch(query) {
             const drop = document.getElementById('customer-dropdown-list');
-            const q = (query || '').trim().toLowerCase().replace(/[- ]/g, '');
+            const q = String(query || '').replace(/\D/g, '');
+            const rawQ = String(query || '').trim().toLowerCase();
             const entries = Object.values(customerCache);
 
             if (entries.length === 0) {
-                drop.innerHTML = '<div style="padding:12px; font-size:11.5px; color:var(--text-sub); text-align:center;">ยังไม่มีรายชื่อลูกค้าในฐานข้อมูล (พิมพ์เพื่อบันทึกใหม่ได้)</div>';
+                drop.innerHTML = '<div style="padding:12px; font-size:11.5px; color:var(--text-sub); text-align:center;">ยังไม่มีรายชื่อลูกค้าในฐานข้อมูล</div>';
                 drop.style.display = 'block';
                 return;
             }
 
             const matched = entries.filter(c => {
-                if (!q) return true;
+                if (!rawQ) return true;
                 const name = (c.name || '').toLowerCase();
-                const phone = (c.phone || '').replace(/[- ]/g, '');
+                const phoneDigits = String(c.phone || '').replace(/\D/g, '');
                 const addr = (c.address || '').toLowerCase();
-                return name.includes(q) || phone.includes(q) || addr.includes(q);
+                return name.includes(rawQ) || (q && phoneDigits.includes(q)) || addr.includes(rawQ);
             }).slice(0, 30);
 
             if (matched.length === 0) {
@@ -656,7 +642,7 @@
                     <div class="cust-drop-item" onclick="selectCustomerFromDropdown('${encodeURIComponent(JSON.stringify(c))}')">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span class="cust-drop-name">${c.name || 'ลูกค้าทั่วไป'}</span>
-                            <span class="cust-drop-phone">${c.phone || ''}</span>
+                            <span class="cust-drop-phone">${formatPhoneDigits(c.phone || '')}</span>
                         </div>
                         ${c.address ? `<div class="cust-drop-addr">${c.address}</div>` : ''}
                     </div>
@@ -670,9 +656,9 @@
         function selectCustomerFromDropdown(encoded) {
             const c = JSON.parse(decodeURIComponent(encoded));
             document.getElementById('pos-cust-name').value = c.name || '';
-            document.getElementById('pos-cust-phone').value = c.phone || '';
+            document.getElementById('pos-cust-phone').value = formatPhoneDigits(c.phone || '');
             document.getElementById('pos-cust-address').value = c.address || '';
-            document.getElementById('pos-cust-search').value = c.name ? `${c.name} (${c.phone || ''})` : (c.phone || '');
+            document.getElementById('pos-cust-search').value = c.name ? `${c.name} (${formatPhoneDigits(c.phone || '')})` : formatPhoneDigits(c.phone || '');
             
             const drop = document.getElementById('customer-dropdown-list');
             if (drop) drop.style.display = 'none';
@@ -686,7 +672,7 @@
             const address = document.getElementById('pos-cust-address').value.trim();
             const note = document.getElementById('pos-cust-note').value.trim();
 
-            document.getElementById('rc-cust').innerText = name ? `${name} ${phone ? '('+phone+')' : ''}` : 'ลูกค้าทั่วไป';
+            document.getElementById('rc-cust').innerText = name ? `${name} ${phone ? '('+formatPhoneDigits(phone)+')' : ''}` : 'ลูกค้าทั่วไป';
             
             const addrRow = document.getElementById('rc-address-row');
             if (address) {
@@ -707,20 +693,22 @@
 
         async function saveCustomerToDatabase(name, phone, address) {
             if (!phone && !name) return;
-            const clean = (phone || '').trim().replace(/[- ]/g, '');
-            const key = clean || name;
+            const formatted = formatPhoneDigits(phone);
+            const digits = formatted.replace(/\D/g, '');
+            const key = digits || name;
+
             if (key) {
-                customerCache[key] = { name: name || '-', phone: clean, address: address || '-' };
+                customerCache[key] = { name: name || '-', phone: formatted, address: address || '-', rawPhone: digits };
                 localStorage.setItem('poksai_customer_db', JSON.stringify(customerCache));
                 updateCustomerCountBadge();
             }
             try {
-                const url = `${ORDER_API_URL}?action=saveCustomer&name=${encodeURIComponent(name || '-')}&phone=${encodeURIComponent(clean || '-')}&address=${encodeURIComponent(address || '-')}&t=${Date.now()}`;
+                const url = `${ORDER_API_URL}?action=saveCustomer&name=${encodeURIComponent(name || '-')}&phone=${encodeURIComponent(formatted)}&address=${encodeURIComponent(address || '-')}&t=${Date.now()}`;
                 await fetch(url, { mode: 'no-cors' });
             } catch (err) {}
         }
 
-        /* ------------------ จัดการค่าจัดส่ง ------------------ */
+        /* ------------------ ค่าจัดส่ง ------------------ */
         function setDeliveryFee(amt, btnElem) {
             deliveryFee = Number(amt) || 0;
             document.querySelectorAll('.delivery-btn-group .btn-deliv').forEach(b => b.classList.remove('active'));
@@ -736,7 +724,7 @@
             }
         }
 
-        /* ------------------ เมนูและการเลือกสินค้า (รองรับน้ำจิ้ม) ------------------ */
+        /* ------------------ เมนูและหมวดหมู่ราคา ------------------ */
         async function loadMenu() {
             try {
                 let res = await fetch(`${MENU_SCRIPT_URL}?action=getData&t=${Date.now()}`);
@@ -874,7 +862,7 @@
             closePosSingleSauceModal();
         }
 
-        /* ------------------ ผลไม้ดูโอ้ POS ------------------ */
+        /* ------------------ ดูโอ้ POS ------------------ */
         function preRenderDuoList() {
             const list = document.getElementById('pos-duo-fruit-list');
             list.innerHTML = '';
@@ -978,7 +966,7 @@
             document.getElementById('custom-item-modal').style.display = 'none';
         }
 
-        /* ------------------ ตะกร้าและคิดเงิน (ปุ่มเพิ่ม/ลด/ลบ) ------------------ */
+        /* ------------------ ตะกร้าและคิดเงิน ------------------ */
         function addItemToCart(name, price, sauce = '') {
             if (isCloudOrderLoaded) {
                 if (!confirm('ต้องการสลับจากการดูออเดอร์ LINE มาเปิดบิลใหม่ใช่หรือไม่?')) return;
@@ -1016,7 +1004,7 @@
             const totalQtyDisplay = document.getElementById('rc-total-qty');
 
             if (posCart.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding:30px 0; color:var(--text-sub); font-size:12px;">ยังไม่มีรายการในบิล</div>';
+                list.innerHTML = '<div style="text-align:center; padding:30px 0; color:#000000; font-size:12px;">ยังไม่มีรายการในบิล</div>';
                 subtotalDisplay.innerText = '0 บาท';
                 delivLine.style.display = 'none';
                 totalQtyDisplay.innerText = '0 รายการ';
@@ -1039,7 +1027,6 @@
                             ${item.sauce ? `<div class="item-sub-text">น้ำจิ้ม: ${item.sauce}</div>` : ''}
                             <div class="item-sub-text">${item.price} บาท x ${item.qty}</div>
                             
-                            <!-- ปุ่มปรับจำนวน (ซ่อนตอนแคปเจอร์รูปภาพใบเสร็จ) -->
                             <div class="qty-adjuster-bar" data-html2canvas-ignore="true">
                                 <button type="button" class="btn-qty-mini" onclick="changeItemQty(${idx}, -1)">-</button>
                                 <span class="qty-mini-val">${item.qty}</span>
@@ -1091,7 +1078,7 @@
             document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
         }
 
-        /* ------------------ ดึงและแยกบรรทัดออเดอร์จาก LINE ------------------ */
+        /* ------------------ ออเดอร์จาก LINE ------------------ */
         function parseOrderItemsList(rawItems, totalFallback) {
             if (!rawItems) return [{ name: 'รายการผลไม้พร้อมทาน', price: Number(totalFallback) || 0, qty: 1, sauce: '' }];
 
@@ -1220,7 +1207,7 @@
                             <span style="font-size:12.5px; font-weight:700;">${ord.orderId}</span>
                             <span style="font-size:10px; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px; font-weight:600;">${ord.time || 'ล่าสุด'}</span>
                         </div>
-                        <div style="font-size:11.5px; color:var(--text-sub); margin-top:2px;">${ord.customerName || 'ลูกค้าทั่วไป'} ${ord.customerPhone ? '(' + ord.customerPhone + ')' : ''}</div>
+                        <div style="font-size:11.5px; color:var(--text-sub); margin-top:2px;">${ord.customerName || 'ลูกค้าทั่วไป'} ${ord.customerPhone ? '(' + formatPhoneDigits(ord.customerPhone) + ')' : ''}</div>
                         <div style="font-size:11.5px; margin:3px 0; color:var(--text-main); line-height:1.3;">${summaryTxt}</div>
                         <div style="font-size:12.5px; font-weight:700; color:var(--text-main); text-align:right;">${Number(ord.totalAmount).toLocaleString()} บาท</div>
                     </div>
@@ -1238,12 +1225,12 @@
             deliveryFee = Number(ord.deliveryFee) || 0;
 
             document.getElementById('pos-cust-name').value = ord.customerName || '';
-            document.getElementById('pos-cust-phone').value = ord.customerPhone || '';
+            document.getElementById('pos-cust-phone').value = formatPhoneDigits(ord.customerPhone || '');
             document.getElementById('pos-cust-address').value = ord.customerAddress || '';
             document.getElementById('pos-cust-note').value = ord.customerNote || '';
-            document.getElementById('pos-cust-search').value = ord.customerName ? `${ord.customerName} (${ord.customerPhone || ''})` : '';
+            document.getElementById('pos-cust-search').value = ord.customerName ? `${ord.customerName} (${formatPhoneDigits(ord.customerPhone || '')})` : formatPhoneDigits(ord.customerPhone || '');
 
-            updateReceiptMeta(ord.orderId, `${ord.customerName} (${ord.customerPhone})`, ord.channel || 'LINE');
+            updateReceiptMeta(ord.orderId, `${ord.customerName} (${formatPhoneDigits(ord.customerPhone)})`, ord.channel || 'LINE');
 
             posCart = parseOrderItemsList(ord.rawItems, ord.totalAmount);
             setDeliveryFee(deliveryFee, null);
@@ -1282,8 +1269,8 @@
             let newlyArrived = [];
             orders.forEach(ord => {
                 if (ord.customerPhone) {
-                    const clean = ord.customerPhone.replace(/[- ]/g,'').trim();
-                    customerCache[clean] = { name: ord.customerName, phone: clean, address: ord.customerAddress };
+                    const digits = String(ord.customerPhone).replace(/\D/g, '');
+                    customerCache[digits] = { name: ord.customerName, phone: formatPhoneDigits(ord.customerPhone), address: ord.customerAddress, rawPhone: digits };
                 }
                 if (ord.orderId && !knownOrderIds.has(ord.orderId)) {
                     if (!isFirstLoad) newlyArrived.push(ord);
@@ -1310,7 +1297,7 @@
                 html += `
                     <div class="order-card ${currentActiveOrderId === ord.orderId ? 'selected' : ''}" onclick="selectCloudOrder('${ord.orderId}', '${encodeURIComponent(JSON.stringify(ord))}')">
                         <div style="font-size:13px; font-weight:700;">${ord.orderId}</div>
-                        <div style="font-size:12px; color:var(--text-sub);">${ord.customerName} ${ord.customerPhone ? '('+ord.customerPhone+')' : ''}</div>
+                        <div style="font-size:12px; color:var(--text-sub);">${ord.customerName} ${ord.customerPhone ? '('+formatPhoneDigits(ord.customerPhone)+')' : ''}</div>
                         <div style="font-size:12px; margin:4px 0; line-height:1.4;">${summaryTxt}</div>
                         <div style="font-size:13px; font-weight:700; color:var(--primary); text-align:right;">${ord.totalAmount.toLocaleString()} บาท</div>
                     </div>`;
@@ -1338,12 +1325,12 @@
             deliveryFee = 0;
 
             document.getElementById('pos-cust-name').value = ord.customerName || '';
-            document.getElementById('pos-cust-phone').value = ord.customerPhone || '';
+            document.getElementById('pos-cust-phone').value = formatPhoneDigits(ord.customerPhone || '');
             document.getElementById('pos-cust-address').value = ord.customerAddress || '';
             document.getElementById('pos-cust-note').value = ord.customerNote || '';
-            document.getElementById('pos-cust-search').value = ord.customerName ? `${ord.customerName} (${ord.customerPhone || ''})` : '';
+            document.getElementById('pos-cust-search').value = ord.customerName ? `${ord.customerName} (${formatPhoneDigits(ord.customerPhone || '')})` : formatPhoneDigits(ord.customerPhone || '');
 
-            updateReceiptMeta(ord.orderId, `${ord.customerName} (${ord.customerPhone})`, ord.channel || 'LINE');
+            updateReceiptMeta(ord.orderId, `${ord.customerName} (${formatPhoneDigits(ord.customerPhone)})`, ord.channel || 'LINE');
 
             posCart = parseOrderItemsList(ord.rawItems, ord.totalAmount);
             renderCartReceipt();
@@ -1351,7 +1338,7 @@
             saveToRecentOrders({
                 orderId: ord.orderId,
                 customerName: ord.customerName,
-                customerPhone: ord.customerPhone,
+                customerPhone: formatPhoneDigits(ord.customerPhone),
                 customerAddress: ord.customerAddress,
                 customerNote: ord.customerNote || '',
                 rawItems: ord.rawItems,
@@ -1379,7 +1366,7 @@
             saveToRecentOrders({
                 orderId: currentActiveOrderId || ('POS-' + Date.now().toString().slice(-4)),
                 customerName: name || 'ลูกค้าทั่วไป',
-                customerPhone: phone || '',
+                customerPhone: formatPhoneDigits(phone),
                 customerAddress: address || '',
                 customerNote: note || '',
                 rawItems: JSON.stringify(posCart),
@@ -1404,7 +1391,6 @@
             loadCloudOrders();
         }
 
-        /* บันทึกรูปภาพใบเสร็จสีขาวเต็มแผ่น คมชัด ไร้ขอบตัด */
         function exportReceiptPNG() {
             const area = document.getElementById('receipt-capture-area');
             const originalBorder = area.style.border;
