@@ -285,6 +285,7 @@
                     <option value="หน้าร้าน">ช่องทาง: หน้าร้าน</option>
                     <option value="LINE">ช่องทาง: LINE</option>
                     <option value="Facebook">ช่องทาง: Facebook</option>
+                    <option value="Online / Web">ช่องทาง: Online / Web</option>
                 </select>
             </div>
 
@@ -392,7 +393,8 @@
             </div>
 
             <div class="btn-action-group">
-                <button class="btn-pos-primary" onclick="completeCurrentOrder()">รับออเดอร์ / บันทึกเสร็จสิ้น</button>
+                <div id="sync-status" style="display:none; font-size:11.5px; font-weight:600; color:var(--primary); background:#fff5f4; border:1px solid #f5c6c0; border-radius:var(--radius-sm); padding:6px 10px; text-align:center;"></div>
+                <button class="btn-pos-primary" id="btn-complete-order" onclick="completeCurrentOrder()">รับออเดอร์ / บันทึกเสร็จสิ้น</button>
                 <button class="btn-pos-secondary" onclick="exportReceiptPNG()">บันทึกรูปภาพใบเสร็จ</button>
                 <button class="btn-pos-secondary" style="color:var(--text-sub);" onclick="clearCurrentCart()">ล้างบิลใหม่</button>
             </div>
@@ -491,12 +493,27 @@
     </div>
 
     <script>
-        const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyaPiqWEQhgM7nxSTDj67DU_8TsWVu36aJNLagaQ33OBRKGErUyiA2x3M9YiMF7kuvL/exec'; 
-        const ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbw_E7mdky1b9Jle_1YK6-a4SOgbm7nAHYJOtTgS3aNrizeFiOxwywT92BqI8NA7RrEeOA/exec';
+        const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQYkZ_hTjm6OWusr74xDWF3IOuH4LBxSS2bTDyWfOMpslYC1Rcd0UHYDvCQBoS0RTj/exec'; 
+        const ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbyQYkZ_hTjm6OWusr74xDWF3IOuH4LBxSS2bTDyWfOMpslYC1Rcd0UHYDvCQBoS0RTj/exec';
 
         const PREMIUM_KEYWORDS = /เมล่อน|เอนวี่|envy|กีวี่|กีวี|อะโวคาโด้|อะโวคาโด/i;
         const isSauceEligible = name => !name.includes('ฝรั่งแช่บ๊วย') && /มะม่วง|สับปะรด|แอปเปิ้ล|ฝรั่ง/.test(name);
         const isService = item => /บริการ|service|addon/i.test(String(item.category || ''));
+        const isDipCategory = cat => /น้ำจิ้ม|พริกเกลือ/.test(String(cat || ''));
+        const catKeyOf = cat => String(cat || '').replace(/\s+/g, '');
+        // ลำดับหมวดที่แสดงบนหน้าจอ (ชื่อต้องตรงกับคอลัมน์ category ในชีท ไม่สนช่องว่าง)
+        // หมวดที่ไม่อยู่ในรายการนี้จะถูกต่อท้ายตามลำดับที่พบในชีท
+        const CATEGORY_ORDER = [
+            'เมนูแนะนำตามฤดูกาล',
+            'เมนูผลไม้ทานเพลิน',
+            'เมนูแซ่บๆ',
+            'เมนูผลไม้สุขภาพ',
+            'ผลไม้นำเข้าพรีเมี่ยม',
+            'พริกเกลือและน้ำจิ้ม',
+            'บริการเสริมอื่น ๆ'
+        ];
+        // ค่าในคอลัมน์ available ที่ถือว่าสินค้าหมด/ไม่ขาย
+        const OUT_OF_STOCK_WORDS = ['out of stock', 'outofstock', 'false', '0', 'no', 'หมด', 'งดจำหน่าย'];
 
         function formatPhoneDigits(val) {
             let digits = String(val).replace(/\D/g, '').slice(0, 10);
@@ -525,6 +542,7 @@
         let knownOrderIds = new Set(), isFirstLoad = true, pendingToastOrder = null;
         let deliveryFee = 0;
         let activeSingleSauceItem = null;
+        let currentReceiptId = '', isSavingOrder = false;
 
         let recentOrders = JSON.parse(localStorage.getItem('poksai_recent_orders_5') || '[]');
 
@@ -557,6 +575,9 @@
             renderRecentOrders();
             loadCloudOrders();
             setInterval(loadCloudOrders, 8000);
+            updateSyncStatus();
+            flushPendingOrders();
+            setInterval(flushPendingOrders, 45000);
 
             document.addEventListener('click', (e) => {
                 const box = document.querySelector('.cust-input-box');
@@ -724,7 +745,7 @@
             }
         }
 
-        /* ------------------ เมนูและหมวดหมู่ราคา ------------------ */
+        /* ------------------ โหลดเมนูจากชีท ------------------ */
         async function loadMenu() {
             try {
                 let res = await fetch(`${MENU_SCRIPT_URL}?action=getData&t=${Date.now()}`);
@@ -733,7 +754,7 @@
                     res = await fetch(`${ORDER_API_URL}?action=getData&t=${Date.now()}`);
                     data = await res.json();
                 }
-                rawMenuItems = data.filter(i => i.available !== false);
+                rawMenuItems = data.map(normalizeMenuItem).filter(isItemAvailable);
                 buildCategoryFilterBar();
                 renderCategorizedMenu();
                 preRenderDuoList();
@@ -747,33 +768,54 @@
             return PREMIUM_KEYWORDS.test(item.name || '') || (Number(item.price) || 0) >= 90;
         }
 
+        /* ข้อมูลจากชีทเป็นข้อความทั้งหมด ต้องแปลงก่อนใช้ */
+        function normalizeMenuItem(i) {
+            const o = Object.assign({}, i);
+            o.id = String(i.id === undefined || i.id === null ? '' : i.id).trim();
+            o.name = String(i.name || '').trim();
+            o.price = Number(String(i.price === undefined || i.price === null ? '' : i.price).replace(/[^\d.]/g, '')) || 0;
+            o.category = String(i.category || '').trim() || 'อื่น ๆ';
+            return o;
+        }
+
+        function isItemAvailable(i) {
+            if (!i || !i.name) return false;
+            if (catKeyOf(i.category).includes('งดจำหน่าย')) return false;
+            const a = i.available;
+            if (a === false || a === 0) return false;
+            if (typeof a === 'string' && OUT_OF_STOCK_WORDS.includes(a.trim().toLowerCase())) return false;
+            return true;
+        }
+
+        // รายชื่อหมวดที่มีสินค้าพร้อมขาย เรียงตาม CATEGORY_ORDER
+        function getMenuCategories() {
+            const seen = [];
+            rawMenuItems.forEach(i => {
+                if (!seen.some(s => catKeyOf(s) === catKeyOf(i.category))) seen.push(i.category);
+            });
+            const rank = c => {
+                const idx = CATEGORY_ORDER.findIndex(o => catKeyOf(o) === catKeyOf(c));
+                return idx === -1 ? 999 : idx;
+            };
+            return seen
+                .map((c, idx) => ({ c, idx }))
+                .sort((x, y) => (rank(x.c) - rank(y.c)) || (x.idx - y.idx))
+                .map(x => x.c);
+        }
+
         function buildCategoryFilterBar() {
             const bar = document.getElementById('category-filter-bar');
-            bar.innerHTML = '<button class="cat-chip active" onclick="filterMenuCategory(\'all\', this)">ทั้งหมด</button>';
+            const cats = getMenuCategories();
+            if (currentFilter !== 'all' && !cats.some(c => catKeyOf(c) === catKeyOf(currentFilter))) currentFilter = 'all';
 
-            const cats = [...new Set(rawMenuItems.map(i => Number(i.category)))].filter(c => !isNaN(c) && c >= 40 && c <= 100).sort((a,b)=>a-b);
+            bar.innerHTML = '<button class="cat-chip' + (currentFilter === 'all' ? ' active' : '') + '" onclick="filterMenuCategory(\'all\', this)">ทั้งหมด</button>';
             cats.forEach(c => {
                 const btn = document.createElement('button');
-                btn.className = 'cat-chip';
-                btn.innerText = `${c} บาท`;
+                btn.className = 'cat-chip' + (catKeyOf(c) === catKeyOf(currentFilter) ? ' active' : '');
+                btn.innerText = c;
                 btn.onclick = () => filterMenuCategory(c, btn);
                 bar.appendChild(btn);
             });
-
-            if (rawMenuItems.some(i => !isNaN(Number(i.category)) && Number(i.category) > 100)) {
-                const btn = document.createElement('button');
-                btn.className = 'cat-chip';
-                btn.innerText = 'พรีเมียม';
-                btn.onclick = () => filterMenuCategory('premium', btn);
-                bar.appendChild(btn);
-            }
-            if (rawMenuItems.some(i => !isNaN(Number(i.category)) && Number(i.category) < 40 && !isService(i))) {
-                const btn = document.createElement('button');
-                btn.className = 'cat-chip';
-                btn.innerText = 'น้ำจิ้ม';
-                btn.onclick = () => filterMenuCategory('dips', btn);
-                bar.appendChild(btn);
-            }
         }
 
         function filterMenuCategory(catKey, elem) {
@@ -798,20 +840,14 @@
                     </div>`;
             }
 
-            const priceCats = [...new Set(rawMenuItems.map(i => Number(i.category)))].filter(c => !isNaN(c) && c >= 40 && c <= 100).sort((a,b)=>a-b);
-            priceCats.forEach(cat => {
-                if (currentFilter !== 'all' && currentFilter !== cat) return;
-                const items = rawMenuItems.filter(i => Number(i.category) === cat && !isService(i));
-                if (items.length) appendCategorySection(`กล่องละ ${cat} บาท`, items);
+            getMenuCategories().forEach(cat => {
+                if (currentFilter !== 'all' && catKeyOf(currentFilter) !== catKeyOf(cat)) return;
+                const items = rawMenuItems.filter(i => catKeyOf(i.category) === catKeyOf(cat));
+                if (items.length) appendCategorySection(cat, items);
             });
 
-            if (currentFilter === 'all' || currentFilter === 'premium') {
-                const prem = rawMenuItems.filter(i => !isNaN(Number(i.category)) && Number(i.category) > 100 && !isService(i));
-                if (prem.length) appendCategorySection('ผลไม้พรีเมียม', prem);
-            }
-            if (currentFilter === 'all' || currentFilter === 'dips') {
-                const dips = rawMenuItems.filter(i => !isNaN(Number(i.category)) && Number(i.category) < 40 && !isService(i));
-                if (dips.length) appendCategorySection('น้ำจิ้มและพริกเกลือ', dips);
+            if (rawMenuItems.length === 0) {
+                container.innerHTML += '<div style="text-align:center; padding:30px 0; color:var(--text-sub); font-size:13px;">ไม่มีเมนูที่พร้อมขายในชีท</div>';
             }
         }
 
@@ -838,7 +874,7 @@
             if (checkItemHasSauce(item)) {
                 openPosSingleSauceModal(item);
             } else {
-                addItemToCart(item.name, item.price, '');
+                addItemToCart(item.name, item.price, '', item.id);
             }
         }
 
@@ -858,7 +894,7 @@
             const finalPrice = Number(activeSingleSauceItem.price) + (Number(extraPrice) || 0);
             const sauceText = sauceName.includes('ไม่รับ') ? '' : sauceName;
             
-            addItemToCart(activeSingleSauceItem.name, finalPrice, sauceText);
+            addItemToCart(activeSingleSauceItem.name, finalPrice, sauceText, activeSingleSauceItem.id);
             closePosSingleSauceModal();
         }
 
@@ -866,7 +902,7 @@
         function preRenderDuoList() {
             const list = document.getElementById('pos-duo-fruit-list');
             list.innerHTML = '';
-            const eligible = rawMenuItems.filter(i => !isService(i) && !isNaN(Number(i.category)) && Number(i.category) >= 40 && !i.name.includes('ยำ'));
+            const eligible = rawMenuItems.filter(i => !isService(i) && !isDipCategory(i.category) && !i.name.includes('ยำ'));
             eligible.forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'duo-row';
@@ -967,7 +1003,7 @@
         }
 
         /* ------------------ ตะกร้าและคิดเงิน ------------------ */
-        function addItemToCart(name, price, sauce = '') {
+        function addItemToCart(name, price, sauce = '', id = '') {
             if (isCloudOrderLoaded) {
                 if (!confirm('ต้องการสลับจากการดูออเดอร์ LINE มาเปิดบิลใหม่ใช่หรือไม่?')) return;
                 clearCurrentCart();
@@ -976,7 +1012,7 @@
             if (exist) {
                 exist.qty += 1;
             } else {
-                posCart.push({ name, price, qty: 1, sauce });
+                posCart.push({ id: id ? String(id) : '', name, price, qty: 1, sauce });
             }
             renderCartReceipt();
         }
@@ -1055,16 +1091,38 @@
             document.getElementById('mobile-cart-badge').innerText = totalCount;
         }
 
+        // เลขที่บิลที่ใช้เป็น Order ID ในชีท รูปแบบ POS-YYYYMMDD-HHMMSS (ตรงกับ ORD-YYYYMMDD-HHMMSS ของออเดอร์ออนไลน์)
+        function makeOrderId() {
+            const d = new Date(), p = n => String(n).padStart(2, '0');
+            return `POS-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+        }
+        function ensureReceiptId() {
+            if (!currentReceiptId) currentReceiptId = makeOrderId();
+            return currentReceiptId;
+        }
+        // ค่า Channel ในชีท -> ค่าใน dropdown ของ POS (Pending/ค่าที่ไม่รู้จัก ถือเป็น LINE)
+        function toPickerChannel(ch) {
+            const c = String(ch || '').trim();
+            if (c === 'POS หน้าร้าน') return 'หน้าร้าน';
+            const sel = document.getElementById('channel-picker');
+            return Array.from(sel.options).some(o => o.value === c) ? c : 'LINE';
+        }
+        // ค่าใน dropdown ของ POS -> ค่า Channel ที่เขียนลงชีท
+        function toSheetChannel(pickerVal) {
+            return pickerVal === 'หน้าร้าน' ? 'POS หน้าร้าน' : pickerVal;
+        }
+
         function updateReceiptMeta(orderId = null, customerName = null, channel = null) {
-            document.getElementById('rc-order-id').innerText = orderId ? `เลขที่: ${orderId}` : `เลขที่: POS-${Date.now().toString().slice(-4)}`;
+            const shownId = orderId || currentActiveOrderId || ensureReceiptId();
+            document.getElementById('rc-order-id').innerText = `เลขที่: ${shownId}`;
             document.getElementById('rc-time').innerText = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
             updateReceiptCustomer();
-            document.getElementById('rc-channel').innerText = channel || document.getElementById('channel-picker').value;
-            if (channel) document.getElementById('channel-picker').value = channel;
+            if (channel) document.getElementById('channel-picker').value = toPickerChannel(channel);
+            document.getElementById('rc-channel').innerText = document.getElementById('channel-picker').value;
         }
 
         function clearCurrentCart() {
-            posCart = []; currentActiveOrderId = null; isCloudOrderLoaded = false; deliveryFee = 0;
+            posCart = []; currentActiveOrderId = null; isCloudOrderLoaded = false; deliveryFee = 0; currentReceiptId = '';
             document.getElementById('pos-cust-phone').value = '';
             document.getElementById('pos-cust-name').value = '';
             document.getElementById('pos-cust-address').value = '';
@@ -1098,7 +1156,7 @@
 
             if (items && Array.isArray(items) && items.length > 0) {
                 return items.map(item => {
-                    const name = item.name || item.title || item.product || 'ผลไม้พร้อมทาน';
+                    const name = item.name || item.item || item.title || item.product || 'ผลไม้พร้อมทาน';
                     const price = Number(item.price) || 0;
                     const qty = Number(item.qty || item.quantity) || 1;
                     let sauce = '';
@@ -1107,7 +1165,7 @@
                     } else if (Array.isArray(item.sauces)) {
                         sauce = item.sauces.filter(s => s && !s.includes('ไม่รับ')).join(', ');
                     }
-                    return { name, price, qty, sauce };
+                    return { id: item.id ? String(item.id) : '', name, price, qty, sauce };
                 });
             }
 
@@ -1171,6 +1229,9 @@
                 totalAmount = Number(ord.totalAmount || ord.total || ord.amount || ord['Total Price'] || ord['ยอดรวม']) || 0;
                 channel = String(ord.channel || ord['Channel'] || ord['ช่องทาง'] || 'LINE');
             }
+
+            // ในชีท Channel = Pending หมายถึงออเดอร์ที่ยังไม่ถูกรับ ไม่ใช่ช่องทางจริง
+            if (/^pending$/i.test(String(channel).trim())) channel = 'LINE';
 
             return { orderId, time, customerName, customerPhone, customerAddress, customerNote, rawItems, totalAmount, channel };
         }
@@ -1253,7 +1314,7 @@
                 else if (raw && Array.isArray(raw.orders)) list = raw.orders;
                 else if (raw && Array.isArray(raw.items)) list = raw.items;
 
-                const orders = list.map(parseOrderRow).filter(Boolean);
+                const orders = list.map(parseOrderRow).filter(Boolean).filter(o => !isQueuedOrderId(o.orderId));
                 renderCloudOrders(orders);
             } catch (e) {
                 console.error("Fetch pending orders error:", e);
@@ -1352,43 +1413,136 @@
             if (window.innerWidth <= 992) switchMobileTab('checkout');
         }
 
+        /* ------------------ บันทึกออเดอร์ลงชีท (แท็บ Orders) ------------------ */
+        const PENDING_SAVE_KEY = 'poksai_pending_order_saves';
+        let isFlushingSaves = false;
+
+        function loadPendingSaves() {
+            try { return JSON.parse(localStorage.getItem(PENDING_SAVE_KEY) || '[]'); } catch (e) { return []; }
+        }
+        function storePendingSaves(list) {
+            try { localStorage.setItem(PENDING_SAVE_KEY, JSON.stringify(list)); } catch (e) {}
+            updateSyncStatus();
+        }
+        function queueOrderSave(order) {
+            const list = loadPendingSaves().filter(o => o.orderId !== order.orderId);
+            list.push(order);
+            storePendingSaves(list);
+        }
+        function isQueuedOrderId(orderId) {
+            return loadPendingSaves().some(o => o.orderId === orderId);
+        }
+        function updateSyncStatus() {
+            const el = document.getElementById('sync-status');
+            if (!el) return;
+            const n = loadPendingSaves().length;
+            el.style.display = n > 0 ? 'block' : 'none';
+            el.innerText = `ยังไม่ได้ส่งขึ้นชีท ${n} ออเดอร์ (ระบบจะลองส่งใหม่อัตโนมัติ)`;
+        }
+
+        // ส่งออเดอร์ไป Apps Script แล้วอ่านผลตอบกลับจริง (ไม่ใช้ no-cors) สำเร็จเมื่อได้ {ok:true}
+        async function postOrderToSheet(order) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 12000);
+            try {
+                const res = await fetch(ORDER_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'saveOrder', order }),
+                    signal: ctrl.signal
+                });
+                const json = await res.json();
+                return !!(json && json.ok === true);
+            } catch (e) {
+                return false;
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        async function flushPendingOrders() {
+            if (isFlushingSaves) return;
+            isFlushingSaves = true;
+            try {
+                for (const order of loadPendingSaves()) {
+                    if (await postOrderToSheet(order)) {
+                        const sent = JSON.stringify(order);
+                        storePendingSaves(loadPendingSaves().filter(o => JSON.stringify(o) !== sent));
+                    } else {
+                        break;
+                    }
+                }
+            } finally {
+                isFlushingSaves = false;
+            }
+        }
+
+        function buildOrderPayload(orderId, name, phone, address, note) {
+            return {
+                orderId,
+                name,
+                phone: formatPhoneDigits(phone),
+                address,
+                note,
+                items: posCart.map(i => ({
+                    id: i.id || '',
+                    name: i.name,
+                    price: Number(i.price) || 0,
+                    qty: Number(i.qty) || 1,
+                    sauces: i.sauce ? [i.sauce] : []
+                })),
+                deliveryFee: Number(deliveryFee) || 0,
+                channel: toSheetChannel(document.getElementById('channel-picker').value)
+            };
+        }
+
         async function completeCurrentOrder() {
             if (posCart.length === 0) { alert('กรุณาเลือกรายการสินค้าก่อนบันทึก'); return; }
+            if (isSavingOrder) return;
+            isSavingOrder = true;
 
-            const name = document.getElementById('pos-cust-name').value.trim();
-            const phone = document.getElementById('pos-cust-phone').value.trim();
-            const address = document.getElementById('pos-cust-address').value.trim();
-            const note = document.getElementById('pos-cust-note').value.trim();
+            const btn = document.getElementById('btn-complete-order');
+            const btnLabel = btn ? btn.innerText : '';
+            if (btn) { btn.disabled = true; btn.innerText = 'กำลังบันทึก...'; }
 
-            if (phone || name) saveCustomerToDatabase(name, phone, address);
+            try {
+                const name = document.getElementById('pos-cust-name').value.trim();
+                const phone = document.getElementById('pos-cust-phone').value.trim();
+                const address = document.getElementById('pos-cust-address').value.trim();
+                const note = document.getElementById('pos-cust-note').value.trim();
+                const orderId = currentActiveOrderId || ensureReceiptId();
 
-            const currentTotal = posCart.reduce((sum, i) => sum + (i.price * i.qty), 0) + deliveryFee;
-            saveToRecentOrders({
-                orderId: currentActiveOrderId || ('POS-' + Date.now().toString().slice(-4)),
-                customerName: name || 'ลูกค้าทั่วไป',
-                customerPhone: formatPhoneDigits(phone),
-                customerAddress: address || '',
-                customerNote: note || '',
-                rawItems: JSON.stringify(posCart),
-                totalAmount: currentTotal,
-                channel: document.getElementById('channel-picker').value,
-                deliveryFee: deliveryFee,
-                time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-            });
+                if (phone || name) saveCustomerToDatabase(name, phone, address);
 
-            if (currentActiveOrderId) {
-                try {
-                    await fetch(`${ORDER_API_URL}?action=completeOrder&orderId=${encodeURIComponent(currentActiveOrderId)}&t=${Date.now()}`, { mode: 'no-cors' });
-                    alert(`บันทึกคำสั่งซื้อ ${currentActiveOrderId} สำเร็จ`);
-                } catch (e) {
-                    alert('บันทึกคำสั่งซื้อเรียบร้อยแล้ว');
-                }
-            } else {
-                alert('บันทึกการขายหน้าร้านเรียบร้อยแล้ว');
+                const currentTotal = posCart.reduce((sum, i) => sum + (i.price * i.qty), 0) + deliveryFee;
+                saveToRecentOrders({
+                    orderId,
+                    customerName: name || 'ลูกค้าทั่วไป',
+                    customerPhone: formatPhoneDigits(phone),
+                    customerAddress: address || '',
+                    customerNote: note || '',
+                    rawItems: JSON.stringify(posCart),
+                    totalAmount: currentTotal,
+                    channel: document.getElementById('channel-picker').value,
+                    deliveryFee: deliveryFee,
+                    time: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
+                });
+
+                // เขียนลงชีท Orders: ถ้ามี Order ID นี้อยู่แล้ว (เช่น ออเดอร์ Pending จาก LINE) จะอัปเดตแถวเดิม ไม่เพิ่มแถวซ้ำ
+                const order = buildOrderPayload(orderId, name, phone, address, note);
+                const ok = await postOrderToSheet(order);
+                if (!ok) queueOrderSave(order);
+
+                alert(ok
+                    ? `บันทึกออเดอร์ ${orderId} ลงชีทเรียบร้อย`
+                    : `บันทึกบิล ${orderId} แล้ว แต่ส่งขึ้นชีทไม่สำเร็จ ระบบจะลองส่งใหม่อัตโนมัติ`);
+
+                clearCurrentCart();
+                loadCloudOrders();
+            } finally {
+                isSavingOrder = false;
+                if (btn) { btn.disabled = false; btn.innerText = btnLabel; }
             }
-
-            clearCurrentCart();
-            loadCloudOrders();
         }
 
         function exportReceiptPNG() {
