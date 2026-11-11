@@ -207,6 +207,10 @@
         .btn-action-group { display: flex; flex-direction: column; gap: 8px; }
         .btn-pos-primary { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
         .btn-pos-primary:hover { background: var(--primary-dark); }
+        .btn-pos-confirm { background: #16a34a; color: #fff; border: none; padding: 13px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; }
+        .btn-pos-confirm:hover { background: #15803d; }
+        .btn-pos-confirm:disabled { background: #86c9a0; cursor: default; }
+        .tag-new { background: var(--primary); color: #fff; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
         .btn-pos-secondary { background: var(--gray-btn); color: var(--text-main); border: 1px solid var(--border); padding: 9px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
         .btn-pos-secondary:hover { background: #e2e8f0; }
 
@@ -233,6 +237,10 @@
     </style>
 </head>
 <body>
+    <div id="auth-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9999; background:#b3422f; color:#fff; padding:8px 12px; font-size:13px; align-items:center; justify-content:center; gap:10px;">
+        <span>ยังไม่ได้ใส่รหัสลับ หรือรหัสไม่ถูกต้อง ออเดอร์ใหม่และรายชื่อลูกค้าจะไม่โหลด</span>
+        <button type="button" onclick="promptAdminKey()" style="border:0; border-radius:4px; padding:4px 10px; font-weight:600; cursor:pointer;">ใส่รหัสลับ</button>
+    </div>
 
     <div class="order-alert-toast" id="order-alert-toast">
         <div>
@@ -259,18 +267,8 @@
 
             <div class="orders-split-section">
                 <div class="sub-section-header">
-                    <span>ออเดอร์เข้าใหม่</span>
-                    <span id="pending-sub-count" style="font-size:11px; color:var(--text-sub);">0 รายการ</span>
-                </div>
-                <div class="orders-list-scroll" id="pending-orders-container">
-                    <div style="text-align:center; padding-top:24px; font-size:12px; color:var(--text-sub);">ไม่มีออเดอร์ค้างในระบบ</div>
-                </div>
-            </div>
-
-            <div class="orders-split-section" style="border-top:1px solid var(--border);">
-                <div class="sub-section-header">
-                    <span>5 รายการล่าสุด</span>
-                    <span style="font-size:11px; color:var(--text-sub);">กดเพื่อดึงข้อมูลกลับ</span>
+                    <span>ออเดอร์ล่าสุด</span>
+                    <span style="font-size:11px; color:var(--text-sub);">ใหม่ขึ้นก่อน + 5 รายการล่าสุด</span>
                 </div>
                 <div class="orders-list-scroll" id="recent-orders-container">
                     <div style="text-align:center; padding-top:24px; font-size:12px; color:var(--text-sub);">ยังไม่มีประวัติออเดอร์</div>
@@ -394,8 +392,7 @@
 
             <div class="btn-action-group">
                 <div id="sync-status" style="display:none; font-size:11.5px; font-weight:600; color:var(--primary); background:#fff5f4; border:1px solid #f5c6c0; border-radius:var(--radius-sm); padding:6px 10px; text-align:center;"></div>
-                <button class="btn-pos-primary" id="btn-complete-order" onclick="completeCurrentOrder()">รับออเดอร์ / บันทึกเสร็จสิ้น</button>
-                <button class="btn-pos-secondary" onclick="exportReceiptPNG()">บันทึกรูปภาพใบเสร็จ</button>
+                <button class="btn-pos-confirm" id="btn-complete-order" onclick="completeCurrentOrder()">รับออเดอร์</button>
                 <button class="btn-pos-secondary" style="color:var(--text-sub);" onclick="clearCurrentCart()">ล้างบิลใหม่</button>
             </div>
         </div>
@@ -496,19 +493,41 @@
         const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQYkZ_hTjm6OWusr74xDWF3IOuH4LBxSS2bTDyWfOMpslYC1Rcd0UHYDvCQBoS0RTj/exec'; 
         const ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbyQYkZ_hTjm6OWusr74xDWF3IOuH4LBxSS2bTDyWfOMpslYC1Rcd0UHYDvCQBoS0RTj/exec';
 
-        const PREMIUM_KEYWORDS = /เมล่อน|เอนวี่|envy|กีวี่|กีวี|อะโวคาโด้|อะโวคาโด/i;
+        /* ------------------ รหัสลับ POS (ตรงกับ ADMIN_KEY ใน Apps Script) ------------------ */
+        const ADMIN_KEY_STORAGE = 'poksai_admin_key';
+        function getAdminKey() { try { return localStorage.getItem(ADMIN_KEY_STORAGE) || ''; } catch (e) { return ''; } }
+        function adminQS() { return '&key=' + encodeURIComponent(getAdminKey()); }
+        function isUnauthorized(r) { return !!(r && !Array.isArray(r) && r.error === 'unauthorized'); }
+        function showAuthBanner() {
+            const b = document.getElementById('auth-banner');
+            if (b) b.style.display = 'flex';
+        }
+        function promptAdminKey() {
+            const v = prompt('ใส่รหัสลับของ POS (ค่า ADMIN_KEY ที่ตั้งไว้ใน Apps Script):', '');
+            if (v === null) return;
+            try { localStorage.setItem(ADMIN_KEY_STORAGE, String(v).trim()); } catch (e) {}
+            const b = document.getElementById('auth-banner');
+            if (b) b.style.display = 'none';
+            loadCustomerDatabase();
+            loadCloudOrders();
+            flushPendingOrders();
+        }
+        const PREMIUM_CATEGORY = 'ผลไม้นำเข้าพรีเมี่ยม';
         const isSauceEligible = name => !name.includes('ฝรั่งแช่บ๊วย') && /มะม่วง|สับปะรด|แอปเปิ้ล|ฝรั่ง/.test(name);
         const isService = item => /บริการ|service|addon/i.test(String(item.category || ''));
         const isDipCategory = cat => /น้ำจิ้ม|พริกเกลือ/.test(String(cat || ''));
         const catKeyOf = cat => String(cat || '').replace(/\s+/g, '');
+        // ข้อมูลจากชีท/ลูกค้าห้ามใส่ลง innerHTML ตรง ๆ: esc() สำหรับข้อความ, enc() สำหรับค่าที่อยู่ใน onclick
+        const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const enc = v => encodeURIComponent(String(v == null ? '' : v)).replace(/'/g, '%27');
         // ลำดับหมวดที่แสดงบนหน้าจอ (ชื่อต้องตรงกับคอลัมน์ category ในชีท ไม่สนช่องว่าง)
         // หมวดที่ไม่อยู่ในรายการนี้จะถูกต่อท้ายตามลำดับที่พบในชีท
         const CATEGORY_ORDER = [
             'เมนูแนะนำตามฤดูกาล',
-            'เมนูผลไม้ทานเพลิน',
-            'เมนูแซ่บๆ',
-            'เมนูผลไม้สุขภาพ',
             'ผลไม้นำเข้าพรีเมี่ยม',
+            'เมนูผลไม้ทานเพลิน',
+            'เมนูผลไม้สุขภาพ',
+            'เมนูแซ่บๆ',
             'พริกเกลือและน้ำจิ้ม',
             'บริการเสริมอื่น ๆ'
         ];
@@ -543,6 +562,7 @@
         let deliveryFee = 0;
         let activeSingleSauceItem = null;
         let currentReceiptId = '', isSavingOrder = false;
+        let pendingOrdersList = [];
 
         let recentOrders = JSON.parse(localStorage.getItem('poksai_recent_orders_5') || '[]');
 
@@ -607,8 +627,9 @@
 
         async function loadCustomerDatabase() {
             try {
-                const res = await fetch(`${ORDER_API_URL}?action=getCustomers&t=${Date.now()}`);
+                const res = await fetch(`${ORDER_API_URL}?action=getCustomers${adminQS()}&t=${Date.now()}`);
                 const raw = await res.json();
+                if (isUnauthorized(raw)) { showAuthBanner(); return; }
                 let list = [];
                 if (Array.isArray(raw)) list = raw;
                 else if (raw && Array.isArray(raw.data)) list = raw.data;
@@ -660,12 +681,12 @@
             let html = '';
             matched.forEach(c => {
                 html += `
-                    <div class="cust-drop-item" onclick="selectCustomerFromDropdown('${encodeURIComponent(JSON.stringify(c))}')">
+                    <div class="cust-drop-item" onclick="selectCustomerFromDropdown('${enc(JSON.stringify(c))}')">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span class="cust-drop-name">${c.name || 'ลูกค้าทั่วไป'}</span>
-                            <span class="cust-drop-phone">${formatPhoneDigits(c.phone || '')}</span>
+                            <span class="cust-drop-name">${esc(c.name || 'ลูกค้าทั่วไป')}</span>
+                            <span class="cust-drop-phone">${esc(formatPhoneDigits(c.phone || ''))}</span>
                         </div>
-                        ${c.address ? `<div class="cust-drop-addr">${c.address}</div>` : ''}
+                        ${c.address ? `<div class="cust-drop-addr">${esc(c.address)}</div>` : ''}
                     </div>
                 `;
             });
@@ -724,7 +745,7 @@
                 updateCustomerCountBadge();
             }
             try {
-                const url = `${ORDER_API_URL}?action=saveCustomer&name=${encodeURIComponent(name || '-')}&phone=${encodeURIComponent(formatted)}&address=${encodeURIComponent(address || '-')}&t=${Date.now()}`;
+                const url = `${ORDER_API_URL}?action=saveCustomer&name=${encodeURIComponent(name || '-')}&phone=${encodeURIComponent(formatted)}&address=${encodeURIComponent(address || '-')}${adminQS()}&t=${Date.now()}`;
                 await fetch(url, { mode: 'no-cors' });
             } catch (err) {}
         }
@@ -765,7 +786,7 @@
 
         function isPremiumFruit(item) {
             if (!item) return false;
-            return PREMIUM_KEYWORDS.test(item.name || '') || (Number(item.price) || 0) >= 90;
+            return catKeyOf(item.category) === catKeyOf(PREMIUM_CATEGORY);
         }
 
         /* ข้อมูลจากชีทเป็นข้อความทั้งหมด ต้องแปลงก่อนใช้ */
@@ -853,14 +874,14 @@
 
         function appendCategorySection(title, items) {
             const container = document.getElementById('categorized-menu-container');
-            let html = `<div class="category-section-title">${title}</div><div class="menu-grid">`;
+            let html = `<div class="category-section-title">${esc(title)}</div><div class="menu-grid">`;
             items.forEach(item => {
                 const hasSauce = checkItemHasSauce(item);
                 html += `
-                    <div class="item-tile" onclick="handlePosItemClick('${item.id}')">
+                    <div class="item-tile" onclick="handlePosItemClick(decodeURIComponent('${enc(item.id)}'))">
                         ${hasSauce ? '<span class="sauce-tag">มีน้ำจิ้ม</span>' : ''}
-                        <div class="tile-name">${item.name}</div>
-                        <div class="tile-price">${item.price} บาท</div>
+                        <div class="tile-name">${esc(item.name)}</div>
+                        <div class="tile-price">${esc(item.price)} บาท</div>
                     </div>`;
             });
             html += `</div>`;
@@ -906,7 +927,7 @@
             eligible.forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'duo-row';
-                row.innerHTML = `<span>${item.name}</span><input type="checkbox" id="pos-cb-${item.id}">`;
+                row.innerHTML = `<span>${esc(item.name)}</span><input type="checkbox" id="pos-cb-${esc(item.id)}">`;
                 row.onclick = (e) => {
                     const cb = document.getElementById(`pos-cb-${item.id}`);
                     if (e.target.tagName !== 'INPUT') cb.checked = !cb.checked;
@@ -1059,8 +1080,8 @@
                 html += `
                     <div class="receipt-item-row">
                         <div class="item-info-col">
-                            <div class="item-name-text">${item.name}</div>
-                            ${item.sauce ? `<div class="item-sub-text">น้ำจิ้ม: ${item.sauce}</div>` : ''}
+                            <div class="item-name-text">${esc(item.name)}</div>
+                            ${item.sauce ? `<div class="item-sub-text">น้ำจิ้ม: ${esc(item.sauce)}</div>` : ''}
                             <div class="item-sub-text">${item.price} บาท x ${item.qty}</div>
                             
                             <div class="qty-adjuster-bar" data-html2canvas-ignore="true">
@@ -1104,6 +1125,7 @@
         function toPickerChannel(ch) {
             const c = String(ch || '').trim();
             if (c === 'POS หน้าร้าน') return 'หน้าร้าน';
+            if (/^web\s*\/\s*facebook$/i.test(c)) return 'Facebook';
             const sel = document.getElementById('channel-picker');
             return Array.from(sel.options).some(o => o.value === c) ? c : 'LINE';
         }
@@ -1251,13 +1273,32 @@
         function renderRecentOrders() {
             const container = document.getElementById('recent-orders-container');
             if (!container) return;
-            if (recentOrders.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding-top:24px; font-size:12px; color:var(--text-sub);">ยังไม่มีประวัติออเดอร์</div>';
-                return;
-            }
 
             let html = '';
+
+            // ออเดอร์ใหม่ที่ยังไม่ได้รับ: ขึ้นก่อนเสมอและไม่จำกัดจำนวน กันออเดอร์ตกหล่น
+            const pendingIds = new Set(pendingOrdersList.map(o => o.orderId));
+            pendingOrdersList.forEach(ord => {
+                const itemsList = parseOrderItemsList(ord.rawItems, ord.totalAmount);
+                const summaryTxt = itemsList.map(i => `${i.name} x${i.qty}`).join(', ');
+                const isCurrent = currentActiveOrderId === ord.orderId;
+
+                html += `
+                    <div class="order-card ${isCurrent ? 'selected' : ''}" style="border-left: 3px solid var(--primary); background:#fffaf9;" onclick="selectCloudOrder(decodeURIComponent('${enc(ord.orderId)}'), '${enc(JSON.stringify(ord))}')">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:12.5px; font-weight:700;">${esc(ord.orderId)}</span>
+                            <span class="tag-new">ใหม่</span>
+                        </div>
+                        <div style="font-size:11.5px; color:var(--text-sub); margin-top:2px;">${esc(ord.customerName || 'ลูกค้าทั่วไป')} ${ord.customerPhone ? esc('(' + formatPhoneDigits(ord.customerPhone) + ')') : ''}</div>
+                        <div style="font-size:11.5px; margin:3px 0; color:var(--text-main); line-height:1.3;">${esc(summaryTxt)}</div>
+                        <div style="font-size:12.5px; font-weight:700; color:var(--primary); text-align:right;">${Number(ord.totalAmount).toLocaleString()} บาท</div>
+                    </div>
+                `;
+            });
+
+            // 5 รายการล่าสุดที่รับแล้ว (ไม่ซ้ำกับออเดอร์ใหม่ด้านบน)
             recentOrders.forEach((ord, idx) => {
+                if (pendingIds.has(ord.orderId)) return;
                 const itemsList = parseOrderItemsList(ord.rawItems, ord.totalAmount);
                 const summaryTxt = itemsList.map(i => `${i.name} x${i.qty}`).join(', ');
                 const isCurrent = currentActiveOrderId === ord.orderId;
@@ -1265,15 +1306,19 @@
                 html += `
                     <div class="order-card ${isCurrent ? 'selected' : ''}" style="border-left: 3px solid #64748b;" onclick="selectRecentOrder(${idx})">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:12.5px; font-weight:700;">${ord.orderId}</span>
-                            <span style="font-size:10px; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px; font-weight:600;">${ord.time || 'ล่าสุด'}</span>
+                            <span style="font-size:12.5px; font-weight:700;">${esc(ord.orderId)}</span>
+                            <span style="font-size:10px; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px; font-weight:600;">${esc(ord.time || 'ล่าสุด')}</span>
                         </div>
-                        <div style="font-size:11.5px; color:var(--text-sub); margin-top:2px;">${ord.customerName || 'ลูกค้าทั่วไป'} ${ord.customerPhone ? '(' + formatPhoneDigits(ord.customerPhone) + ')' : ''}</div>
-                        <div style="font-size:11.5px; margin:3px 0; color:var(--text-main); line-height:1.3;">${summaryTxt}</div>
+                        <div style="font-size:11.5px; color:var(--text-sub); margin-top:2px;">${esc(ord.customerName || 'ลูกค้าทั่วไป')} ${ord.customerPhone ? esc('(' + formatPhoneDigits(ord.customerPhone) + ')') : ''}</div>
+                        <div style="font-size:11.5px; margin:3px 0; color:var(--text-main); line-height:1.3;">${esc(summaryTxt)}</div>
                         <div style="font-size:12.5px; font-weight:700; color:var(--text-main); text-align:right;">${Number(ord.totalAmount).toLocaleString()} บาท</div>
                     </div>
                 `;
             });
+
+            if (!html) {
+                html = '<div style="text-align:center; padding-top:24px; font-size:12px; color:var(--text-sub);">ยังไม่มีออเดอร์</div>';
+            }
             container.innerHTML = html;
         }
 
@@ -1306,8 +1351,9 @@
         /* ------------------ ออเดอร์เข้าใหม่จาก LINE ------------------ */
         async function loadCloudOrders() {
             try {
-                const res = await fetch(`${ORDER_API_URL}?action=getPendingOrders&t=${Date.now()}`);
+                const res = await fetch(`${ORDER_API_URL}?action=getPendingOrders${adminQS()}&t=${Date.now()}`);
                 const raw = await res.json();
+                if (isUnauthorized(raw)) { showAuthBanner(); return; }
                 let list = [];
                 if (Array.isArray(raw)) list = raw;
                 else if (raw && Array.isArray(raw.data)) list = raw.data;
@@ -1322,9 +1368,7 @@
         }
 
         function renderCloudOrders(orders) {
-            const container = document.getElementById('pending-orders-container');
             document.getElementById('badge-count').innerText = orders.length;
-            document.getElementById('pending-sub-count').innerText = `${orders.length} รายการ`;
             document.getElementById('mobile-order-badge').innerText = orders.length;
 
             let newlyArrived = [];
@@ -1345,25 +1389,8 @@
             }
             isFirstLoad = false;
 
-            if (orders.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding-top:24px; font-size:12px; color:var(--text-sub);">ไม่มีออเดอร์ค้างในระบบ</div>';
-                return;
-            }
-
-            let html = '';
-            orders.forEach(ord => {
-                const itemsList = parseOrderItemsList(ord.rawItems, ord.totalAmount);
-                const summaryTxt = itemsList.map(i => `${i.name} x${i.qty}`).join(', ');
-
-                html += `
-                    <div class="order-card ${currentActiveOrderId === ord.orderId ? 'selected' : ''}" onclick="selectCloudOrder('${ord.orderId}', '${encodeURIComponent(JSON.stringify(ord))}')">
-                        <div style="font-size:13px; font-weight:700;">${ord.orderId}</div>
-                        <div style="font-size:12px; color:var(--text-sub);">${ord.customerName} ${ord.customerPhone ? '('+formatPhoneDigits(ord.customerPhone)+')' : ''}</div>
-                        <div style="font-size:12px; margin:4px 0; line-height:1.4;">${summaryTxt}</div>
-                        <div style="font-size:13px; font-weight:700; color:var(--primary); text-align:right;">${ord.totalAmount.toLocaleString()} บาท</div>
-                    </div>`;
-            });
-            container.innerHTML = html;
+            pendingOrdersList = orders;
+            renderRecentOrders();
         }
 
         function showOrderToast(ord) {
@@ -1396,20 +1423,7 @@
             posCart = parseOrderItemsList(ord.rawItems, ord.totalAmount);
             renderCartReceipt();
 
-            saveToRecentOrders({
-                orderId: ord.orderId,
-                customerName: ord.customerName,
-                customerPhone: formatPhoneDigits(ord.customerPhone),
-                customerAddress: ord.customerAddress,
-                customerNote: ord.customerNote || '',
-                rawItems: ord.rawItems,
-                totalAmount: ord.totalAmount,
-                channel: ord.channel,
-                deliveryFee: 0,
-                time: ord.time || new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
-            });
-
-            document.querySelectorAll('.order-card').forEach(c => c.classList.remove('selected'));
+            renderRecentOrders();
             if (window.innerWidth <= 992) switchMobileTab('checkout');
         }
 
@@ -1448,10 +1462,11 @@
                 const res = await fetch(ORDER_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'saveOrder', order }),
+                    body: JSON.stringify({ action: 'saveOrder', key: getAdminKey(), order }),
                     signal: ctrl.signal
                 });
                 const json = await res.json();
+                if (isUnauthorized(json)) showAuthBanner();
                 return !!(json && json.ok === true);
             } catch (e) {
                 return false;
@@ -1530,12 +1545,19 @@
 
                 // เขียนลงชีท Orders: ถ้ามี Order ID นี้อยู่แล้ว (เช่น ออเดอร์ Pending จาก LINE) จะอัปเดตแถวเดิม ไม่เพิ่มแถวซ้ำ
                 const order = buildOrderPayload(orderId, name, phone, address, note);
-                const ok = await postOrderToSheet(order);
+                // ส่งขึ้นชีท + ดาวน์โหลดรูปใบเสร็จพร้อมกัน (ต้องทำก่อนล้างบิล)
+                // รูปใบเสร็จไม่ขึ้นกับผลการส่งชีท เพราะใช้ส่งของได้เลย
+                const [ok, imgOk] = await Promise.all([
+                    postOrderToSheet(order),
+                    Promise.resolve().then(() => exportReceiptPNG(orderId)).then(() => true).catch(() => false)
+                ]);
                 if (!ok) queueOrderSave(order);
 
-                alert(ok
+                let msg = ok
                     ? `บันทึกออเดอร์ ${orderId} ลงชีทเรียบร้อย`
-                    : `บันทึกบิล ${orderId} แล้ว แต่ส่งขึ้นชีทไม่สำเร็จ ระบบจะลองส่งใหม่อัตโนมัติ`);
+                    : `บันทึกบิล ${orderId} แล้ว แต่ส่งขึ้นชีทไม่สำเร็จ ระบบจะลองส่งใหม่อัตโนมัติ`;
+                if (!imgOk) msg += '\nบันทึกรูปใบเสร็จไม่สำเร็จ (ดึงออเดอร์จากรายการล่าสุดแล้วกดรับออเดอร์อีกครั้งเพื่อสร้างรูปใหม่)';
+                alert(msg);
 
                 clearCurrentCart();
                 loadCloudOrders();
@@ -1545,7 +1567,7 @@
             }
         }
 
-        function exportReceiptPNG() {
+        function exportReceiptPNG(orderId) {
             const area = document.getElementById('receipt-capture-area');
             const originalBorder = area.style.border;
             const originalBoxShadow = area.style.boxShadow;
@@ -1553,24 +1575,26 @@
             area.style.border = 'none';
             area.style.boxShadow = 'none';
             area.style.backgroundColor = '#ffffff';
+            const restore = () => {
+                area.style.border = originalBorder;
+                area.style.boxShadow = originalBoxShadow;
+            };
 
-            html2canvas(area, { 
+            return html2canvas(area, {
                 scale: 3,
                 backgroundColor: '#ffffff',
                 logging: false,
                 useCORS: true
             }).then(canvas => {
-                area.style.border = originalBorder;
-                area.style.boxShadow = originalBoxShadow;
-
+                restore();
                 const link = document.createElement('a');
-                link.download = `Receipt-${Date.now()}.png`;
+                link.download = `Receipt-${orderId || Date.now()}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             }).catch(err => {
-                area.style.border = originalBorder;
-                area.style.boxShadow = originalBoxShadow;
+                restore();
                 console.error('Export receipt error:', err);
+                throw err;
             });
         }
     </script>
