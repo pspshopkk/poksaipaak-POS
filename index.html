@@ -237,9 +237,14 @@
     </style>
 </head>
 <body>
-    <div id="auth-banner" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9999; background:#b3422f; color:#fff; padding:8px 12px; font-size:13px; align-items:center; justify-content:center; gap:10px;">
-        <span>ยังไม่ได้ใส่รหัสลับ หรือรหัสไม่ถูกต้อง ออเดอร์ใหม่และรายชื่อลูกค้าจะไม่โหลด</span>
-        <button type="button" onclick="promptAdminKey()" style="border:0; border-radius:4px; padding:4px 10px; font-weight:600; cursor:pointer;">ใส่รหัสลับ</button>
+    <div id="auth-banner" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; padding:16px;">
+        <form id="auth-form" onsubmit="submitAdminLogin(event)" style="background:#fff; border-radius:12px; padding:24px 22px; width:100%; max-width:340px; box-shadow:0 10px 30px rgba(0,0,0,0.25); text-align:center;">
+            <div style="font-size:18px; font-weight:700; margin-bottom:6px;">เข้าสู่ระบบแอดมิน</div>
+            <div style="font-size:12.5px; color:#666; margin-bottom:14px;">กรอกรหัสแอดมินเพื่อโหลดออเดอร์ใหม่และรายชื่อลูกค้า</div>
+            <input id="auth-key-input" type="password" autocomplete="current-password" placeholder="รหัสแอดมิน" style="width:100%; box-sizing:border-box; padding:10px 12px; font-size:15px; border:1px solid #ccc; border-radius:8px; text-align:center;">
+            <div id="auth-error" style="display:none; color:#b3422f; font-size:12.5px; margin-top:8px;">รหัสไม่ถูกต้อง กรุณาลองใหม่</div>
+            <button type="submit" style="width:100%; margin-top:14px; padding:10px; border:0; border-radius:8px; background:#b3422f; color:#fff; font-size:15px; font-weight:600; cursor:pointer;">เข้าสู่ระบบ</button>
+        </form>
     </div>
 
     <div class="order-alert-toast" id="order-alert-toast">
@@ -493,21 +498,37 @@
         const MENU_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQYkZ_hTjm6OWusr74xDWF3IOuH4LBxSS2bTDyWfOMpslYC1Rcd0UHYDvCQBoS0RTj/exec'; 
         const ORDER_API_URL = 'https://script.google.com/macros/s/AKfycbyQYkZ_hTjm6OWusr74xDWF3IOuH4LBxSS2bTDyWfOMpslYC1Rcd0UHYDvCQBoS0RTj/exec';
 
-        /* ------------------ รหัสลับ POS (ตรงกับ ADMIN_KEY ใน Apps Script) ------------------ */
+        /* ------------------ เข้าสู่ระบบแอดมิน (รหัสต้องตรงกับ ADMIN_KEY ใน Apps Script) ------------------ */
         const ADMIN_KEY_STORAGE = 'poksai_admin_key';
         function getAdminKey() { try { return localStorage.getItem(ADMIN_KEY_STORAGE) || ''; } catch (e) { return ''; } }
         function adminQS() { return '&key=' + encodeURIComponent(getAdminKey()); }
         function isUnauthorized(r) { return !!(r && !Array.isArray(r) && r.error === 'unauthorized'); }
+        // หน้าต่างเข้าสู่ระบบแอดมินกลางจอ: เปิดเมื่อเซิร์ฟเวอร์ตอบ unauthorized
         function showAuthBanner() {
-            const b = document.getElementById('auth-banner');
-            if (b) b.style.display = 'flex';
+            const box = document.getElementById('auth-banner');
+            if (!box) return;
+            const wasOpen = box.style.display === 'flex';
+            const hadKey = getAdminKey();
+            if (hadKey) {
+                // มีรหัสที่เก็บไว้แต่ถูกปฏิเสธ = รหัสผิด/ถูกเปลี่ยน
+                try { localStorage.removeItem(ADMIN_KEY_STORAGE); } catch (e) {}
+                document.getElementById('auth-error').style.display = 'block';
+            }
+            box.style.display = 'flex';
+            if (!wasOpen) {
+                const inp = document.getElementById('auth-key-input');
+                if (inp && inp.focus) inp.focus();
+            }
         }
-        function promptAdminKey() {
-            const v = prompt('ใส่รหัสลับของ POS (ค่า ADMIN_KEY ที่ตั้งไว้ใน Apps Script):', '');
-            if (v === null) return;
-            try { localStorage.setItem(ADMIN_KEY_STORAGE, String(v).trim()); } catch (e) {}
-            const b = document.getElementById('auth-banner');
-            if (b) b.style.display = 'none';
+        function submitAdminLogin(ev) {
+            if (ev && ev.preventDefault) ev.preventDefault();
+            const inp = document.getElementById('auth-key-input');
+            const v = String(inp.value || '').trim();
+            if (!v) return;
+            try { localStorage.setItem(ADMIN_KEY_STORAGE, v); } catch (e) {}
+            inp.value = '';
+            document.getElementById('auth-error').style.display = 'none';
+            document.getElementById('auth-banner').style.display = 'none';
             loadCustomerDatabase();
             loadCloudOrders();
             flushPendingOrders();
