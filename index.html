@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ปอกใส่ปาก - ระบบจัดการจุดขาย POS</title>
     <!-- โหลดฟอนต์ Prompt (ไม่มีหัว สไตล์โมเดิร์น) และ Sarabun -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -24,11 +24,11 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-page); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { background-color: var(--bg-page); color: var(--text-main); height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* แถบแจ้งเตือนออเดอร์ใหม่จาก LINE */
         .order-alert-toast {
-            position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+            position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 50%; transform: translateX(-50%);
             background: #ffffff; border: 2px solid var(--primary); border-radius: var(--radius-md);
             box-shadow: 0 10px 25px rgba(192, 57, 43, 0.2); padding: 10px 16px; z-index: 3000;
             display: none; align-items: center; gap: 12px; max-width: 90%;
@@ -39,10 +39,10 @@
         /* แถบนำทางสำหรับ iPad และมือถือ */
         .mobile-nav-bar {
             display: none; background: #ffffff; border-bottom: 1px solid var(--border);
-            padding: 8px 12px; gap: 8px; z-index: 50; flex-shrink: 0;
+            padding: calc(env(safe-area-inset-top, 0px) + 12px) 12px 8px; gap: 8px; z-index: 50; flex-shrink: 0;
         }
         .nav-tab-btn {
-            flex: 1; padding: 9px 4px; border: 1px solid var(--border); background: var(--gray-btn);
+            flex: 1; min-height: 44px; padding: 9px 4px; border: 1px solid var(--border); background: var(--gray-btn);
             border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text-main);
             cursor: pointer; text-align: center;
         }
@@ -230,8 +230,8 @@
 
         @media (max-width: 992px) {
             .mobile-nav-bar { display: flex; }
-            .pos-layout { height: calc(100vh - 54px); }
-            .panel-orders, .panel-menu, .panel-checkout { display: none; width: 100%; border: none; height: 100%; }
+            .pos-layout { height: auto; min-height: 0; }
+            .panel-orders, .panel-menu, .panel-checkout { display: none; width: 100%; border: none; height: auto; align-self: stretch; min-height: 0; }
             .panel-orders.active, .panel-menu.active, .panel-checkout.active { display: flex; }
         }
     </style>
@@ -241,7 +241,7 @@
         <form id="auth-form" onsubmit="submitAdminLogin(event)" style="background:#fff; border-radius:12px; padding:24px 22px; width:100%; max-width:340px; box-shadow:0 10px 30px rgba(0,0,0,0.25); text-align:center;">
             <div style="font-size:18px; font-weight:700; margin-bottom:6px;">เข้าสู่ระบบแอดมิน</div>
             <div style="font-size:12.5px; color:#666; margin-bottom:14px;">กรอกรหัสแอดมินเพื่อโหลดออเดอร์ใหม่และรายชื่อลูกค้า</div>
-            <input id="auth-key-input" type="password" autocomplete="current-password" placeholder="รหัสแอดมิน" style="width:100%; box-sizing:border-box; padding:10px 12px; font-size:15px; border:1px solid #ccc; border-radius:8px; text-align:center;">
+            <input id="auth-key-input" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="รหัสแอดมิน" style="width:100%; box-sizing:border-box; padding:10px 12px; font-size:15px; border:1px solid #ccc; border-radius:8px; text-align:center;">
             <div id="auth-error" style="display:none; color:#b3422f; font-size:12.5px; margin-top:8px;">รหัสไม่ถูกต้อง กรุณาลองใหม่</div>
             <button type="submit" style="width:100%; margin-top:14px; padding:10px; border:0; border-radius:8px; background:#b3422f; color:#fff; font-size:15px; font-weight:600; cursor:pointer;">เข้าสู่ระบบ</button>
         </form>
@@ -273,7 +273,7 @@
             <div class="orders-split-section">
                 <div class="sub-section-header">
                     <span>ออเดอร์ล่าสุด</span>
-                    <span style="font-size:11px; color:var(--text-sub);">ใหม่ขึ้นก่อน + 5 รายการล่าสุด</span>
+                    <span style="font-size:11px; color:var(--text-sub);">ใหม่ขึ้นก่อน + 3 รายการล่าสุด</span>
                 </div>
                 <div class="orders-list-scroll" id="recent-orders-container">
                     <div style="text-align:center; padding-top:24px; font-size:12px; color:var(--text-sub);">ยังไม่มีประวัติออเดอร์</div>
@@ -501,12 +501,15 @@
         /* ------------------ เข้าสู่ระบบแอดมิน (รหัสต้องตรงกับ ADMIN_KEY ใน Apps Script) ------------------ */
         const ADMIN_KEY_STORAGE = 'poksai_admin_key';
         function getAdminKey() { try { return localStorage.getItem(ADMIN_KEY_STORAGE) || ''; } catch (e) { return ''; } }
-        function adminQS() { return '&key=' + encodeURIComponent(getAdminKey()); }
+        function adminQS(k) { return '&key=' + encodeURIComponent(k === undefined ? getAdminKey() : k); }
         function isUnauthorized(r) { return !!(r && !Array.isArray(r) && r.error === 'unauthorized'); }
         // หน้าต่างเข้าสู่ระบบแอดมินกลางจอ: เปิดเมื่อเซิร์ฟเวอร์ตอบ unauthorized
-        function showAuthBanner() {
+        // sentKey = รหัสที่ใช้ตอนส่งคำขอนั้น ถ้าตอนนี้รหัสในเครื่องเปลี่ยนไปแล้ว (เพิ่งล็อกอินใหม่)
+        // แปลว่าเป็นคำตอบ "ไม่ผ่าน" ของคำขอเก่าที่ส่งก่อนล็อกอิน ต้องไม่เอามาลบรหัสที่เพิ่งกรอกถูก
+        function showAuthBanner(sentKey) {
             const box = document.getElementById('auth-banner');
             if (!box) return;
+            if (sentKey !== undefined && sentKey !== getAdminKey()) return;
             const wasOpen = box.style.display === 'flex';
             const hadKey = getAdminKey();
             if (hadKey) {
@@ -523,7 +526,8 @@
         function submitAdminLogin(ev) {
             if (ev && ev.preventDefault) ev.preventDefault();
             const inp = document.getElementById('auth-key-input');
-            const v = String(inp.value || '').trim();
+            // ล้างช่องว่าง/อักขระล่องหนที่คีย์บอร์ดมือถือแทรก และแปลงตัวเต็มความกว้างเป็นตัวปกติ
+            const v = String(inp.value || '').normalize('NFKC').replace(/[\s\u200b-\u200d\ufeff]/g, '');
             if (!v) return;
             try { localStorage.setItem(ADMIN_KEY_STORAGE, v); } catch (e) {}
             inp.value = '';
@@ -531,6 +535,7 @@
             document.getElementById('auth-banner').style.display = 'none';
             loadCustomerDatabase();
             loadCloudOrders();
+            loadRecentOrders();
             flushPendingOrders();
         }
         const PREMIUM_CATEGORY = 'ผลไม้นำเข้าพรีเมี่ยม';
@@ -586,6 +591,9 @@
         let pendingOrdersList = [];
 
         let recentOrders = JSON.parse(localStorage.getItem('poksai_recent_orders_5') || '[]');
+        // ประวัติออเดอร์ที่รับแล้วจากชีท (ใช้ได้ทุกเครื่อง) รวมกับที่บันทึกในเครื่องนี้
+        const RECENT_LIMIT = 3;
+        let serverRecentOrders = [];
 
         let audioCtx = null;
         function playAlertSound() {
@@ -616,6 +624,8 @@
             renderRecentOrders();
             loadCloudOrders();
             setInterval(loadCloudOrders, 8000);
+            loadRecentOrders();
+            setInterval(loadRecentOrders, 30000);
             updateSyncStatus();
             flushPendingOrders();
             setInterval(flushPendingOrders, 45000);
@@ -647,10 +657,12 @@
         }
 
         async function loadCustomerDatabase() {
+            const k = getAdminKey();
+            if (!k) { showAuthBanner(k); return; }
             try {
-                const res = await fetch(`${ORDER_API_URL}?action=getCustomers${adminQS()}&t=${Date.now()}`);
+                const res = await fetch(`${ORDER_API_URL}?action=getCustomers${adminQS(k)}&t=${Date.now()}`);
                 const raw = await res.json();
-                if (isUnauthorized(raw)) { showAuthBanner(); return; }
+                if (isUnauthorized(raw)) { showAuthBanner(k); return; }
                 let list = [];
                 if (Array.isArray(raw)) list = raw;
                 else if (raw && Array.isArray(raw.data)) list = raw.data;
@@ -1239,7 +1251,7 @@
 
         function parseOrderRow(ord) {
             if (!ord) return null;
-            let orderId = '', customerName = '', customerPhone = '', customerAddress = '', customerNote = '', rawItems = '', totalAmount = 0, channel = 'LINE', time = '';
+            let orderId = '', customerName = '', customerPhone = '', customerAddress = '', customerNote = '', rawItems = '', totalAmount = 0, channel = 'LINE', time = '', deliveryFee = 0;
 
             if (Array.isArray(ord)) {
                 orderId = String(ord[0] || 'ORD-' + Date.now().toString().slice(-4));
@@ -1271,12 +1283,13 @@
                 rawItems = ord['Items Data'] || ord.itemsData || ord.items || ord.itemsSummary || ord.rawItems || ord['รายการ'] || ord.details || '';
                 totalAmount = Number(ord.totalAmount || ord.total || ord.amount || ord['Total Price'] || ord['ยอดรวม']) || 0;
                 channel = String(ord.channel || ord['Channel'] || ord['ช่องทาง'] || 'LINE');
+                deliveryFee = Number(ord.deliveryFee) || 0;
             }
 
             // ในชีท Channel = Pending หมายถึงออเดอร์ที่ยังไม่ถูกรับ ไม่ใช่ช่องทางจริง
             if (/^pending$/i.test(String(channel).trim())) channel = 'LINE';
 
-            return { orderId, time, customerName, customerPhone, customerAddress, customerNote, rawItems, totalAmount, channel };
+            return { orderId, time, customerName, customerPhone, customerAddress, customerNote, rawItems, totalAmount, channel, deliveryFee };
         }
 
         /* ------------------ จัดการประวัติ 5 ออเดอร์ล่าสุด ------------------ */
@@ -1284,11 +1297,31 @@
             if (!orderData || !orderData.orderId) return;
             recentOrders = recentOrders.filter(o => o.orderId !== orderData.orderId);
             recentOrders.unshift(orderData);
-            if (recentOrders.length > 5) recentOrders = recentOrders.slice(0, 5);
+            if (recentOrders.length > RECENT_LIMIT) recentOrders = recentOrders.slice(0, RECENT_LIMIT);
             try {
                 localStorage.setItem('poksai_recent_orders_5', JSON.stringify(recentOrders));
             } catch (e) {}
             renderRecentOrders();
+        }
+
+        // เวลาจากชีท (yyyy-mm-dd hh:mm:ss) -> วันนี้แสดง hh:mm วันอื่นแสดง dd/mm hh:mm
+        function shortOrderTime(t) {
+            const m = String(t || '').match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);
+            if (!m) return String(t || '');
+            const d = new Date();
+            const hhmm = m[4].padStart(2, '0') + ':' + m[5];
+            const today = d.getFullYear() === +m[1] && d.getMonth() + 1 === +m[2] && d.getDate() === +m[3];
+            return today ? hhmm : `${m[3]}/${m[2]} ${hhmm}`;
+        }
+
+        // รายการ "รับแล้ว" ที่แสดง: ที่บันทึกในเครื่องแต่ยังไม่ขึ้นชีทมาก่อน แล้วตามด้วยประวัติจากชีท (ไม่ซ้ำ Order ID)
+        function getDisplayRecent() {
+            const pendingIds = new Set(pendingOrdersList.map(o => o.orderId));
+            const serverIds = new Set(serverRecentOrders.map(o => o.orderId));
+            const localOnly = recentOrders.filter(o => !serverIds.has(o.orderId));
+            return localOnly.concat(serverRecentOrders)
+                .filter(o => !pendingIds.has(o.orderId))
+                .slice(0, RECENT_LIMIT);
         }
 
         function renderRecentOrders() {
@@ -1317,18 +1350,17 @@
                 `;
             });
 
-            // 5 รายการล่าสุดที่รับแล้ว (ไม่ซ้ำกับออเดอร์ใหม่ด้านบน)
-            recentOrders.forEach((ord, idx) => {
-                if (pendingIds.has(ord.orderId)) return;
+            // 3 รายการล่าสุดที่รับแล้ว (ไม่ซ้ำกับออเดอร์ใหม่ด้านบน)
+            getDisplayRecent().forEach(ord => {
                 const itemsList = parseOrderItemsList(ord.rawItems, ord.totalAmount);
                 const summaryTxt = itemsList.map(i => `${i.name} x${i.qty}`).join(', ');
                 const isCurrent = currentActiveOrderId === ord.orderId;
 
                 html += `
-                    <div class="order-card ${isCurrent ? 'selected' : ''}" style="border-left: 3px solid #64748b;" onclick="selectRecentOrder(${idx})">
+                    <div class="order-card ${isCurrent ? 'selected' : ''}" style="border-left: 3px solid #64748b;" onclick="selectRecentOrder(decodeURIComponent('${enc(ord.orderId)}'))">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span style="font-size:12.5px; font-weight:700;">${esc(ord.orderId)}</span>
-                            <span style="font-size:10px; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px; font-weight:600;">${esc(ord.time || 'ล่าสุด')}</span>
+                            <span style="font-size:10px; background:#f1f5f9; color:#475569; padding:2px 6px; border-radius:4px; font-weight:600;">${esc(shortOrderTime(ord.time) || 'ล่าสุด')}</span>
                         </div>
                         <div style="font-size:11.5px; color:var(--text-sub); margin-top:2px;">${esc(ord.customerName || 'ลูกค้าทั่วไป')} ${ord.customerPhone ? esc('(' + formatPhoneDigits(ord.customerPhone) + ')') : ''}</div>
                         <div style="font-size:11.5px; margin:3px 0; color:var(--text-main); line-height:1.3;">${esc(summaryTxt)}</div>
@@ -1343,8 +1375,8 @@
             container.innerHTML = html;
         }
 
-        function selectRecentOrder(idx) {
-            const ord = recentOrders[idx];
+        function selectRecentOrder(orderId) {
+            const ord = getDisplayRecent().find(o => o.orderId === orderId);
             if (!ord) return;
 
             currentActiveOrderId = ord.orderId;
@@ -1371,10 +1403,12 @@
 
         /* ------------------ ออเดอร์เข้าใหม่จาก LINE ------------------ */
         async function loadCloudOrders() {
+            const k = getAdminKey();
+            if (!k) { showAuthBanner(k); return; }
             try {
-                const res = await fetch(`${ORDER_API_URL}?action=getPendingOrders${adminQS()}&t=${Date.now()}`);
+                const res = await fetch(`${ORDER_API_URL}?action=getPendingOrders${adminQS(k)}&t=${Date.now()}`);
                 const raw = await res.json();
-                if (isUnauthorized(raw)) { showAuthBanner(); return; }
+                if (isUnauthorized(raw)) { showAuthBanner(k); return; }
                 let list = [];
                 if (Array.isArray(raw)) list = raw;
                 else if (raw && Array.isArray(raw.data)) list = raw.data;
@@ -1385,6 +1419,22 @@
                 renderCloudOrders(orders);
             } catch (e) {
                 console.error("Fetch pending orders error:", e);
+            }
+        }
+
+        // ดึงประวัติออเดอร์ที่รับแล้วจากชีท (ต้องใช้สคริปต์รุ่นที่มี getRecentOrders ถ้าเป็นรุ่นเก่าจะข้ามไปใช้ประวัติในเครื่อง)
+        async function loadRecentOrders() {
+            const k = getAdminKey();
+            if (!k) { showAuthBanner(k); return; }
+            try {
+                const res = await fetch(`${ORDER_API_URL}?action=getRecentOrders&limit=${RECENT_LIMIT}${adminQS(k)}&t=${Date.now()}`);
+                const raw = await res.json();
+                if (isUnauthorized(raw)) { showAuthBanner(k); return; }
+                if (!raw || raw.recent !== true || !Array.isArray(raw.data)) return;
+                serverRecentOrders = raw.data.map(parseOrderRow).filter(Boolean).filter(o => !isQueuedOrderId(o.orderId));
+                renderRecentOrders();
+            } catch (e) {
+                console.error('Fetch recent orders error:', e);
             }
         }
 
@@ -1479,15 +1529,16 @@
         async function postOrderToSheet(order) {
             const ctrl = new AbortController();
             const timer = setTimeout(() => ctrl.abort(), 12000);
+            const k = getAdminKey();
             try {
                 const res = await fetch(ORDER_API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'saveOrder', key: getAdminKey(), order }),
+                    body: JSON.stringify({ action: 'saveOrder', key: k, order }),
                     signal: ctrl.signal
                 });
                 const json = await res.json();
-                if (isUnauthorized(json)) showAuthBanner();
+                if (isUnauthorized(json)) showAuthBanner(k);
                 return !!(json && json.ok === true);
             } catch (e) {
                 return false;
@@ -1582,6 +1633,7 @@
 
                 clearCurrentCart();
                 loadCloudOrders();
+                loadRecentOrders();
             } finally {
                 isSavingOrder = false;
                 if (btn) { btn.disabled = false; btn.innerText = btnLabel; }
